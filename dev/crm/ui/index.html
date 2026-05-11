@@ -76,80 +76,63 @@
 
   <!-- CONTENT -->
     <main class="content">
-        <div class="col col--gap-lg"></div>
+          <div style="padding: var(--space-6);">
 
 
 
-<div class="card">
-  <div class="card__header">
-    <span class="card__title">Progress Bars</span>
-  </div>
-  <div class="card__body">
-    <div class="col col--gap-md">
+            <div class="row row--gap-md">
 
-      <div class="progress">
-        <div class="progress__header">
-          <span class="progress__label">Default</span>
-          <span class="progress__value">72%</span>
-        </div>
-        <div class="progress__track">
-          <div class="progress__fill" style="width:72%;"></div>
-        </div>
-      </div>
+            <!-- basic dropdown -->
+            <div class="dropdown">
+                <button class="btn btn--secondary btn--sm" data-dropdown-trigger>
+                Actions
+                <i data-lucide="chevron-down" class="btn__icon"></i>
+                </button>
+                <div class="dropdown__menu">
+                <div class="dropdown__label">Contact</div>
+                <button class="dropdown__item">
+                    <i data-lucide="pencil" class="dropdown__icon"></i>
+                    Edit
+                </button>
+                <button class="dropdown__item">
+                    <i data-lucide="copy" class="dropdown__icon"></i>
+                    Duplicate
+                </button>
+                <button class="dropdown__item dropdown__item--disabled">
+                    <i data-lucide="share" class="dropdown__icon"></i>
+                    Share
+                </button>
+                <div class="dropdown__divider"></div>
+                <button class="dropdown__item dropdown__item--danger">
+                    <i data-lucide="trash-2" class="dropdown__icon"></i>
+                    Delete
+                </button>
+                </div>
+            </div>
 
-      <div class="progress progress--success">
-        <div class="progress__header">
-          <span class="progress__label">Success</span>
-          <span class="progress__value">90%</span>
-        </div>
-        <div class="progress__track">
-          <div class="progress__fill" style="width:90%;"></div>
-        </div>
-      </div>
+            <!-- icon trigger -->
+            <div class="dropdown">
+                <button class="btn btn--ghost btn--icon" data-dropdown-trigger>
+                <i data-lucide="ellipsis" class="btn__icon"></i>
+                </button>
+                <div class="dropdown__menu">
+                <button class="dropdown__item">
+                    <i data-lucide="eye" class="dropdown__icon"></i>
+                    View
+                </button>
+                <button class="dropdown__item">
+                    <i data-lucide="pencil" class="dropdown__icon"></i>
+                    Edit
+                </button>
+                <div class="dropdown__divider"></div>
+                <button class="dropdown__item dropdown__item--danger">
+                    <i data-lucide="trash-2" class="dropdown__icon"></i>
+                    Delete
+                </button>
+                </div>
+            </div>
 
-      <div class="progress progress--warning">
-        <div class="progress__header">
-          <span class="progress__label">Warning</span>
-          <span class="progress__value">45%</span>
-        </div>
-        <div class="progress__track">
-          <div class="progress__fill" style="width:45%;"></div>
-        </div>
-      </div>
-
-      <div class="progress progress--danger">
-        <div class="progress__header">
-          <span class="progress__label">Danger</span>
-          <span class="progress__value">20%</span>
-        </div>
-        <div class="progress__track">
-          <div class="progress__fill" style="width:20%;"></div>
-        </div>
-      </div>
-
-      <div class="progress progress--sm progress--striped">
-        <div class="progress__header">
-          <span class="progress__label">Striped SM</span>
-          <span class="progress__value">60%</span>
-        </div>
-        <div class="progress__track">
-          <div class="progress__fill" style="width:60%;"></div>
-        </div>
-      </div>
-
-      <div class="progress progress--lg progress--animated">
-        <div class="progress__header">
-          <span class="progress__label">Animated LG</span>
-          <span class="progress__value">55%</span>
-        </div>
-        <div class="progress__track">
-          <div class="progress__fill" style="width:55%;"></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
+            </div>
 
 
 
@@ -165,7 +148,7 @@
 </div>
 
 <script>
-  lucide.createIcons();
+
 
   const layout = document.getElementById('layout');
   const toggle = document.getElementById('sidebarToggle');
@@ -394,8 +377,48 @@ function initTabs() {
 
 initTabs();
 
+function initDropdowns() {
+  document.querySelectorAll('.dropdown').forEach(dropdown => {
+    const trigger = dropdown.querySelector('[data-dropdown-trigger]');
+    const menu    = dropdown.querySelector('.dropdown__menu');
+    if (!trigger || !menu) return;
+
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = menu.classList.contains('dropdown__menu--open');
+      document.querySelectorAll('.dropdown__menu--open').forEach(m => m.classList.remove('dropdown__menu--open'));
+      if (!isOpen) menu.classList.add('dropdown__menu--open');
+    });
+
+    // keyboard navigation
+    trigger.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        menu.classList.toggle('dropdown__menu--open');
+      }
+    });
+
+    menu.addEventListener('keydown', e => {
+      const items = [...menu.querySelectorAll('.dropdown__item:not(.dropdown__item--disabled)')];
+      const focused = document.activeElement;
+      const idx = items.indexOf(focused);
+      if (e.key === 'ArrowDown') { e.preventDefault(); items[Math.min(idx + 1, items.length - 1)]?.focus(); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); items[Math.max(idx - 1, 0)]?.focus(); }
+      if (e.key === 'Escape')    { menu.classList.remove('dropdown__menu--open'); trigger.focus(); }
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown__menu--open').forEach(m => m.classList.remove('dropdown__menu--open'));
+  });
+}
 
 
+
+initDropdowns();
+
+
+lucide.createIcons();
 </script>
 
 </body>

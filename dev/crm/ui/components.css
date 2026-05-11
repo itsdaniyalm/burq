@@ -1813,3 +1813,102 @@
   from { background-position: 16px 0; }
   to   { background-position: 0 0; }
 }
+
+/* ── DROPDOWN ── */
+.dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.dropdown__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface-raised);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-dropdown);
+  padding: var(--space-1);
+  display: none;
+  flex-direction: column;
+  left: auto;
+}
+
+.dropdown__menu--open {
+  display: flex;
+}
+
+.dropdown__menu--left {
+  right: auto;
+  left: 0;
+}
+
+.dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: 400;
+  color: var(--foreground);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.dropdown__item:hover,
+.dropdown__item--focused {
+  background: var(--muted);
+}
+
+.dropdown__item--danger {
+  color: var(--color-error);
+}
+
+.dropdown__item--danger:hover {
+  background: var(--color-error);
+  color: var(--white);
+}
+
+.dropdown__item--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.dropdown__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+
+.dropdown__item--danger .dropdown__icon {
+  color: var(--color-error);
+}
+
+.dropdown__item--danger:hover .dropdown__icon {
+  color: var(--white);
+}
+
+.dropdown__divider {
+  height: var(--border-width);
+  background: var(--border);
+  margin: var(--space-1) 0;
+}
+
+.dropdown__label {
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}

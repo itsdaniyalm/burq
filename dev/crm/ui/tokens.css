@@ -77,7 +77,7 @@
   --transition-slow: 200ms ease;
 
   /* ── Z-INDEX ── */
-  --z-dropdown: 100;
+  --z-dropdown: 150;
   --z-sticky: 10;
   --z-sidebar: 20;
   --z-modal: 200;

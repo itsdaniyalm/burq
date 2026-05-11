@@ -218,8 +218,7 @@
 /* ── CONTENT ── */
 .content {
   grid-area: content;
-  padding: var(--space-6);
-  overflow-y: auto;
   min-width: 0;
   align-content: start;
+  position: relative;
 }
