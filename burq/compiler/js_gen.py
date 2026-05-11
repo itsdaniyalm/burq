@@ -5,7 +5,7 @@ def generate_js(app: App) -> str:
     api_base = app.api_base
     api_key  = app.api_key
 
-    return f"""/* ⚡ Burq Runtime — https://burq.dev */
+    main_js = f"""/* ⚡ Burq Runtime — https://burq.dev */
 
 const Burq = {{
   apiBase: "{api_base}",
@@ -239,7 +239,6 @@ function initCustomSelects() {{
       }}
     }}
 
-    // init state
     valueEl.style.display  = "none";
     clearBtn.style.display = "none";
     options.forEach(o => {{
@@ -437,6 +436,7 @@ function burqInit() {{
   initDropdowns();
   initCustomSelects();
   initTables();
+  initTableExport();
   initActiveNav();
   lucide.createIcons();
 }}
@@ -447,3 +447,35 @@ if (document.readyState === "loading") {{
   burqInit();
 }}
 """
+
+    export_js = r"""
+// ── TABLE EXPORT ──
+function initTableExport() {
+  document.querySelectorAll(".table-wrapper[data-fetch-endpoint]").forEach(wrapper => {
+    const endpoint  = wrapper.dataset.fetchEndpoint || "export";
+    const exportBtn = wrapper.querySelector(".btn--secondary");
+    if (!exportBtn) return;
+    exportBtn.addEventListener("click", () => {
+      const table   = wrapper.querySelector("table");
+      const headers = [...table.querySelectorAll("thead th")]
+        .filter(th => !th.classList.contains("table__checkbox-col") && !th.classList.contains("table__actions-col"))
+        .map(th => th.textContent.trim().replace(/\s+/g, " "));
+      const rows = [...table.querySelectorAll("tbody tr")].map(tr =>
+        [...tr.querySelectorAll("td")]
+          .filter(td => !td.classList.contains("table__checkbox-col") && !td.classList.contains("table__actions-col"))
+          .map(td => { const t = td.innerText.trim().replace(/\n/g, " ").replace(/,/g, ";"); return `"${t}"`; })
+      );
+      const csv  = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = endpoint.replace(/\//g, "_").replace(/^_/, "") + ".csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  });
+}
+"""
+
+    return main_js + export_js
