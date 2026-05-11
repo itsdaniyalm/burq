@@ -279,11 +279,15 @@ async function initTables() {{
     if (!endpoint) continue;
 
     try {{
-      const data = await Burq.fetch(method, endpoint);
-      const tbody = wrapper.querySelector("tbody");
-      if (!tbody || !Array.isArray(data)) continue;
+      const allData = await Burq.fetch(method, endpoint);
+      const tbody   = wrapper.querySelector("tbody");
+      if (!tbody || !Array.isArray(allData)) continue;
 
-      tbody.innerHTML = data.map(row => {{
+      const PAGE_SIZE = 10;
+      let currentPage = 1;
+      let filteredData = [...allData];
+
+      function renderRow(row) {{
         const checkTd = checkable
           ? `<td class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></td>`
           : "";
@@ -298,19 +302,17 @@ async function initTables() {{
           if (!cfg) return `<td>${{val}}</td>`;
 
           switch (cfg.type) {{
-
             case "BadgeColumn": {{
               const variantMap = cfg.variant_map || {{}};
               const variant    = variantMap[val.toLowerCase()] || "default";
               const label      = val.charAt(0).toUpperCase() + val.slice(1);
               return `<td><span class="badge badge--${{variant}}">${{label}}</span></td>`;
             }}
-
             case "AvatarColumn": {{
-              const name    = row[cfg.initials_key || col] || "";
-              const initials= name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
-              const sub     = cfg.sub_key ? row[cfg.sub_key] || "" : "";
-              const subHtml = sub ? `<div class="table__cell-sub">${{sub}}</div>` : "";
+              const name     = row[cfg.initials_key || col] || "";
+              const initials = name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+              const sub      = cfg.sub_key ? row[cfg.sub_key] || "" : "";
+              const subHtml  = sub ? `<div class="table__cell-sub">${{sub}}</div>` : "";
               return `<td>
                 <div class="table__cell-with-avatar">
                   <div class="table__avatar">${{initials}}</div>
@@ -321,32 +323,27 @@ async function initTables() {{
                 </div>
               </td>`;
             }}
-
             case "CurrencyColumn": {{
               const prefix   = cfg.prefix || "$";
               const decimals = cfg.decimals ?? 0;
               const num      = parseFloat(val) || 0;
               return `<td>${{prefix}}${{num.toLocaleString("en-US", {{minimumFractionDigits: decimals, maximumFractionDigits: decimals}})}}</td>`;
             }}
-
             case "DateColumn": {{
-              const date = new Date(val);
+              const date      = new Date(val);
               const formatted = isNaN(date) ? val : date.toLocaleDateString("en-US", {{year:"numeric", month:"short", day:"numeric"}});
               return `<td>${{formatted}}</td>`;
             }}
-
             case "BoolColumn": {{
               const isTrue  = val === "true" || val === "1" || val === "True";
-              const label   = isTrue ? (cfg.true_label  || "Yes") : (cfg.false_label  || "No");
+              const label   = isTrue ? (cfg.true_label   || "Yes") : (cfg.false_label   || "No");
               const variant = isTrue ? (cfg.true_variant || "success") : (cfg.false_variant || "danger");
               return `<td><span class="badge badge--${{variant}}">${{label}}</span></td>`;
             }}
-
             case "TextColumn": {{
               const cls = cfg.muted ? ' class="muted"' : "";
               return `<td${{cls}}>${{val}}</td>`;
             }}
-
             default:
               return `<td>${{val}}</td>`;
           }}
@@ -361,12 +358,91 @@ async function initTables() {{
           : "";
 
         return `<tr>${{checkTd}}${{cells}}${{actionTd}}</tr>`;
-      }}).join("");
+      }}
 
-      const info = wrapper.querySelector(".table-pagination__info");
-      if (info) info.textContent = `Showing 1–${{Math.min(10, data.length)}} of ${{data.length}}`;
+      function renderPage() {{
+        const start   = (currentPage - 1) * PAGE_SIZE;
+        const end     = start + PAGE_SIZE;
+        const pageData = filteredData.slice(start, end);
+        tbody.innerHTML = pageData.map(renderRow).join("");
+        lucide.createIcons();
+        updatePagination();
+      }}
 
-      lucide.createIcons();
+      function updatePagination() {{
+        const total     = filteredData.length;
+        const totalPages = Math.ceil(total / PAGE_SIZE);
+        const start     = Math.min((currentPage - 1) * PAGE_SIZE + 1, total);
+        const end       = Math.min(currentPage * PAGE_SIZE, total);
+
+        const info = wrapper.querySelector(".table-pagination__info");
+        if (info) info.textContent = total > 0
+          ? `Showing ${{start}}–${{end}} of ${{total}}`
+          : "No results";
+
+        const controls = wrapper.querySelector(".table-pagination__controls");
+        if (!controls) return;
+
+        controls.innerHTML = "";
+
+        // prev button
+        const prev = document.createElement("button");
+        prev.className = "table-pagination__btn";
+        prev.innerHTML = `<i data-lucide="chevron-left" style="width:14px;height:14px;"></i>`;
+        prev.disabled  = currentPage === 1;
+        prev.addEventListener("click", () => {{ currentPage--; renderPage(); }});
+        controls.appendChild(prev);
+
+        // page buttons
+        for (let i = 1; i <= totalPages; i++) {{
+          if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - currentPage) > 1) {{
+            if (i === 3 || i === totalPages - 2) {{
+              const dots = document.createElement("span");
+              dots.className = "table-pagination__btn";
+              dots.textContent = "…";
+              dots.style.cursor = "default";
+              controls.appendChild(dots);
+            }}
+            continue;
+          }}
+          const btn = document.createElement("button");
+          btn.className = "table-pagination__btn" + (i === currentPage ? " table-pagination__btn--active" : "");
+          btn.textContent = i;
+          btn.addEventListener("click", () => {{ currentPage = i; renderPage(); }});
+          controls.appendChild(btn);
+        }}
+
+        // next button
+        const next = document.createElement("button");
+        next.className = "table-pagination__btn";
+        next.innerHTML = `<i data-lucide="chevron-right" style="width:14px;height:14px;"></i>`;
+        next.disabled  = currentPage === totalPages || totalPages === 0;
+        next.addEventListener("click", () => {{ currentPage++; renderPage(); }});
+        controls.appendChild(next);
+
+        lucide.createIcons();
+      }}
+
+      // ── SEARCH ──
+      const searchInput = wrapper.querySelector(".table-search__input");
+      if (searchInput) {{
+        searchInput.addEventListener("input", e => {{
+          const query = e.target.value.toLowerCase().trim();
+          filteredData  = query
+            ? allData.filter(row =>
+                columns.some(col => {{
+                  const val = String(row[col] ?? "").toLowerCase();
+                  return val.includes(query);
+                }})
+              )
+            : [...allData];
+          currentPage = 1;
+          renderPage();
+        }});
+      }}
+
+      renderPage();
+
     }} catch (err) {{
       console.error(`Burq table error (${{endpoint}}):`, err);
       const tbody = wrapper.querySelector("tbody");
