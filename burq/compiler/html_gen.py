@@ -798,32 +798,21 @@ def render_dropdown(props, children):
     <div class="{menu_cls}">{items_html}</div>
 </div>'''
 
-
-# ── PAGE SHELL ──
-
-def render_page_shell(
-    app,
-    page_content: str,
-    modal_content: str = "",
-    page_title: str = "",
-) -> str:
-    from ..theme.compiler import compile_tokens
+def render_base_template(app) -> str:
 
     theme      = app.theme
     layout     = app.layout
     nav        = app._nav
     nav_footer = app._nav_footer
 
-    # sidebar classes
     layout_cls = "layout"
     if layout.sidebar: layout_cls += " layout--with-sidebar"
     if layout.topbar:  layout_cls += " layout--with-topbar"
 
-    # nav items
     nav_html = ""
     for item in nav:
         nav_html += f'''
-        <a class="nav-item" href="{item.href}">
+        <a class="nav-item" href="{item.href}" data-href="{item.href}">
             <i data-lucide="{item.icon}" class="nav-item__icon"></i>
             <span class="nav-item__label">{item.label}</span>
         </a>'''
@@ -854,7 +843,7 @@ def render_page_shell(
 
     topbar_html = ""
     if layout.topbar:
-        toggle_btn = f'''
+        toggle_btn = '''
         <button class="topbar__toggle" id="sidebarToggle">
             <i data-lucide="menu" class="topbar__icon"></i>
         </button>''' if layout.sidebar else ""
@@ -866,13 +855,11 @@ def render_page_shell(
                 <i data-lucide="sun" class="topbar__icon" id="themeIcon"></i>
             </button>'''
 
-        author_html = f'<meta name="author" content="{app.author}" />' if app.author else ""
-
         topbar_html = f'''
   <header class="topbar">
     <div class="topbar__left">
         {toggle_btn}
-        <span class="topbar__title">{page_title or app.title}</span>
+        <span class="topbar__title">{{{{ page_title }}}}</span>
     </div>
     <div class="topbar__right">
         {theme_toggle}
@@ -889,12 +876,11 @@ def render_page_shell(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="generator" content="Burq ⚡ — https://burq.dev" />
   {f'<meta name="author" content="{app.author}" />' if app.author else ""}
-  <title>{page_title or app.title}</title>
+  <title>{{{{ page_title }}}} — {app.title}</title>
   <!-- ⚡ Built with Burq — https://burq.dev -->
-  {f'<!-- Created by {app.author} -->' if app.author else ""}
-  <link rel="stylesheet" href="tokens.css" />
-  <link rel="stylesheet" href="layout.css" />
-  <link rel="stylesheet" href="components.css" />
+  <link rel="stylesheet" href="/static/tokens.css" />
+  <link rel="stylesheet" href="/static/layout.css" />
+  <link rel="stylesheet" href="/static/components.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     .nav-item__icon {{ width: 18px; height: 18px; flex-shrink: 0; }}
@@ -911,13 +897,24 @@ def render_page_shell(
   {topbar_html}
   <main class="content">
     <div style="padding: var(--space-6);">
-      {page_content}
+      {{% block content %}}{{% endblock %}}
     </div>
   </main>
 </div>
 
-{modal_content}
+{{% block modals %}}{{% endblock %}}
 
-<script src="burq.js"></script>
+<script src="/static/burq.js"></script>
 </body>
 </html>'''
+
+
+def render_page_template(page_content: str, modal_content: str = "", page_title: str = "") -> str:
+    return f"""{{% extends "base.html" %}}
+{{% block content %}}
+{page_content}
+{{% endblock %}}
+
+{{% block modals %}}
+{modal_content}
+{{% endblock %}}"""

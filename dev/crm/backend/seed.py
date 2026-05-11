@@ -24,7 +24,8 @@ def seed():
             email=fake.email(),
             phone=fake.phone_number(),
             company=fake.company(),
-            title=fake.job()
+            title=fake.job(),
+            status=random.choice(DEAL_STATUSES),
         )
         db.add(contact)
         db.flush()

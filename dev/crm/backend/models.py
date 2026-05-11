@@ -19,6 +19,7 @@ class Contact(Base):
     phone = Column(String)
     company = Column(String)
     title = Column(String)
+    status     = Column(Enum(DealStatus), default=DealStatus.lead)
     created_at = Column(DateTime, default=datetime.utcnow)
     deals = relationship("Deal", back_populates="contact")
 

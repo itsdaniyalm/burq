@@ -416,6 +416,17 @@ function initThemeToggle() {{
   }});
 }}
 
+// ── ACTIVE NAV ──
+function initActiveNav() {{
+  const path = window.location.pathname;
+  document.querySelectorAll(".nav-item[data-href]").forEach(a => {{
+    const href = a.getAttribute("data-href");
+    if (href === path || (href !== "/" && path.startsWith(href))) {{
+      a.classList.add("nav-item--active");
+    }}
+  }});
+}}
+
 // ── INIT ──
 function burqInit() {{
   ToastManager.init();
@@ -426,6 +437,7 @@ function burqInit() {{
   initDropdowns();
   initCustomSelects();
   initTables();
+  initActiveNav();
   lucide.createIcons();
 }}
 
