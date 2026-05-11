@@ -19,6 +19,7 @@ class App:
         api_key:  str    = "",
         layout:   Layout = None,
         theme:    Theme  = None,
+        logo:     str    = None,
     ):
         self.title    = title
         self.author   = author
@@ -26,6 +27,7 @@ class App:
         self.api_key  = api_key
         self.layout   = layout or Layout()
         self.theme    = theme  or Theme()
+        self.logo     = logo
 
         self._pages:      dict[str, Callable] = {}
         self._modals:     dict[str, Callable] = {}

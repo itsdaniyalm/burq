@@ -11,11 +11,16 @@ app = bq.App(
     api_base="http://localhost:8000",
     layout=bq.Layout(sidebar=True, topbar=True),
     theme=bq.Theme(
-        primary="#F0A202",
-        gray="#0E1428",
-        mode="dark",
-        toggle=True,
-    )
+    radius="md",
+    spacing_unit=4,
+    font_sans="DM Sans",
+    font_mono="DM Mono",
+    font_size_base=14,
+    border_width=1,
+    shadow_strength="md",
+    mode="dark",
+    toggle=True,
+)
 )
 
 app.nav([
@@ -40,6 +45,8 @@ def dashboard():
             bq.metric("Revenue", "$84k", trend_dir="flat")
         with bq.span(cols=1):
             bq.metric("Won", "38", trend="+8%", trend_dir="up", variant="accent")
+            
+    bq.spacer(size="md")
 
     with bq.grid(cols=3, gap="md"):
         with bq.span(cols=2):

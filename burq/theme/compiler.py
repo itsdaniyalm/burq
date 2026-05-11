@@ -24,6 +24,8 @@ def compile_tokens(theme: Theme) -> str:
 
 /* ── PRIMITIVES ── */
 :root {{
+  --brand: {theme.primary};
+
   /* gray scale */
   --gray-100: {gray[100]};
   --gray-200: {gray[200]};
@@ -133,18 +135,18 @@ def compile_tokens(theme: Theme) -> str:
 
 /* ── LIGHT THEME ── */
 [data-theme="light"] {{
-  --background:        var(--white);
+  --background:        color-mix(in srgb, var(--brand) 8%, var(--white) 92%);
   --foreground:        var(--gray-900);
-  --surface:           var(--gray-100);
+  --surface:           var(--white);
   --surface-raised:    var(--white);
-  --muted:             var(--gray-100);
+  --muted:             var(--gray-100);;
   --muted-foreground:  var(--gray-500);
-  --accent:            var(--brand-700);
-  --accent-foreground: var(--white);
+  --accent:            var(--brand);
+  --accent-foreground: var(--gray-900);
   --border:            var(--gray-200);
-  --chrome:            var(--gray-900);
-  --chrome-foreground: var(--gray-400);
-  --chrome-border:     var(--gray-600);
+  --chrome:            var(--white);
+  --chrome-foreground: var(--gray-700);
+  --chrome-border:     var(--gray-200);
 }}
 
 /* ── DARK THEME ── */
@@ -153,14 +155,14 @@ def compile_tokens(theme: Theme) -> str:
   --foreground:        var(--gray-100);
   --surface:           var(--gray-800);
   --surface-raised:    var(--gray-700);
-  --muted:             var(--gray-600);
+  --muted:             var(--gray-800);
   --muted-foreground:  var(--gray-400);
-  --accent:            var(--brand-500);
+  --accent:            var(--brand);
   --accent-foreground: var(--gray-900);
-  --border:            var(--gray-600);
+  --border:            var(--gray-700);
   --chrome:            var(--gray-800);
-  --chrome-foreground: var(--gray-400);
-  --chrome-border:     var(--gray-600);
+  --chrome-foreground: var(--gray-300);
+  --chrome-border:     var(--gray-700);
 }}
 
 /* ── BASE ── */

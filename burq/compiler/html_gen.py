@@ -60,6 +60,7 @@ def render_node(node: dict, app=None) -> str:
         "tabs":        render_tabs,
         "tab":         render_tab,
         "dropdown":    render_dropdown,
+        "spacer":      render_spacer,
     }
 
     renderer = renderers.get(tag)
@@ -285,6 +286,16 @@ def render_spinner(props, children):
     if color != "accent": cls += f" spinner--{color}"
     return f'<div class="{cls}"></div>'
 
+def render_spacer(props, children):
+    sizes = {
+        "xs": "var(--space-2)",
+        "sm": "var(--space-3)",
+        "md": "var(--space-6)",
+        "lg": "var(--space-8)",
+        "xl": "var(--space-12)",
+    }
+    height = sizes.get(props.get("size", "md"), "var(--space-6)")
+    return f'<div style="height:{height};"></div>'
 
 def render_breadcrumb(props, children):
     items     = props.get("items", [])
@@ -820,22 +831,31 @@ def render_base_template(app) -> str:
     nav_footer_html = ""
     for item in nav_footer:
         nav_footer_html += f'''
-        <a class="nav-item" href="{item.href}">
+        <a class="nav-item" href="{item.href}" data-href="{item.href}">
             <i data-lucide="{item.icon}" class="nav-item__icon"></i>
             <span class="nav-item__label">{item.label}</span>
         </a>'''
+
+    default_logo = '''<svg class="sidebar__logo-mark" viewBox="0 0 56 56" fill="none">
+        <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#f5f5f5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#f5f5f5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#F0A202"/>
+      </svg>'''
+
+    logo_html = app.logo if app.logo else default_logo
 
     sidebar_html = ""
     if layout.sidebar:
         sidebar_html = f'''
   <aside class="sidebar">
     <div class="sidebar__logo">
-      <svg class="sidebar__logo-mark" viewBox="0 0 56 56" fill="none">
-        <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#f5f5f5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#f5f5f5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#F0A202"/>
-      </svg>
-      <span class="sidebar__logo-name">{app.title}</span>
+      <div class="sidebar__logo-full">
+        {logo_html}
+        <span class="sidebar__logo-name">{app.title}</span>
+      </div>
+      <button class="topbar__toggle sidebar__toggle" id="sidebarToggle">
+        <i data-lucide="menu" class="topbar__icon"></i>
+      </button>
     </div>
     <nav class="sidebar__nav">{nav_html}</nav>
     <div class="sidebar__footer">{nav_footer_html}</div>
@@ -843,11 +863,6 @@ def render_base_template(app) -> str:
 
     topbar_html = ""
     if layout.topbar:
-        toggle_btn = '''
-        <button class="topbar__toggle" id="sidebarToggle">
-            <i data-lucide="menu" class="topbar__icon"></i>
-        </button>''' if layout.sidebar else ""
-
         theme_toggle = ""
         if theme.toggle:
             theme_toggle = '''
@@ -858,7 +873,6 @@ def render_base_template(app) -> str:
         topbar_html = f'''
   <header class="topbar">
     <div class="topbar__left">
-        {toggle_btn}
         <span class="topbar__title">{{{{ page_title }}}}</span>
     </div>
     <div class="topbar__right">
@@ -907,7 +921,6 @@ def render_base_template(app) -> str:
 <script src="/static/burq.js"></script>
 </body>
 </html>'''
-
 
 def render_page_template(page_content: str, modal_content: str = "", page_title: str = "") -> str:
     return f"""{{% extends "base.html" %}}

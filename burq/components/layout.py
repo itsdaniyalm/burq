@@ -98,3 +98,6 @@ def card(
         "footer":   footer,
     }):
         yield
+
+def spacer(size: str = "md"):
+    leaf_node("spacer", {"size": size})

@@ -5,13 +5,13 @@ from .color import generate_scale
 @dataclass
 class Theme:
     # ── BRAND ──
-    primary: str = "#F0A202"
-    gray: str    = "#0E1428"
+    primary: str = "#FEE715"
+    gray: str    = "#101820"
 
     # ── STATUS COLORS ──
-    color_success: str = "#16a34a"
-    color_warning: str = "#d97706"
-    color_error:   str = "#dc2626"
+    color_success: str = "#0f8a4a"
+    color_warning: str = "#c97a2e"
+    color_error:   str = "#c92e2e"
 
     # ── RADIUS ──
     radius: Literal["none","sm","md","lg","xl","2xl"] = "lg"

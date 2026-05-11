@@ -4,7 +4,7 @@ from .theme.theme import Theme
 # ── LAYOUT ──
 from .components.layout import (
     row, col, grid, span,
-    container, divider, card,
+    container, divider, card, spacer,
 )
 
 # ── DISPLAY ──
@@ -51,7 +51,7 @@ __all__ = [
     "App", "Layout", "Theme",
     # layout
     "row", "col", "grid", "span",
-    "container", "divider", "card",
+    "container", "divider", "card","spacer"
     # display
     "title", "heading", "text",
     "metric", "badge",
