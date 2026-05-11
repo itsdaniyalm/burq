@@ -42,14 +42,14 @@
   grid-area: topbar;
   height: 52px;
   background: var(--chrome);
-  border-bottom: 1px solid var(--chrome-border);
+  border-bottom: var(--border-width) solid var(--chrome-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-4);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--z-sticky);
 }
 
 .topbar__left {
@@ -81,7 +81,7 @@
   background: transparent;
   color: var(--chrome-foreground);
   cursor: pointer;
-  transition: background 150ms ease;
+  transition: background var(--transition-base);
 }
 
 .topbar__toggle:hover {
@@ -93,15 +93,15 @@
   grid-area: sidebar;
   width: 220px;
   background: var(--chrome);
-  border-right: 1px solid var(--chrome-border);
+  border-right: var(--border-width) solid var(--chrome-border);
   display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow: hidden;
-  transition: width 200ms ease;
-  z-index: 20;
+  transition: width var(--transition-slow);
+  z-index: var(--z-sidebar);
 }
 
 .layout--collapsed .sidebar {
@@ -114,7 +114,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: 0 var(--space-4);
-  border-bottom: 1px solid var(--chrome-border);
+  border-bottom: var(--border-width) solid var(--chrome-border);
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -137,7 +137,7 @@
   letter-spacing: -0.03em;
   white-space: nowrap;
   opacity: 1;
-  transition: opacity 150ms ease;
+  transition: opacity var(--transition-base);
 }
 
 .layout--collapsed .sidebar__logo-name {
@@ -165,7 +165,7 @@
   font-size: var(--text-base);
   font-weight: 500;
   white-space: nowrap;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background var(--transition-base), color var(--transition-base);
   cursor: pointer;
 }
 
@@ -192,7 +192,7 @@
 
 .nav-item__label {
   opacity: 1;
-  transition: opacity 150ms ease;
+  transition: opacity var(--transition-base);
 }
 
 .layout--collapsed .nav-item {
@@ -211,7 +211,7 @@
 
 .sidebar__footer {
   padding: var(--space-2) 0;
-  border-top: 1px solid var(--chrome-border);
+  border-top: var(--border-width) solid var(--chrome-border);
   overflow: hidden;
 }
 

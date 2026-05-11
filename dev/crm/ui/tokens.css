@@ -48,7 +48,32 @@
 
   --font-sans: 'Space Grotesk', sans-serif;
   --font-mono: 'Space Mono', monospace;
-}
+
+    /* ── BORDER ── */
+  --border-width: 1px;
+  --border-width-2: 2px;
+
+  /* ── SHADOW ── */
+  --shadow-sm: 0 1px 4px 0 rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.15);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.20);
+
+  /* ── FOCUS RING ── */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+  --focus-ring-error: 0 0 0 3px rgba(220, 38, 38, 0.15);
+
+  /* ── TRANSITIONS ── */
+  --transition-fast: 100ms ease;
+  --transition-base: 150ms ease;
+  --transition-slow: 200ms ease;
+
+  /* ── Z-INDEX ── */
+  --z-dropdown: 100;
+  --z-sticky: 10;
+  --z-sidebar: 20;
+  --z-modal: 200;
+  --z-toast: 300;
+  }
 
 /* ── LIGHT THEME ── */
 [data-theme="light"] {

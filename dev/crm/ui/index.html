@@ -99,16 +99,43 @@
         </div>
       </div>
 
-      <div class="form-field">
-        <label class="form-label">Status</label>
-        <select class="select">
-          <option>Lead</option>
-          <option>Qualified</option>
-          <option>Proposal</option>
-          <option>Won</option>
-          <option>Lost</option>
-        </select>
+ <div class="form-field">
+  <label class="form-label">Status</label>
+  <div class="custom-select">
+    <div class="custom-select__trigger">
+      <span class="custom-select__placeholder">Select status...</span>
+      <span class="custom-select__value"></span>
+      <div class="custom-select__icons">
+        <span class="custom-select__clear"><i data-lucide="x" style="width:12px;height:12px;"></i></span>
+        <i data-lucide="chevron-down" class="custom-select__chevron"></i>
       </div>
+    </div>
+    <div class="custom-select__dropdown">
+      <div class="custom-select__search">
+        <i data-lucide="search" class="custom-select__search-icon"></i>
+        <input class="custom-select__search-input" placeholder="Search..." />
+      </div>
+      <div class="custom-select__options">
+        <div class="custom-select__option" data-value="lead">
+          Lead <i data-lucide="check" class="custom-select__option-check"></i>
+        </div>
+        <div class="custom-select__option" data-value="qualified">
+          Qualified <i data-lucide="check" class="custom-select__option-check"></i>
+        </div>
+        <div class="custom-select__option" data-value="proposal">
+          Proposal <i data-lucide="check" class="custom-select__option-check"></i>
+        </div>
+        <div class="custom-select__option" data-value="won">
+          Won <i data-lucide="check" class="custom-select__option-check"></i>
+        </div>
+        <div class="custom-select__option" data-value="lost">
+          Lost <i data-lucide="check" class="custom-select__option-check"></i>
+        </div>
+        <div class="custom-select__empty">No results found.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
       <div class="form-field">
         <label class="form-label">Password</label>
@@ -177,6 +204,118 @@
   toggle.addEventListener('click', () => {
     layout.classList.toggle('layout--collapsed');
   });
+  function initCustomSelects() {
+  document.querySelectorAll('.custom-select').forEach(select => {
+    const trigger    = select.querySelector('.custom-select__trigger');
+    const dropdown   = select.querySelector('.custom-select__dropdown');
+    const searchInput= select.querySelector('.custom-select__search-input');
+    const optionsList= select.querySelector('.custom-select__options');
+    const placeholder= select.querySelector('.custom-select__placeholder');
+    const valueEl    = select.querySelector('.custom-select__value');
+    const clearBtn   = select.querySelector('.custom-select__clear');
+    const options    = Array.from(select.querySelectorAll('.custom-select__option'));
+    let focusedIndex = -1;
+    let selected     = null;
+
+    function open() {
+      trigger.classList.add('custom-select__trigger--open');
+      dropdown.classList.add('custom-select__dropdown--open');
+      searchInput.value = '';
+      filterOptions('');
+      searchInput.focus();
+      focusedIndex = -1;
+    }
+
+    function close() {
+      trigger.classList.remove('custom-select__trigger--open');
+      dropdown.classList.remove('custom-select__dropdown--open');
+    }
+
+    function selectOption(option) {
+      selected = option.dataset.value;
+      options.forEach(o => o.classList.remove('custom-select__option--selected'));
+      option.classList.add('custom-select__option--selected');
+      option.querySelector('.custom-select__option-check').style.display = '';
+      options.filter(o => o !== option).forEach(o => {
+        o.querySelector('.custom-select__option-check').style.display = 'none';
+      });
+      placeholder.style.display = 'none';
+      valueEl.textContent = option.dataset.label || option.textContent.trim();
+      valueEl.style.display = '';
+      clearBtn.style.display = '';
+      close();
+    }
+
+    function clearSelection() {
+      selected = null;
+      options.forEach(o => {
+        o.classList.remove('custom-select__option--selected');
+        o.querySelector('.custom-select__option-check').style.display = 'none';
+      });
+      placeholder.style.display = '';
+      valueEl.style.display = 'none';
+      clearBtn.style.display = 'none';
+    }
+
+    function filterOptions(query) {
+      let visible = [];
+      options.forEach(o => {
+        const match = o.textContent.toLowerCase().includes(query.toLowerCase());
+        o.style.display = match ? '' : 'none';
+        if (match) visible.push(o);
+      });
+      optionsList.querySelector('.custom-select__empty') &&
+        (optionsList.querySelector('.custom-select__empty').style.display = visible.length ? 'none' : '');
+      focusedIndex = -1;
+    }
+
+    function setFocus(index) {
+      const visible = options.filter(o => o.style.display !== 'none');
+      visible.forEach(o => o.classList.remove('custom-select__option--focused'));
+      if (index >= 0 && index < visible.length) {
+        visible[index].classList.add('custom-select__option--focused');
+        visible[index].scrollIntoView({ block: 'nearest' });
+        focusedIndex = index;
+      }
+    }
+
+    // init state
+    valueEl.style.display = 'none';
+    clearBtn.style.display = 'none';
+    options.forEach(o => {
+      o.querySelector('.custom-select__option-check').style.display = 'none';
+    });
+
+    trigger.addEventListener('click', () => {
+      dropdown.classList.contains('custom-select__dropdown--open') ? close() : open();
+    });
+
+    clearBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      clearSelection();
+    });
+
+    searchInput.addEventListener('input', e => filterOptions(e.target.value));
+
+    searchInput.addEventListener('keydown', e => {
+      const visible = options.filter(o => o.style.display !== 'none');
+      if (e.key === 'ArrowDown') { e.preventDefault(); setFocus(Math.min(focusedIndex + 1, visible.length - 1)); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); setFocus(Math.max(focusedIndex - 1, 0)); }
+      if (e.key === 'Enter' && focusedIndex >= 0) { selectOption(visible[focusedIndex]); }
+      if (e.key === 'Escape') close();
+    });
+
+    options.forEach(option => {
+      option.addEventListener('click', () => selectOption(option));
+    });
+
+    document.addEventListener('click', e => {
+      if (!select.contains(e.target)) close();
+    });
+  });
+}
+
+initCustomSelects();
 </script>
 
 </body>
