@@ -119,6 +119,11 @@
   overflow: hidden;
 }
 
+.layout--collapsed .sidebar__logo {
+  padding: 0;
+  justify-content: center;
+}
+
 .sidebar__logo-mark {
   width: 28px;
   height: 28px;
@@ -138,6 +143,7 @@
 .layout--collapsed .sidebar__logo-name {
   opacity: 0;
   pointer-events: none;
+  width: 0;
 }
 
 .sidebar__nav {
@@ -189,9 +195,18 @@
   transition: opacity 150ms ease;
 }
 
+.layout--collapsed .nav-item {
+  margin: 2px var(--space-1);
+  padding: var(--space-2);
+  justify-content: center;
+  gap: 0;
+}
+
 .layout--collapsed .nav-item__label {
   opacity: 0;
   pointer-events: none;
+  width: 0;
+  overflow: hidden;
 }
 
 .sidebar__footer {
