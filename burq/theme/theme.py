@@ -1,46 +1,61 @@
-from dataclasses import dataclass
-from typing import Literal
-from .color import generate_scale
+from dataclasses import dataclass, field
+from typing import Literal, Optional
+
 
 @dataclass
 class Theme:
-    # ── BRAND ──
-    primary: str = "#FEE715"
-    gray: str    = "#101820"
-
-    # ── STATUS COLORS ──
-    color_success: str = "#0f8a4a"
-    color_warning: str = "#c97a2e"
-    color_error:   str = "#c92e2e"
-
-    # ── RADIUS ──
-    radius: Literal["none","sm","md","lg","xl","2xl"] = "lg"
-
-    # ── SPACING ──
-    spacing_unit: int = 4
+    # ── MODE ──
+    mode:   Literal["light", "dark", "auto"] = "dark"
+    toggle: bool = True
 
     # ── TYPOGRAPHY ──
     font_sans:      str = "Space Grotesk"
     font_mono:      str = "Space Mono"
     font_size_base: int = 14
 
-    # ── BORDERS ──
-    border_width: int = 1
+    # ── SHAPE ──
+    radius:          Literal["none", "sm", "md", "lg", "xl", "2xl"] = "lg"
+    spacing_unit:    int = 4
+    border_width:    int = 1
+    shadow_strength: Literal["none", "sm", "md", "lg"] = "md"
 
-    # ── SHADOWS ──
-    shadow_strength: Literal["none","sm","md","lg"] = "md"
+    # ── LIGHT THEME OVERRIDES ──
+    light_background:        Optional[str] = None
+    light_foreground:        Optional[str] = None
+    light_surface:           Optional[str] = None
+    light_surface_raised:    Optional[str] = None
+    light_muted:             Optional[str] = None
+    light_muted_foreground:  Optional[str] = None
+    light_accent:            Optional[str] = None
+    light_accent_foreground: Optional[str] = None
+    light_border:            Optional[str] = None
+    light_chrome:            Optional[str] = None
+    light_chrome_foreground: Optional[str] = None
+    light_chrome_border:     Optional[str] = None
 
-    # ── MODE ──
-    mode:   Literal["light","dark","auto"] = "dark"
-    toggle: bool = True
+    # ── DARK THEME OVERRIDES ──
+    dark_background:        Optional[str] = None
+    dark_foreground:        Optional[str] = None
+    dark_surface:           Optional[str] = None
+    dark_surface_raised:    Optional[str] = None
+    dark_muted:             Optional[str] = None
+    dark_muted_foreground:  Optional[str] = None
+    dark_accent:            Optional[str] = None
+    dark_accent_foreground: Optional[str] = None
+    dark_border:            Optional[str] = None
+    dark_chrome:            Optional[str] = None
+    dark_chrome_foreground: Optional[str] = None
+    dark_chrome_border:     Optional[str] = None
 
-    def brand_scale(self)   -> dict[int, str]: return generate_scale(self.primary)
-    def gray_scale(self)    -> dict[int, str]: return generate_scale(self.gray)
-    def success_scale(self) -> dict[int, str]: return generate_scale(self.color_success)
-    def warning_scale(self) -> dict[int, str]: return generate_scale(self.color_warning)
-    def error_scale(self)   -> dict[int, str]: return generate_scale(self.color_error)
+    # ── STATUS COLOR OVERRIDES ──
+    color_success:      Optional[str] = None
+    color_success_dark: Optional[str] = None
+    color_warning:      Optional[str] = None
+    color_warning_dark: Optional[str] = None
+    color_error:        Optional[str] = None
+    color_error_dark:   Optional[str] = None
 
-    def spacing_scale(self) -> dict[str, str]:
+    def spacing_scale(self) -> dict:
         u = self.spacing_unit
         return {
             "space-1":  f"{u}px",
@@ -52,7 +67,7 @@ class Theme:
             "space-12": f"{u * 12}px",
         }
 
-    def font_scale(self) -> dict[str, str]:
+    def font_scale(self) -> dict:
         b = self.font_size_base
         return {
             "text-xs":   f"{round(b * 0.78)}px",
@@ -64,11 +79,11 @@ class Theme:
             "text-2xl":  f"{round(b * 2.28)}px",
         }
 
-    def radius_scale(self) -> dict[str, str]:
+    def radius_scale(self) -> dict:
         fixed = {"none": 0, "sm": 4, "md": 6, "lg": 8, "xl": 12, "2xl": 16}
         return {f"radius-{name}": f"{val}px" for name, val in fixed.items()}
 
-    def shadow_scale(self) -> dict[str, str]:
+    def shadow_scale(self) -> dict:
         s = {
             "none": (0.00, 0.00, 0.00),
             "sm":   (0.04, 0.08, 0.10),

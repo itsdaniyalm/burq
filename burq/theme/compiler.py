@@ -2,59 +2,87 @@ from .theme import Theme
 
 GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family={sans}:wght@300;400;500;600;700&family={mono}:wght@400;700&display=swap"
 
+# ── MERIDIAN-INSPIRED DEFAULTS ──
+LIGHT_DEFAULTS = {
+    "background":        "#f7f9f7",
+    "foreground":        "#0a1f14",
+    "surface":           "#ffffff",
+    "surface_raised":    "#ffffff",
+    "muted":             "#e8f0eb",
+    "muted_foreground":  "#5a9070",
+    "accent":            "#0f8a4a",
+    "accent_foreground": "#ffffff",
+    "border":            "#ccddd4",
+    "chrome":            "#ffffff",
+    "chrome_foreground": "#2d6b4a",
+    "chrome_border":     "#ccddd4",
+}
+
+DARK_DEFAULTS = {
+    "background":        "#0a0f0d",
+    "foreground":        "#e8ede9",
+    "surface":           "#0d1710",
+    "surface_raised":    "#111a14",
+    "muted":             "#1a2e22",
+    "muted_foreground":  "#4a7a62",
+    "accent":            "#2ec97a",
+    "accent_foreground": "#0a0f0d",
+    "border":            "#1a2e22",
+    "chrome":            "#0d1710",
+    "chrome_foreground": "#7aaa90",
+    "chrome_border":     "#1a2e22",
+}
+
+STATUS_DEFAULTS = {
+    "color_success":      "#0f8a4a",
+    "color_success_dark": "#2ec97a",
+    "color_warning":      "#c97a2e",
+    "color_warning_dark": "#c97a2e",
+    "color_error":        "#c92e2e",
+    "color_error_dark":   "#c92e2e",
+}
+
+
+def _resolve(theme_val, default: str) -> str:
+    """Use theme override if set, otherwise use default."""
+    return theme_val if theme_val is not None else default
+
+
 def compile_tokens(theme: Theme) -> str:
-    brand   = theme.brand_scale()
-    gray    = theme.gray_scale()
-    success = theme.success_scale()
-    warning = theme.warning_scale()
-    error   = theme.error_scale()
     spacing = theme.spacing_scale()
     fonts   = theme.font_scale()
     radii   = theme.radius_scale()
     shadows = theme.shadow_scale()
+    bw      = theme.border_width
 
     font_url = GOOGLE_FONTS_URL.format(
         sans=theme.font_sans.replace(" ", "+"),
         mono=theme.font_mono.replace(" ", "+")
     )
 
-    bw  = theme.border_width
+    # ── resolve light tokens ──
+    l = {k: _resolve(getattr(theme, f"light_{k}", None), v) for k, v in LIGHT_DEFAULTS.items()}
+
+    # ── resolve dark tokens ──
+    d = {k: _resolve(getattr(theme, f"dark_{k}", None), v) for k, v in DARK_DEFAULTS.items()}
+
+    # ── resolve status tokens ──
+    s = {k: _resolve(getattr(theme, k, None), v) for k, v in STATUS_DEFAULTS.items()}
 
     return f"""@import url('{font_url}');
 
 /* ── PRIMITIVES ── */
 :root {{
-  --brand: {theme.primary};
-
-  /* gray scale */
-  --gray-100: {gray[100]};
-  --gray-200: {gray[200]};
-  --gray-300: {gray[300]};
-  --gray-400: {gray[400]};
-  --gray-500: {gray[500]};
-  --gray-600: {gray[600]};
-  --gray-700: {gray[700]};
-  --gray-800: {gray[800]};
-  --gray-900: {gray[900]};
-
-  /* brand scale */
-  --brand-100: {brand[100]};
-  --brand-200: {brand[200]};
-  --brand-400: {brand[400]};
-  --brand-500: {brand[500]};
-  --brand-600: {brand[600]};
-  --brand-700: {brand[700]};
-
   --white: #ffffff;
   --black: #0a0a0a;
 
   /* ── STATUS COLORS ── */
-  --color-success:      {success[500]};
-  --color-success-dark: {success[300]};
-  --color-error:        {error[500]};
-  --color-error-dark:   {error[300]};
-  --color-warning:      {warning[500]};
-  --color-warning-dark: {warning[300]};
+  --color-success:      {s['color_success']};
+  --color-success-dark: {s['color_success_dark']};
+  --color-error:        {s['color_error']};
+  --color-error-dark:   {s['color_error_dark']};
+  --color-warning:      {s['color_warning']};
+  --color-warning-dark: {s['color_warning_dark']};
 
   /* ── RADIUS ── */
   --radius-none: {radii['radius-none']};
@@ -135,34 +163,34 @@ def compile_tokens(theme: Theme) -> str:
 
 /* ── LIGHT THEME ── */
 [data-theme="light"] {{
-  --background:        color-mix(in srgb, var(--brand) 8%, var(--white) 92%);
-  --foreground:        var(--gray-900);
-  --surface:           var(--white);
-  --surface-raised:    var(--white);
-  --muted:             var(--gray-100);;
-  --muted-foreground:  var(--gray-500);
-  --accent:            var(--brand);
-  --accent-foreground: var(--gray-900);
-  --border:            var(--gray-200);
-  --chrome:            var(--white);
-  --chrome-foreground: var(--gray-700);
-  --chrome-border:     var(--gray-200);
+  --background:        {l['background']};
+  --foreground:        {l['foreground']};
+  --surface:           {l['surface']};
+  --surface-raised:    {l['surface_raised']};
+  --muted:             {l['muted']};
+  --muted-foreground:  {l['muted_foreground']};
+  --accent:            {l['accent']};
+  --accent-foreground: {l['accent_foreground']};
+  --border:            {l['border']};
+  --chrome:            {l['chrome']};
+  --chrome-foreground: {l['chrome_foreground']};
+  --chrome-border:     {l['chrome_border']};
 }}
 
 /* ── DARK THEME ── */
 [data-theme="dark"] {{
-  --background:        var(--gray-900);
-  --foreground:        var(--gray-100);
-  --surface:           var(--gray-800);
-  --surface-raised:    var(--gray-700);
-  --muted:             var(--gray-800);
-  --muted-foreground:  var(--gray-400);
-  --accent:            var(--brand);
-  --accent-foreground: var(--gray-900);
-  --border:            var(--gray-700);
-  --chrome:            var(--gray-800);
-  --chrome-foreground: var(--gray-300);
-  --chrome-border:     var(--gray-700);
+  --background:        {d['background']};
+  --foreground:        {d['foreground']};
+  --surface:           {d['surface']};
+  --surface-raised:    {d['surface_raised']};
+  --muted:             {d['muted']};
+  --muted-foreground:  {d['muted_foreground']};
+  --accent:            {d['accent']};
+  --accent-foreground: {d['accent_foreground']};
+  --border:            {d['border']};
+  --chrome:            {d['chrome']};
+  --chrome-foreground: {d['chrome_foreground']};
+  --chrome-border:     {d['chrome_border']};
 }}
 
 /* ── BASE ── */
