@@ -42,6 +42,8 @@ from .components.data import (
     table,
     line_chart, bar_chart, donut_chart,
     fetch, post,
+    BadgeColumn, AvatarColumn, CurrencyColumn,
+    DateColumn, BoolColumn, TextColumn,
 )
 
 __all__ = [
@@ -72,4 +74,6 @@ __all__ = [
     "table",
     "line_chart", "bar_chart", "donut_chart",
     "fetch", "post",
+    "BadgeColumn", "AvatarColumn", "CurrencyColumn",
+    "DateColumn", "BoolColumn", "TextColumn",
 ]

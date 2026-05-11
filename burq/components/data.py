@@ -1,29 +1,32 @@
+from dataclasses import dataclass, field
+from typing import Optional
 from ..context import leaf_node
 
 
 def table(
-    data:        list   = None,   # list of dicts or bq.fetch()
-    columns:     list   = None,   # list of str column keys
-    searchable:  bool   = False,
-    sortable:    bool   = False,
-    checkable:   bool   = False,
-    striped:     bool   = False,
-    actions:     list   = None,   # ["edit", "delete", "view"]
-    pagination:  bool   = True,
-    page_size:   int    = 10,
+    data:          list   = None,
+    columns:       list   = None,
+    column_config: dict   = None,   
+    searchable:    bool   = False,
+    sortable:      bool   = False,
+    checkable:     bool   = False,
+    striped:       bool   = False,
+    actions:       list   = None,
+    pagination:    bool   = True,
+    page_size:     int    = 10,
 ):
     leaf_node("table", {
-        "data":       data,
-        "columns":    columns or [],
-        "searchable": searchable,
-        "sortable":   sortable,
-        "checkable":  checkable,
-        "striped":    striped,
-        "actions":    actions or [],
-        "pagination": pagination,
-        "page_size":  page_size,
+        "data":          data,
+        "columns":       columns or [],
+        "column_config": column_config or {},
+        "searchable":    searchable,
+        "sortable":      sortable,
+        "checkable":     checkable,
+        "striped":       striped,
+        "actions":       actions or [],
+        "pagination":    pagination,
+        "page_size":     page_size,
     })
-
 
 def line_chart(
     data:  list,
@@ -93,3 +96,38 @@ def post(endpoint: str, data: dict = None) -> str:
         "endpoint":       endpoint,
         "data":           data,
     }
+
+@dataclass
+class BadgeColumn:
+    variant_map: dict = field(default_factory=dict)
+    # e.g. {"lead": "default", "won": "success"}
+
+
+@dataclass
+class AvatarColumn:
+    initials_key: str = "name"
+    sub_key:      str = None   # e.g. "email"
+
+
+@dataclass
+class CurrencyColumn:
+    prefix:   str = "$"
+    decimals: int = 0
+
+
+@dataclass
+class DateColumn:
+    format: str = "%b %d, %Y"
+
+
+@dataclass
+class BoolColumn:
+    true_label:  str = "Yes"
+    false_label: str = "No"
+    true_variant:  str = "success"
+    false_variant: str = "danger"
+
+
+@dataclass
+class TextColumn:
+    muted: bool = False

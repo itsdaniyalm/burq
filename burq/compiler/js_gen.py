@@ -1,0 +1,437 @@
+from ..app import App
+
+
+def generate_js(app: App) -> str:
+    api_base = app.api_base
+    api_key  = app.api_key
+
+    return f"""/* ⚡ Burq Runtime — https://burq.dev */
+
+const Burq = {{
+  apiBase: "{api_base}",
+  apiKey:  "{api_key}",
+
+  // ── FETCH ──
+  async fetch(method, endpoint, data = null) {{
+    const url = this.apiBase + endpoint;
+    const opts = {{
+      method,
+      headers: {{
+        "Content-Type": "application/json",
+        ...(this.apiKey ? {{ "Authorization": `Bearer ${{this.apiKey}}` }} : {{}})
+      }},
+    }};
+    if (data && method !== "GET") opts.body = JSON.stringify(data);
+    const res = await fetch(url, opts);
+    if (!res.ok) throw new Error(`Burq fetch error: ${{res.status}} ${{res.statusText}}`);
+    return res.json();
+  }},
+
+  // ── NAVIGATE ──
+  navigate(href) {{
+    window.location.href = href;
+  }},
+
+  // ── RELOAD ──
+  reload() {{
+    window.location.reload();
+  }},
+}};
+
+// ── TOAST MANAGER ──
+const ToastManager = {{
+  container: null,
+
+  init() {{
+    this.container = document.createElement("div");
+    this.container.className = "toast-container";
+    document.body.appendChild(this.container);
+  }},
+
+  show({{ title, message = "", type = "info", duration = 3000 }}) {{
+    const icons = {{
+      success: "circle-check",
+      error:   "circle-x",
+      warning: "triangle-alert",
+      info:    "info"
+    }};
+    const toast = document.createElement("div");
+    toast.className = `toast toast--${{type}}`;
+    toast.innerHTML = `
+      <i data-lucide="${{icons[type]}}" class="toast__icon"></i>
+      <div class="toast__body">
+        <div class="toast__title">${{title}}</div>
+        ${{message ? `<div class="toast__message">${{message}}</div>` : ""}}
+      </div>
+      <button class="toast__close">
+        <i data-lucide="x" style="width:12px;height:12px;"></i>
+      </button>
+    `;
+    this.container.appendChild(toast);
+    lucide.createIcons();
+
+    const dismiss = () => {{
+      toast.classList.add("toast--dismissing");
+      setTimeout(() => toast.remove(), 200);
+    }};
+
+    toast.querySelector(".toast__close").addEventListener("click", dismiss);
+    if (duration > 0) setTimeout(dismiss, duration);
+  }}
+}};
+
+// ── MODAL MANAGER ──
+const ModalManager = {{
+  open(id) {{
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.style.display = "flex";
+    requestAnimationFrame(() => overlay.classList.add("overlay--open"));
+    document.body.style.overflow = "hidden";
+  }},
+
+  close(id) {{
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.remove("overlay--open");
+    setTimeout(() => {{
+      overlay.style.display = "none";
+      document.body.style.overflow = "";
+    }}, 150);
+  }},
+
+  init() {{
+    document.querySelectorAll(".overlay").forEach(overlay => {{
+      overlay.style.display = "none";
+      overlay.addEventListener("click", e => {{
+        if (e.target === overlay) this.close(overlay.id);
+      }});
+    }});
+    document.addEventListener("keydown", e => {{
+      if (e.key === "Escape") {{
+        const open = document.querySelector(".overlay--open");
+        if (open) this.close(open.id);
+      }}
+    }});
+  }}
+}};
+
+// ── TABS ──
+function initTabs() {{
+  document.querySelectorAll(".tabs").forEach(tabs => {{
+    const triggers = tabs.querySelectorAll(".tabs__trigger");
+    const panels   = tabs.querySelectorAll(".tabs__panel");
+    triggers.forEach((trigger, i) => {{
+      trigger.addEventListener("click", () => {{
+        triggers.forEach(t => t.classList.remove("tabs__trigger--active"));
+        panels.forEach(p => p.classList.remove("tabs__panel--active"));
+        trigger.classList.add("tabs__trigger--active");
+        if (panels[i]) panels[i].classList.add("tabs__panel--active");
+      }});
+    }});
+    if (triggers.length) {{
+      triggers[0].classList.add("tabs__trigger--active");
+      if (panels[0]) panels[0].classList.add("tabs__panel--active");
+    }}
+  }});
+}}
+
+// ── DROPDOWNS ──
+function initDropdowns() {{
+  document.querySelectorAll(".dropdown").forEach(dropdown => {{
+    const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+    const menu    = dropdown.querySelector(".dropdown__menu");
+    if (!trigger || !menu) return;
+
+    trigger.addEventListener("click", e => {{
+      e.stopPropagation();
+      const isOpen = menu.classList.contains("dropdown__menu--open");
+      document.querySelectorAll(".dropdown__menu--open")
+        .forEach(m => m.classList.remove("dropdown__menu--open"));
+      if (!isOpen) menu.classList.add("dropdown__menu--open");
+    }});
+
+    menu.addEventListener("keydown", e => {{
+      const items = [...menu.querySelectorAll(".dropdown__item:not(.dropdown__item--disabled)")];
+      const idx   = items.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") {{ e.preventDefault(); items[Math.min(idx+1, items.length-1)]?.focus(); }}
+      if (e.key === "ArrowUp")   {{ e.preventDefault(); items[Math.max(idx-1, 0)]?.focus(); }}
+      if (e.key === "Escape")    {{ menu.classList.remove("dropdown__menu--open"); trigger.focus(); }}
+    }});
+  }});
+
+  document.addEventListener("click", () => {{
+    document.querySelectorAll(".dropdown__menu--open")
+      .forEach(m => m.classList.remove("dropdown__menu--open"));
+  }});
+}}
+
+// ── CUSTOM SELECTS ──
+function initCustomSelects() {{
+  document.querySelectorAll(".custom-select").forEach(select => {{
+    const trigger     = select.querySelector(".custom-select__trigger");
+    const dropdown    = select.querySelector(".custom-select__dropdown");
+    const searchInput = select.querySelector(".custom-select__search-input");
+    const optionsList = select.querySelector(".custom-select__options");
+    const placeholder = select.querySelector(".custom-select__placeholder");
+    const valueEl     = select.querySelector(".custom-select__value");
+    const clearBtn    = select.querySelector(".custom-select__clear");
+    const options     = Array.from(select.querySelectorAll(".custom-select__option"));
+    let focusedIndex  = -1;
+
+    function open() {{
+      trigger.classList.add("custom-select__trigger--open");
+      dropdown.classList.add("custom-select__dropdown--open");
+      searchInput.value = "";
+      filterOptions("");
+      searchInput.focus();
+      focusedIndex = -1;
+    }}
+
+    function close() {{
+      trigger.classList.remove("custom-select__trigger--open");
+      dropdown.classList.remove("custom-select__dropdown--open");
+    }}
+
+    function selectOption(option) {{
+      options.forEach(o => {{
+        o.classList.remove("custom-select__option--selected");
+        o.querySelector(".custom-select__option-check").style.display = "none";
+      }});
+      option.classList.add("custom-select__option--selected");
+      option.querySelector(".custom-select__option-check").style.display = "";
+      placeholder.style.display = "none";
+      valueEl.textContent = option.dataset.label || option.textContent.trim();
+      valueEl.style.display = "";
+      clearBtn.style.display = "";
+      close();
+    }}
+
+    function clearSelection() {{
+      options.forEach(o => {{
+        o.classList.remove("custom-select__option--selected");
+        o.querySelector(".custom-select__option-check").style.display = "none";
+      }});
+      placeholder.style.display = "";
+      valueEl.style.display = "none";
+      clearBtn.style.display = "none";
+    }}
+
+    function filterOptions(query) {{
+      let visible = [];
+      options.forEach(o => {{
+        const match = o.textContent.toLowerCase().includes(query.toLowerCase());
+        o.style.display = match ? "" : "none";
+        if (match) visible.push(o);
+      }});
+      const empty = optionsList.querySelector(".custom-select__empty");
+      if (empty) empty.style.display = visible.length ? "none" : "";
+      focusedIndex = -1;
+    }}
+
+    function setFocus(index) {{
+      const visible = options.filter(o => o.style.display !== "none");
+      visible.forEach(o => o.classList.remove("custom-select__option--focused"));
+      if (index >= 0 && index < visible.length) {{
+        visible[index].classList.add("custom-select__option--focused");
+        visible[index].scrollIntoView({{ block: "nearest" }});
+        focusedIndex = index;
+      }}
+    }}
+
+    // init state
+    valueEl.style.display  = "none";
+    clearBtn.style.display = "none";
+    options.forEach(o => {{
+      o.querySelector(".custom-select__option-check").style.display = "none";
+    }});
+
+    trigger.addEventListener("click", () => {{
+      dropdown.classList.contains("custom-select__dropdown--open") ? close() : open();
+    }});
+
+    clearBtn.addEventListener("click", e => {{ e.stopPropagation(); clearSelection(); }});
+    searchInput.addEventListener("input", e => filterOptions(e.target.value));
+
+    searchInput.addEventListener("keydown", e => {{
+      const visible = options.filter(o => o.style.display !== "none");
+      if (e.key === "ArrowDown") {{ e.preventDefault(); setFocus(Math.min(focusedIndex+1, visible.length-1)); }}
+      if (e.key === "ArrowUp")   {{ e.preventDefault(); setFocus(Math.max(focusedIndex-1, 0)); }}
+      if (e.key === "Enter" && focusedIndex >= 0) {{ selectOption(visible[focusedIndex]); }}
+      if (e.key === "Escape") close();
+    }});
+
+    options.forEach(o => o.addEventListener("click", () => selectOption(o)));
+    document.addEventListener("click", e => {{ if (!select.contains(e.target)) close(); }});
+  }});
+}}
+
+// ── TABLE HYDRATION ──
+async function initTables() {{
+  const tables = document.querySelectorAll(".table-wrapper[data-fetch-endpoint]");
+  for (const wrapper of tables) {{
+    const method       = wrapper.dataset.fetchMethod   || "GET";
+    const endpoint     = wrapper.dataset.fetchEndpoint || "";
+    const columns      = (wrapper.dataset.columns || "").split(",").filter(Boolean);
+    const checkable    = wrapper.dataset.checkable === "true";
+    const actions      = (wrapper.dataset.actions  || "").split(",").filter(Boolean);
+    const columnConfig = JSON.parse(wrapper.dataset.columnConfig || "{{}}");
+
+    if (!endpoint) continue;
+
+    try {{
+      const data = await Burq.fetch(method, endpoint);
+      const tbody = wrapper.querySelector("tbody");
+      if (!tbody || !Array.isArray(data)) continue;
+
+      tbody.innerHTML = data.map(row => {{
+        const checkTd = checkable
+          ? `<td class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></td>`
+          : "";
+
+        const cells = columns.map(col => {{
+          const raw = row[col] ?? "";
+          const val = typeof raw === "object" && raw !== null
+            ? (raw?.value ?? JSON.stringify(raw))
+            : String(raw);
+          const cfg = columnConfig[col];
+
+          if (!cfg) return `<td>${{val}}</td>`;
+
+          switch (cfg.type) {{
+
+            case "BadgeColumn": {{
+              const variantMap = cfg.variant_map || {{}};
+              const variant    = variantMap[val.toLowerCase()] || "default";
+              const label      = val.charAt(0).toUpperCase() + val.slice(1);
+              return `<td><span class="badge badge--${{variant}}">${{label}}</span></td>`;
+            }}
+
+            case "AvatarColumn": {{
+              const name    = row[cfg.initials_key || col] || "";
+              const initials= name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+              const sub     = cfg.sub_key ? row[cfg.sub_key] || "" : "";
+              const subHtml = sub ? `<div class="table__cell-sub">${{sub}}</div>` : "";
+              return `<td>
+                <div class="table__cell-with-avatar">
+                  <div class="table__avatar">${{initials}}</div>
+                  <div>
+                    <div class="table__cell-name">${{name}}</div>
+                    ${{subHtml}}
+                  </div>
+                </div>
+              </td>`;
+            }}
+
+            case "CurrencyColumn": {{
+              const prefix   = cfg.prefix || "$";
+              const decimals = cfg.decimals ?? 0;
+              const num      = parseFloat(val) || 0;
+              return `<td>${{prefix}}${{num.toLocaleString("en-US", {{minimumFractionDigits: decimals, maximumFractionDigits: decimals}})}}</td>`;
+            }}
+
+            case "DateColumn": {{
+              const date = new Date(val);
+              const formatted = isNaN(date) ? val : date.toLocaleDateString("en-US", {{year:"numeric", month:"short", day:"numeric"}});
+              return `<td>${{formatted}}</td>`;
+            }}
+
+            case "BoolColumn": {{
+              const isTrue  = val === "true" || val === "1" || val === "True";
+              const label   = isTrue ? (cfg.true_label  || "Yes") : (cfg.false_label  || "No");
+              const variant = isTrue ? (cfg.true_variant || "success") : (cfg.false_variant || "danger");
+              return `<td><span class="badge badge--${{variant}}">${{label}}</span></td>`;
+            }}
+
+            case "TextColumn": {{
+              const cls = cfg.muted ? ' class="muted"' : "";
+              return `<td${{cls}}>${{val}}</td>`;
+            }}
+
+            default:
+              return `<td>${{val}}</td>`;
+          }}
+        }}).join("");
+
+        const actionTd = actions.length
+          ? `<td class="table__actions-col">
+               <button class="table__action-btn">
+                 <i data-lucide="ellipsis" class="table__action-icon"></i>
+               </button>
+             </td>`
+          : "";
+
+        return `<tr>${{checkTd}}${{cells}}${{actionTd}}</tr>`;
+      }}).join("");
+
+      const info = wrapper.querySelector(".table-pagination__info");
+      if (info) info.textContent = `Showing 1–${{Math.min(10, data.length)}} of ${{data.length}}`;
+
+      lucide.createIcons();
+    }} catch (err) {{
+      console.error(`Burq table error (${{endpoint}}):`, err);
+      const tbody = wrapper.querySelector("tbody");
+      if (tbody) tbody.innerHTML = `
+        <tr><td colspan="99" style="text-align:center;padding:var(--space-6);color:var(--muted-foreground);">
+          Failed to load data.
+        </td></tr>`;
+    }}
+  }}
+}}
+
+// ── SIDEBAR TOGGLE ──
+function initSidebar() {{
+  const layout = document.getElementById("layout");
+  const toggle = document.getElementById("sidebarToggle");
+  if (toggle && layout) {{
+    toggle.addEventListener("click", () => {{
+      layout.classList.toggle("layout--collapsed");
+    }});
+  }}
+}}
+
+// ── THEME TOGGLE ──
+function initThemeToggle() {{
+  const toggle = document.getElementById("themeToggle");
+  const icon   = document.getElementById("themeIcon");
+  const html   = document.documentElement;
+  if (!toggle) return;
+
+  const saved = localStorage.getItem("burq-theme");
+  if (saved) {{
+    html.setAttribute("data-theme", saved);
+    if (icon) icon.setAttribute("data-lucide", saved === "dark" ? "sun" : "moon");
+    lucide.createIcons();
+  }}
+
+  toggle.addEventListener("click", () => {{
+    const current = html.getAttribute("data-theme");
+    const next    = current === "dark" ? "light" : "dark";
+    html.setAttribute("data-theme", next);
+    localStorage.setItem("burq-theme", next);
+    if (icon) {{
+      icon.setAttribute("data-lucide", next === "dark" ? "sun" : "moon");
+      lucide.createIcons();
+    }}
+  }});
+}}
+
+// ── INIT ──
+function burqInit() {{
+  ToastManager.init();
+  ModalManager.init();
+  initSidebar();
+  initThemeToggle();
+  initTabs();
+  initDropdowns();
+  initCustomSelects();
+  initTables();
+  lucide.createIcons();
+}}
+
+if (document.readyState === "loading") {{
+  document.addEventListener("DOMContentLoaded", burqInit);
+}} else {{
+  burqInit();
+}}
+"""

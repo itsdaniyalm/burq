@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from db import get_db, engine
 from models import Base, Contact, Deal, Activity
 from typing import Optional
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 Base.metadata.create_all(bind=engine)
 
@@ -15,6 +18,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # --- CONTACTS ---
 
@@ -66,3 +71,20 @@ def summary(db: Session = Depends(get_db)):
         "total_value": round(total_value, 2),
         "won_deals": won_deals
     }
+
+# --- FRONTEND ---
+
+dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../dist"))
+
+app.mount("/assets", StaticFiles(directory=dist_path), name="assets")
+
+@app.get("/", include_in_schema=False)
+async def serve_index():
+    return FileResponse(os.path.join(dist_path, "index.html"))
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_frontend(full_path: str):
+    file = os.path.join(dist_path, full_path)
+    if os.path.exists(file):
+        return FileResponse(file)
+    return FileResponse(os.path.join(dist_path, "index.html"))

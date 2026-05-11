@@ -1,5 +1,5 @@
 from typing import Any
-
+import json as _json
 
 def classes(*args) -> str:
     """Join class lists into a string."""
@@ -385,13 +385,25 @@ def render_table(props, children):
             </div>
         </div>'''
 
+    # serialize column_config to JSON for JS
+    column_config = props.get("column_config", {})
+    config_serialized = {}
+    for col, cfg in column_config.items():
+        if hasattr(cfg, "__class__"):
+            d = {"type": cfg.__class__.__name__}
+            d.update({k: v for k, v in cfg.__dict__.items() if v is not None})
+            config_serialized[col] = d
+
+    config_json = _json.dumps(config_serialized)
+
     return f'''
-<div class="table-wrapper"
-     data-fetch-method="{fetch_method}"
-     data-fetch-endpoint="{fetch_endpoint}"
-     data-columns="{",".join(columns)}"
-     data-checkable="{str(checkable).lower()}"
-     data-actions="{",".join(actions)}">
+    <div class="table-wrapper"
+        data-fetch-method="{fetch_method}"
+        data-fetch-endpoint="{fetch_endpoint}"
+        data-columns="{",".join(columns)}"
+        data-checkable="{str(checkable).lower()}"
+        data-actions="{",".join(actions)}"
+        data-column-config='{config_json}'>
     {toolbar}
     <table class="{table_cls}">
         <thead>
@@ -907,6 +919,5 @@ def render_page_shell(
 {modal_content}
 
 <script src="burq.js"></script>
-<script>lucide.createIcons();</script>
 </body>
 </html>'''
