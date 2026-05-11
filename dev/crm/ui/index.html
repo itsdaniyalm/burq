@@ -77,14 +77,58 @@
   <!-- CONTENT -->
     <main class="content">
         <div class="col col--gap-lg"></div>
-
-<div class="row row--gap-sm">
-  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Saved', message: 'Contact updated successfully.', type: 'success' })">Success Toast</button>
-  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Error', message: 'Something went wrong.', type: 'error' })">Error Toast</button>
-  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Warning', message: 'Please review before saving.', type: 'warning' })">Warning Toast</button>
-  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Info', message: 'Your session expires in 5 minutes.', type: 'info' })">Info Toast</button>
+<!-- trigger -->
+<div class="row">
+  <button class="btn btn--primary btn--sm" onclick="ModalManager.open('modal-demo')">
+    <i data-lucide="plus" class="btn__icon"></i>
+    Add Contact
+  </button>
 </div>
 
+<!-- modal -->
+<div class="overlay" id="modal-demo">
+  <div class="modal">
+    <div class="modal__header">
+      <span class="modal__title">Add Contact</span>
+      <button class="modal__close" onclick="ModalManager.close('modal-demo')">
+        <i data-lucide="x" style="width:14px;height:14px;"></i>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="col col--gap-md">
+        <div class="grid grid--cols-2 grid--gap-md">
+          <div class="form-field">
+            <label class="form-label form-label--required">Full Name</label>
+            <input class="input" placeholder="John Doe" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Email</label>
+            <div class="input-wrapper">
+              <i data-lucide="mail" class="input-wrapper__icon"></i>
+              <input class="input" placeholder="john@example.com" type="email" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Company</label>
+            <input class="input" placeholder="Acme Corp" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Status</label>
+            <select class="select">
+              <option>Lead</option>
+              <option>Qualified</option>
+              <option>Won</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary btn--sm" onclick="ModalManager.close('modal-demo')">Cancel</button>
+      <button class="btn btn--primary btn--sm" onclick="ToastManager.show({ title: 'Contact Added', message: 'John Doe has been added.', type: 'success' }); ModalManager.close('modal-demo')">Save Contact</button>
+    </div>
+  </div>
+</div>
         </div>
     </main>
 
@@ -255,6 +299,48 @@ if (duration > 0) setTimeout(dismiss, duration);
 };
 
 ToastManager.init();
+
+const ModalManager = {
+  open(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('overlay--open'));
+    document.body.style.overflow = 'hidden';
+  },
+
+  close(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.remove('overlay--open');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 150);
+  },
+
+  init() {
+    document.querySelectorAll('.overlay').forEach(overlay => {
+      overlay.style.display = 'none';
+
+      // close on backdrop click
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) this.close(overlay.id);
+      });
+    });
+
+    // close on ESC
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        const open = document.querySelector('.overlay--open');
+        if (open) this.close(open.id);
+      }
+    });
+  }
+};
+
+ModalManager.init();
+
 initCustomSelects();
 </script>
 

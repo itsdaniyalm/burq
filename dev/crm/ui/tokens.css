@@ -86,6 +86,12 @@
   /* ── TOAST ── */
   --toast-width: 320px;
   --toast-gap: var(--space-3);
+
+  /* ── MODAL ── */
+  --modal-sm: 400px;
+  --modal-md: 560px;
+  --modal-lg: 720px;
+  --overlay-bg: rgba(0, 0, 0, 0.6);
   }
 
 /* ── LIGHT THEME ── */
