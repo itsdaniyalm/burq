@@ -96,6 +96,9 @@
   /* ── TABS ── */
   --tab-indicator-height: 2px;
 
+  /* ── SKELETON ── */
+  --skeleton-bg: var(--muted);
+  --skeleton-shine: var(--surface-raised);
   }
 
 /* ── LIGHT THEME ── */

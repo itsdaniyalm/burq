@@ -80,41 +80,68 @@
 
 
 
-<div class="col col--gap-md">
+<div class="grid grid--cols-3 grid--gap-md">
 
-  <!-- sizes -->
-  <div class="row row--gap-md row--start">
-    <div class="avatar avatar--xs">JD</div>
-    <div class="avatar avatar--sm">JD</div>
-    <div class="avatar avatar--md">JD</div>
-    <div class="avatar avatar--lg">JD</div>
-    <div class="avatar avatar--xl">JD</div>
+  <!-- skeleton card -->
+  <div class="skeleton-card span-1">
+    <div class="skeleton-card__header">
+      <div class="skeleton skeleton--avatar-md"></div>
+      <div class="col col--gap-sm grow">
+        <div class="skeleton skeleton--text" style="width:60%;"></div>
+        <div class="skeleton skeleton--text-sm"></div>
+      </div>
+    </div>
+    <div class="skeleton-card__body">
+      <div class="skeleton skeleton--text"></div>
+      <div class="skeleton skeleton--text"></div>
+      <div class="skeleton skeleton--text-sm"></div>
+    </div>
   </div>
 
-<!-- round + status -->
-<div class="row row--gap-md row--start">
-  <div style="position:relative;display:inline-flex;">
-    <div class="avatar avatar--md avatar--round">JD</div>
-    <span class="avatar__status avatar__status--online"></span>
+  <!-- skeleton metric -->
+  <div class="skeleton-card span-1">
+    <div class="skeleton skeleton--text-sm" style="width:40%;"></div>
+    <div class="skeleton skeleton--text-lg" style="width:50%;height:28px;"></div>
+    <div class="skeleton skeleton--text-sm" style="width:55%;"></div>
   </div>
-  <div style="position:relative;display:inline-flex;">
-    <div class="avatar avatar--md avatar--round avatar--gray">SM</div>
-    <span class="avatar__status avatar__status--away"></span>
+
+  <!-- skeleton buttons -->
+  <div class="skeleton-card span-1">
+    <div class="skeleton skeleton--text" style="width:70%;"></div>
+    <div class="row row--gap-sm">
+      <div class="skeleton skeleton--button"></div>
+      <div class="skeleton skeleton--button" style="width:60px;"></div>
+    </div>
   </div>
-  <div style="position:relative;display:inline-flex;">
-    <div class="avatar avatar--md avatar--round">RK</div>
-    <span class="avatar__status avatar__status--offline"></span>
-  </div>
+
 </div>
 
-  <!-- group -->
-  <div class="avatar-group">
-    <div class="avatar avatar--md avatar--round">JD</div>
-    <div class="avatar avatar--md avatar--round avatar--gray">SM</div>
-    <div class="avatar avatar--md avatar--round">RK</div>
-    <div class="avatar-group__overflow">+4</div>
+<!-- skeleton table -->
+<div class="skeleton-table">
+  <div class="skeleton-table__header">
+    <div class="skeleton skeleton--text" style="width:20%;"></div>
+    <div class="skeleton skeleton--text" style="width:25%;"></div>
+    <div class="skeleton skeleton--text" style="width:15%;"></div>
+    <div class="skeleton skeleton--text" style="width:15%;"></div>
   </div>
-
+  <div class="skeleton-table__row">
+    <div class="skeleton skeleton--avatar-md"></div>
+    <div class="skeleton skeleton--text grow"></div>
+    <div class="skeleton skeleton--text" style="width:20%;"></div>
+    <div class="skeleton skeleton--button" style="width:60px;"></div>
+  </div>
+  <div class="skeleton-table__row">
+    <div class="skeleton skeleton--avatar-md"></div>
+    <div class="skeleton skeleton--text grow"></div>
+    <div class="skeleton skeleton--text" style="width:20%;"></div>
+    <div class="skeleton skeleton--button" style="width:60px;"></div>
+  </div>
+  <div class="skeleton-table__row">
+    <div class="skeleton skeleton--avatar-md"></div>
+    <div class="skeleton skeleton--text grow"></div>
+    <div class="skeleton skeleton--text" style="width:20%;"></div>
+    <div class="skeleton skeleton--button" style="width:60px;"></div>
+  </div>
 </div>
 
 

@@ -1628,3 +1628,101 @@
   border: var(--border-width-2) solid var(--background);
   margin-left: -8px;
 }
+
+/* ── SKELETON ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-bg) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: var(--radius-md);
+}
+
+/* text lines */
+.skeleton--text {
+  height: var(--text-base);
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--text-sm {
+  height: var(--text-sm);
+  width: 60%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--text-lg {
+  height: var(--text-lg);
+  width: 40%;
+  border-radius: var(--radius-sm);
+}
+
+/* avatar */
+.skeleton--avatar-sm { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
+.skeleton--avatar-md { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+.skeleton--avatar-lg { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+
+/* shapes */
+.skeleton--circle  { border-radius: 50%; }
+.skeleton--rect    { border-radius: var(--radius-lg); }
+.skeleton--button  { height: 32px; width: 80px; border-radius: var(--radius-lg); }
+
+/* ── SKELETON CARD ── */
+.skeleton-card {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.skeleton-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── SKELETON TABLE ── */
+.skeleton-table {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.skeleton-table__header {
+  background: var(--muted);
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  gap: var(--space-4);
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.skeleton-table__row {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.skeleton-table__row:last-child {
+  border-bottom: none;
+}
