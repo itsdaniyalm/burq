@@ -337,14 +337,14 @@
 }
 
 .btn--danger {
-  background: #dc2626;
-  color: #fff;
-  border-color: #dc2626;
+  background: var(--color-error);
+  color: var(--white);
+  border-color: var(--color-error);
 }
 
 .btn--danger:hover {
-  background: #b91c1c;
-  border-color: #b91c1c;
+  background: var(--color-error-dark);
+  border-color: var(--color-error-dark);
 }
 
 .btn--outline {
@@ -471,11 +471,11 @@
 }
 
 .metric-card__trend--up {
-  color: #16a34a;
+  color: var(--color-success);;
 }
 
 .metric-card__trend--down {
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .metric-card__trend-icon {
@@ -493,8 +493,8 @@
 }
 
 /* dark overrides */
-[data-theme="dark"] .metric-card__trend--up  { color: #4ade80; }
-[data-theme="dark"] .metric-card__trend--down { color: #f87171; }
+[data-theme="dark"] .metric-card__trend--up  { color:var(--color-success-dark) }
+[data-theme="dark"] .metric-card__trend--down { color: var(--color-error-dark);}
 
 /* ── TABLE ── */
 .table-wrapper {
@@ -780,7 +780,7 @@
 
 .form-label--required::after {
   content: " *";
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .form-helper {
@@ -790,14 +790,14 @@
 
 .form-error {
   font-size: var(--text-xs);
-  color: #dc2626;
+  color: var(--color-error);
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
 [data-theme="dark"] .form-error {
-  color: #f87171;
+  color: var(--color-error-dark);
 }
 
 .form-error__icon {
@@ -837,11 +837,11 @@
 }
 
 .input--error {
-  border-color: #dc2626;
+  border-color: var(--color-error);
 }
 
 .input--error:focus {
-  border-color: #dc2626;
+  border-color: var(--color-error);
   box-shadow: var(--focus-ring-error);
 }
 
@@ -907,7 +907,7 @@
   background: var(--muted);
 }
 
-.textarea--error { border-color: #dc2626; }
+.textarea--error { border-color: var(--color-error); }
 
 /* ── SELECT ── */
 .select {
@@ -939,7 +939,7 @@
   cursor: not-allowed;
 }
 
-.select--error { border-color: #dc2626; }
+.select--error { border-color: var(--color-error); }
 .select--sm { height: 30px; font-size: var(--text-sm); }
 .select--lg { height: 42px; font-size: var(--text-md); }
 
@@ -1078,7 +1078,7 @@
 }
 
 .custom-select__trigger--error {
-  border-color: #dc2626;
+  border-color: var(--color-error);
 }
 
 .custom-select__placeholder {
