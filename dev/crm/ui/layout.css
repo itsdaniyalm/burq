@@ -221,4 +221,5 @@
   padding: var(--space-6);
   overflow-y: auto;
   min-width: 0;
+  align-content: start;
 }

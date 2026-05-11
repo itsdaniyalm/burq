@@ -75,36 +75,64 @@
   </header>
 
   <!-- CONTENT -->
- <div class="col col--gap-md">
-  <div class="row row--gap-sm">
-    <button class="btn btn--primary">Primary</button>
-    <button class="btn btn--secondary">Secondary</button>
-    <button class="btn btn--outline">Outline</button>
-    <button class="btn btn--ghost">Ghost</button>
-    <button class="btn btn--danger">Danger</button>
-    <button class="btn btn--primary" disabled>Disabled</button>
-  </div>
-  <div class="row row--gap-sm">
-    <button class="btn btn--primary btn--xs">Extra Small</button>
-    <button class="btn btn--primary btn--sm">Small</button>
-    <button class="btn btn--primary">Default</button>
-    <button class="btn btn--primary btn--lg">Large</button>
-  </div>
-  <div class="row row--gap-sm">
-    <button class="btn btn--secondary btn--icon">
-      <i data-lucide="plus" class="btn__icon"></i>
-    </button>
-    <button class="btn btn--primary btn--sm">
-      <i data-lucide="plus" class="btn__icon"></i>
-      Add Contact
-    </button>
-    <button class="btn btn--outline btn--sm">
-      <i data-lucide="download" class="btn__icon"></i>
-      Export
-    </button>
-  </div>
-</div>
+  <main class="content">
+    <div class="col col--gap-lg"></div>
+        <div class="grid grid--cols-4 grid--gap-md">
 
+        <div class="metric-card span-1">
+            <div class="metric-card__header">
+            <span class="metric-card__label">Total Contacts</span>
+            <i data-lucide="users" class="metric-card__icon"></i>
+            </div>
+            <div class="metric-card__value">2,480</div>
+            <div class="metric-card__trend metric-card__trend--up">
+            <i data-lucide="arrow-up" class="metric-card__trend-icon"></i>
+            +12% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card span-1">
+            <div class="metric-card__header">
+            <span class="metric-card__label">Open Deals</span>
+            <i data-lucide="circle-dollar-sign" class="metric-card__icon"></i>
+            </div>
+            <div class="metric-card__value">143</div>
+            <div class="metric-card__trend metric-card__trend--down">
+            <i data-lucide="arrow-down" class="metric-card__trend-icon"></i>
+            -4% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card span-1">
+            <div class="metric-card__header">
+            <span class="metric-card__label">Revenue</span>
+            <i data-lucide="trending-up" class="metric-card__icon"></i>
+            </div>
+            <div class="metric-card__value">$84,200</div>
+            <div class="metric-card__trend">
+            <i data-lucide="minus" class="metric-card__trend-icon"></i>
+            flat vs last month
+            </div>
+        </div>
+
+        <div class="metric-card metric-card--accent span-1">
+            <div class="metric-card__header">
+            <span class="metric-card__label">Won Deals</span>
+            <i data-lucide="trophy" class="metric-card__icon"></i>
+            </div>
+            <div class="metric-card__value">38</div>
+            <div class="metric-card__trend">
+            <i data-lucide="arrow-up" class="metric-card__trend-icon"></i>
+            +8% vs last month
+            </div>
+        </div>
+
+        </div>
+    </main>
+
+
+
+<!----->
 </div>
 
 <script>
