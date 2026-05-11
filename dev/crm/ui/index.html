@@ -77,58 +77,61 @@
   <!-- CONTENT -->
     <main class="content">
         <div class="col col--gap-lg"></div>
-<!-- trigger -->
-<div class="row">
-  <button class="btn btn--primary btn--sm" onclick="ModalManager.open('modal-demo')">
-    <i data-lucide="plus" class="btn__icon"></i>
-    Add Contact
-  </button>
-</div>
 
-<!-- modal -->
-<div class="overlay" id="modal-demo">
-  <div class="modal">
-    <div class="modal__header">
-      <span class="modal__title">Add Contact</span>
-      <button class="modal__close" onclick="ModalManager.close('modal-demo')">
-        <i data-lucide="x" style="width:14px;height:14px;"></i>
-      </button>
-    </div>
-    <div class="modal__body">
-      <div class="col col--gap-md">
-        <div class="grid grid--cols-2 grid--gap-md">
-          <div class="form-field">
-            <label class="form-label form-label--required">Full Name</label>
-            <input class="input" placeholder="John Doe" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Email</label>
-            <div class="input-wrapper">
-              <i data-lucide="mail" class="input-wrapper__icon"></i>
-              <input class="input" placeholder="john@example.com" type="email" />
-            </div>
-          </div>
-          <div class="form-field">
-            <label class="form-label">Company</label>
-            <input class="input" placeholder="Acme Corp" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Status</label>
-            <select class="select">
-              <option>Lead</option>
-              <option>Qualified</option>
-              <option>Won</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal__footer">
-      <button class="btn btn--secondary btn--sm" onclick="ModalManager.close('modal-demo')">Cancel</button>
-      <button class="btn btn--primary btn--sm" onclick="ToastManager.show({ title: 'Contact Added', message: 'John Doe has been added.', type: 'success' }); ModalManager.close('modal-demo')">Save Contact</button>
-    </div>
+
+
+<!-- default tabs -->
+<div class="tabs">
+  <div class="tabs__list">
+    <button class="tabs__trigger">
+      <i data-lucide="users" class="tabs__trigger__icon"></i>
+      Contacts
+      <span class="badge badge--default">40</span>
+    </button>
+    <button class="tabs__trigger">
+      <i data-lucide="circle-dollar-sign" class="tabs__trigger__icon"></i>
+      Deals
+    </button>
+    <button class="tabs__trigger">
+      <i data-lucide="activity" class="tabs__trigger__icon"></i>
+      Activities
+    </button>
+  </div>
+  <div class="tabs__panel">
+    <p style="color:var(--muted-foreground);">Contacts panel content.</p>
+  </div>
+  <div class="tabs__panel">
+    <p style="color:var(--muted-foreground);">Deals panel content.</p>
+  </div>
+  <div class="tabs__panel">
+    <p style="color:var(--muted-foreground);">Activities panel content.</p>
   </div>
 </div>
+
+<!-- pills tabs -->
+<div class="tabs tabs--pills">
+  <div class="tabs__list">
+    <button class="tabs__trigger">Overview</button>
+    <button class="tabs__trigger">Analytics</button>
+    <button class="tabs__trigger">Reports</button>
+  </div>
+  <div class="tabs__panel">
+    <p style="color:var(--muted-foreground);">Overview panel.</p>
+  </div>
+  <div class="tabs__panel">
+    <p style="color:var(--muted-foreground);">Analytics panel.</p>
+  </div>
+  <div class="tabs__panel">
+    <p style="color:var(--muted-foreground);">Reports panel.</p>
+  </div>
+</div>        
+
+
+
+
+
+
+
         </div>
     </main>
 
@@ -342,6 +345,33 @@ const ModalManager = {
 ModalManager.init();
 
 initCustomSelects();
+
+function initTabs() {
+  document.querySelectorAll('.tabs').forEach(tabs => {
+    const triggers = tabs.querySelectorAll('.tabs__trigger');
+    const panels   = tabs.querySelectorAll('.tabs__panel');
+
+    triggers.forEach((trigger, i) => {
+      trigger.addEventListener('click', () => {
+        triggers.forEach(t => t.classList.remove('tabs__trigger--active'));
+        panels.forEach(p => p.classList.remove('tabs__panel--active'));
+        trigger.classList.add('tabs__trigger--active');
+        panels[i].classList.add('tabs__panel--active');
+      });
+    });
+
+    // activate first tab by default
+    if (triggers.length) {
+      triggers[0].classList.add('tabs__trigger--active');
+      panels[0].classList.add('tabs__panel--active');
+    }
+  });
+}
+
+initTabs();
+
+
+
 </script>
 
 </body>

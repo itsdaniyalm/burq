@@ -1424,3 +1424,122 @@
   border-top: var(--border-width) solid var(--border);
   flex-shrink: 0;
 }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tabs__list {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  border-bottom: var(--border-width) solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs__list::-webkit-scrollbar { display: none; }
+
+.tabs__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  border-bottom: var(--tab-indicator-height) solid transparent;
+  margin-bottom: calc(var(--border-width) * -1);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition-base), border-color var(--transition-base);
+}
+
+.tabs__trigger:hover {
+  color: var(--foreground);
+}
+
+.tabs__trigger--active {
+  color: var(--foreground);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.tabs__trigger__icon {
+  width: 15px;
+  height: 15px;
+}
+
+.tabs__trigger .badge {
+  margin-left: var(--space-1);
+}
+
+.tabs__panel {
+  display: none;
+  padding-top: var(--space-4);
+}
+
+.tabs__panel--active {
+  display: block;
+}
+
+/* ── TABS PILLS VARIANT ── */
+.tabs--pills .tabs__list {
+  border-bottom: none;
+  gap: var(--space-1);
+  background: var(--muted);
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  width: fit-content;
+}
+
+.tabs--pills .tabs__trigger {
+  border-bottom: none;
+  border-radius: var(--radius-md);
+  margin-bottom: 0;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.tabs--pills .tabs__trigger--active {
+  background: var(--surface-raised);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs--pills .tabs__panel {
+  padding-top: var(--space-4);
+}
+
+/* ── TABS CARD VARIANT ── */
+.tabs--card .tabs__list {
+  border-bottom: none;
+  gap: var(--space-1);
+}
+
+.tabs--card .tabs__trigger {
+  border: var(--border-width) solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin-bottom: 0;
+  background: var(--muted);
+}
+
+.tabs--card .tabs__trigger--active {
+  background: var(--surface-raised);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.tabs--card .tabs__panel {
+  background: var(--surface-raised);
+  border: var(--border-width) solid var(--border);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+  padding: var(--space-4);
+}
