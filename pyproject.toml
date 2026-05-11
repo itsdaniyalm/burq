@@ -14,3 +14,7 @@ dependencies = []
 where = ["."]
 include = ["burq*"]
 exclude = ["dev*", "tests*"]
+
+dependencies = [
+    "coloraide>=3.0"
+]
