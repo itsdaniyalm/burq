@@ -1726,3 +1726,90 @@
 .skeleton-table__row:last-child {
   border-bottom: none;
 }
+
+/* ── PROGRESS BAR ── */
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.progress__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.progress__value {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+}
+
+.progress__track {
+  width: 100%;
+  background: var(--progress-bg);
+  border-radius: var(--progress-radius);
+  overflow: hidden;
+}
+
+/* sizes */
+.progress--sm .progress__track { height: 4px; }
+.progress--md .progress__track { height: 8px; }
+.progress--lg .progress__track { height: 12px; }
+.progress__track               { height: 8px; }
+
+.progress__fill {
+  height: 100%;
+  border-radius: var(--progress-radius);
+  background: var(--accent);
+  transition: width var(--transition-slow);
+}
+
+/* variants */
+.progress--success .progress__fill { background: var(--color-success); }
+.progress--warning .progress__fill { background: var(--color-warning); }
+.progress--danger  .progress__fill { background: var(--color-error); }
+
+/* striped */
+.progress--striped .progress__fill {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255,255,255,0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 16px 16px;
+}
+
+/* animated stripes */
+.progress--animated .progress__fill {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255,255,255,0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 16px 16px;
+  animation: progress-stripes 1s linear infinite;
+}
+
+@keyframes progress-stripes {
+  from { background-position: 16px 0; }
+  to   { background-position: 0 0; }
+}

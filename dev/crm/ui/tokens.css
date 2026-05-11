@@ -99,6 +99,12 @@
   /* ── SKELETON ── */
   --skeleton-bg: var(--muted);
   --skeleton-shine: var(--surface-raised);
+
+  /* ── PROGRESS ── */
+--progress-bg: var(--muted);
+--progress-radius: var(--radius-2xl);
+
+
   }
 
 /* ── LIGHT THEME ── */
