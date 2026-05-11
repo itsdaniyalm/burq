@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "burq"
+version = "0.1.0"
+description = "Write Python. Compile to blazing fast Vanilla JS + HTML."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["burq*"]
+exclude = ["dev*", "tests*"]
