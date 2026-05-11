@@ -75,122 +75,94 @@
   </header>
 
   <!-- CONTENT -->
-  <main class="content">
-    <div class="col col--gap-lg"></div>
-    
-        <div class="table-wrapper">
-  <div class="table-toolbar">
-    <div class="table-toolbar__left">
-      <div class="table-search">
-        <i data-lucide="search" class="table-search__icon"></i>
-        <input class="table-search__input" placeholder="Search contacts..." />
-      </div>
-    </div>
-    <div class="table-toolbar__right">
-      <button class="btn btn--secondary btn--sm">
-        <i data-lucide="sliders-horizontal" class="btn__icon"></i>
-        Filter
-      </button>
-      <button class="btn btn--secondary btn--sm">
-        <i data-lucide="download" class="btn__icon"></i>
-        Export
-      </button>
-    </div>
+    <main class="content">
+        <div class="col col--gap-lg"></div>
+
+        <div class="card card--raised">
+  <div class="card__header">
+    <span class="card__title">Form Components</span>
   </div>
+  <div class="card__body">
+    <div class="grid grid--cols-2 grid--gap-md">
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></th>
-        <th class="sortable sorted">Name <i data-lucide="arrow-up" class="table__sort-icon"></i></th>
-        <th class="sortable">Company <i data-lucide="arrow-up" class="table__sort-icon"></i></th>
-        <th class="sortable">Status <i data-lucide="arrow-up" class="table__sort-icon"></i></th>
-        <th class="sortable">Deal Value <i data-lucide="arrow-up" class="table__sort-icon"></i></th>
-        <th class="table__actions-col"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></td>
-        <td>
-          <div class="table__cell-with-avatar">
-            <div class="table__avatar">JD</div>
-            <div>
-              <div class="table__cell-name">John Doe</div>
-              <div class="table__cell-sub">john@acme.com</div>
-            </div>
-          </div>
-        </td>
-        <td class="muted">Acme Corp</td>
-        <td><span class="badge badge--success"><span class="badge__dot"></span>Active</span></td>
-        <td>$12,400</td>
-        <td class="table__actions-col">
-          <button class="table__action-btn">
-            <i data-lucide="ellipsis" class="table__action-icon"></i>
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <td class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></td>
-        <td>
-          <div class="table__cell-with-avatar">
-            <div class="table__avatar" style="background:var(--gray-600);">SM</div>
-            <div>
-              <div class="table__cell-name">Sarah Miller</div>
-              <div class="table__cell-sub">sarah@globex.com</div>
-            </div>
-          </div>
-        </td>
-        <td class="muted">Globex Inc</td>
-        <td><span class="badge badge--warning">At Risk</span></td>
-        <td>$8,200</td>
-        <td class="table__actions-col">
-          <button class="table__action-btn">
-            <i data-lucide="ellipsis" class="table__action-icon"></i>
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <td class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></td>
-        <td>
-          <div class="table__cell-with-avatar">
-            <div class="table__avatar" style="background:var(--gray-500);">RK</div>
-            <div>
-              <div class="table__cell-name">Raj Kumar</div>
-              <div class="table__cell-sub">raj@initech.com</div>
-            </div>
-          </div>
-        </td>
-        <td class="muted">Initech</td>
-        <td><span class="badge badge--danger">Lost</span></td>
-        <td>$3,800</td>
-        <td class="table__actions-col">
-          <button class="table__action-btn">
-            <i data-lucide="ellipsis" class="table__action-icon"></i>
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      <div class="form-field">
+        <label class="form-label form-label--required">Full Name</label>
+        <input class="input" placeholder="John Doe" />
+        <span class="form-helper">Enter your full legal name.</span>
+      </div>
 
-  <div class="table-pagination">
-    <span class="table-pagination__info">Showing 1–3 of 40</span>
-    <div class="table-pagination__controls">
-      <button class="table-pagination__btn" disabled>
-        <i data-lucide="chevron-left" style="width:14px;height:14px;"></i>
-      </button>
-      <button class="table-pagination__btn table-pagination__btn--active">1</button>
-      <button class="table-pagination__btn">2</button>
-      <button class="table-pagination__btn">3</button>
-      <button class="table-pagination__btn">
-        <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
-      </button>
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <div class="input-wrapper">
+          <i data-lucide="mail" class="input-wrapper__icon"></i>
+          <input class="input" placeholder="john@example.com" type="email" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Status</label>
+        <select class="select">
+          <option>Lead</option>
+          <option>Qualified</option>
+          <option>Proposal</option>
+          <option>Won</option>
+          <option>Lost</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <input class="input input--error" type="password" placeholder="••••••••" />
+        <span class="form-error">
+          <i data-lucide="circle-alert" class="form-error__icon"></i>
+          Password must be at least 8 characters.
+        </span>
+      </div>
+
+      <div class="form-field span-2">
+        <label class="form-label">Notes</label>
+        <textarea class="textarea" placeholder="Add a note..."></textarea>
+      </div>
+
+      <div class="form-field">
+        <div class="row row--gap-md">
+          <label class="toggle">
+            <input type="checkbox" class="toggle__input" />
+            <div class="toggle__track"><div class="toggle__thumb"></div></div>
+            <span class="toggle__label">Active</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" class="toggle__input" checked />
+            <div class="toggle__track"><div class="toggle__thumb"></div></div>
+            <span class="toggle__label">Notifications</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="row row--gap-md">
+          <label class="checkbox">
+            <input type="checkbox" class="checkbox__input" checked />
+            <span class="checkbox__label">Subscribe</span>
+          </label>
+          <label class="radio">
+            <input type="radio" class="radio__input" name="type" checked />
+            <span class="radio__label">Lead</span>
+          </label>
+          <label class="radio">
+            <input type="radio" class="radio__input" name="type" />
+            <span class="radio__label">Client</span>
+          </label>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-    </div>
-</main>
+
+        </div>
+    </main>
 
 
 
