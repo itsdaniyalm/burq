@@ -1962,3 +1962,24 @@
   color: var(--muted-foreground);
   flex-shrink: 0;
 }
+
+/* ── SPINNER ── */
+.spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: var(--border-width-2) solid var(--muted);
+  border-top-color: var(--accent);
+  animation: spin 600ms linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner--sm { width: 16px; height: 16px; }
+.spinner--md { width: 24px; height: 24px; }
+.spinner--lg { width: 36px; height: 36px; }
+
+.spinner--muted { border-top-color: var(--muted-foreground); }
+.spinner--white { border-top-color: var(--white); }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
