@@ -1912,3 +1912,53 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
+
+/* ── BREADCRUMB ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  list-style: none;
+}
+
+.breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.breadcrumb__link {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  transition: color var(--transition-base);
+  white-space: nowrap;
+}
+
+.breadcrumb__link:hover {
+  color: var(--foreground);
+}
+
+.breadcrumb__current {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.breadcrumb__separator {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted-foreground);
+  width: 14px;
+  height: 14px;
+}
+
+.breadcrumb__icon {
+  width: 14px;
+  height: 14px;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}

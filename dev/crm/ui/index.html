@@ -79,60 +79,39 @@
           <div style="padding: var(--space-6);">
 
 
+<!-- chevron separator -->
+<nav>
+  <ol class="breadcrumb">
+    <li class="breadcrumb__item">
+      <i data-lucide="house" class="breadcrumb__icon"></i>
+    </li>
+    <li class="breadcrumb__item">
+      <i data-lucide="chevron-right" class="breadcrumb__separator"></i>
+      <a class="breadcrumb__link" href="#">Contacts</a>
+    </li>
+    <li class="breadcrumb__item">
+      <i data-lucide="chevron-right" class="breadcrumb__separator"></i>
+      <span class="breadcrumb__current">John Doe</span>
+    </li>
+  </ol>
+</nav>
 
-            <div class="row row--gap-md">
-
-            <!-- basic dropdown -->
-            <div class="dropdown">
-                <button class="btn btn--secondary btn--sm" data-dropdown-trigger>
-                Actions
-                <i data-lucide="chevron-down" class="btn__icon"></i>
-                </button>
-                <div class="dropdown__menu">
-                <div class="dropdown__label">Contact</div>
-                <button class="dropdown__item">
-                    <i data-lucide="pencil" class="dropdown__icon"></i>
-                    Edit
-                </button>
-                <button class="dropdown__item">
-                    <i data-lucide="copy" class="dropdown__icon"></i>
-                    Duplicate
-                </button>
-                <button class="dropdown__item dropdown__item--disabled">
-                    <i data-lucide="share" class="dropdown__icon"></i>
-                    Share
-                </button>
-                <div class="dropdown__divider"></div>
-                <button class="dropdown__item dropdown__item--danger">
-                    <i data-lucide="trash-2" class="dropdown__icon"></i>
-                    Delete
-                </button>
-                </div>
-            </div>
-
-            <!-- icon trigger -->
-            <div class="dropdown">
-                <button class="btn btn--ghost btn--icon" data-dropdown-trigger>
-                <i data-lucide="ellipsis" class="btn__icon"></i>
-                </button>
-                <div class="dropdown__menu">
-                <button class="dropdown__item">
-                    <i data-lucide="eye" class="dropdown__icon"></i>
-                    View
-                </button>
-                <button class="dropdown__item">
-                    <i data-lucide="pencil" class="dropdown__icon"></i>
-                    Edit
-                </button>
-                <div class="dropdown__divider"></div>
-                <button class="dropdown__item dropdown__item--danger">
-                    <i data-lucide="trash-2" class="dropdown__icon"></i>
-                    Delete
-                </button>
-                </div>
-            </div>
-
-            </div>
+<!-- slash separator -->
+<nav>
+  <ol class="breadcrumb">
+    <li class="breadcrumb__item">
+      <a class="breadcrumb__link" href="#">Home</a>
+    </li>
+    <li class="breadcrumb__item">
+      <span class="breadcrumb__separator">/</span>
+      <a class="breadcrumb__link" href="#">Deals</a>
+    </li>
+    <li class="breadcrumb__item">
+      <span class="breadcrumb__separator">/</span>
+      <span class="breadcrumb__current">Q2 Enterprise Deal</span>
+    </li>
+  </ol>
+</nav>
 
 
 
