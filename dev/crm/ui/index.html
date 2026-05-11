@@ -80,52 +80,42 @@
 
 
 
-<!-- default tabs -->
-<div class="tabs">
-  <div class="tabs__list">
-    <button class="tabs__trigger">
-      <i data-lucide="users" class="tabs__trigger__icon"></i>
-      Contacts
-      <span class="badge badge--default">40</span>
-    </button>
-    <button class="tabs__trigger">
-      <i data-lucide="circle-dollar-sign" class="tabs__trigger__icon"></i>
-      Deals
-    </button>
-    <button class="tabs__trigger">
-      <i data-lucide="activity" class="tabs__trigger__icon"></i>
-      Activities
-    </button>
+<div class="col col--gap-md">
+
+  <!-- sizes -->
+  <div class="row row--gap-md row--start">
+    <div class="avatar avatar--xs">JD</div>
+    <div class="avatar avatar--sm">JD</div>
+    <div class="avatar avatar--md">JD</div>
+    <div class="avatar avatar--lg">JD</div>
+    <div class="avatar avatar--xl">JD</div>
   </div>
-  <div class="tabs__panel">
-    <p style="color:var(--muted-foreground);">Contacts panel content.</p>
+
+<!-- round + status -->
+<div class="row row--gap-md row--start">
+  <div style="position:relative;display:inline-flex;">
+    <div class="avatar avatar--md avatar--round">JD</div>
+    <span class="avatar__status avatar__status--online"></span>
   </div>
-  <div class="tabs__panel">
-    <p style="color:var(--muted-foreground);">Deals panel content.</p>
+  <div style="position:relative;display:inline-flex;">
+    <div class="avatar avatar--md avatar--round avatar--gray">SM</div>
+    <span class="avatar__status avatar__status--away"></span>
   </div>
-  <div class="tabs__panel">
-    <p style="color:var(--muted-foreground);">Activities panel content.</p>
+  <div style="position:relative;display:inline-flex;">
+    <div class="avatar avatar--md avatar--round">RK</div>
+    <span class="avatar__status avatar__status--offline"></span>
   </div>
 </div>
 
-<!-- pills tabs -->
-<div class="tabs tabs--pills">
-  <div class="tabs__list">
-    <button class="tabs__trigger">Overview</button>
-    <button class="tabs__trigger">Analytics</button>
-    <button class="tabs__trigger">Reports</button>
+  <!-- group -->
+  <div class="avatar-group">
+    <div class="avatar avatar--md avatar--round">JD</div>
+    <div class="avatar avatar--md avatar--round avatar--gray">SM</div>
+    <div class="avatar avatar--md avatar--round">RK</div>
+    <div class="avatar-group__overflow">+4</div>
   </div>
-  <div class="tabs__panel">
-    <p style="color:var(--muted-foreground);">Overview panel.</p>
-  </div>
-  <div class="tabs__panel">
-    <p style="color:var(--muted-foreground);">Analytics panel.</p>
-  </div>
-  <div class="tabs__panel">
-    <p style="color:var(--muted-foreground);">Reports panel.</p>
-  </div>
-</div>        
 
+</div>
 
 
 
