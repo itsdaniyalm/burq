@@ -837,10 +837,11 @@ def render_base_template(app) -> str:
         </a>'''
 
     default_logo = '''<svg class="sidebar__logo-mark" viewBox="0 0 56 56" fill="none">
-        <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#f5f5f5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#f5f5f5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#F0A202"/>
-      </svg>'''
+        <rect width="56" height="56" rx="12" fill="var(--accent)"/>
+        <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#ffffff"/>
+        </svg>'''
 
     logo_html = app.logo if app.logo else default_logo
 
