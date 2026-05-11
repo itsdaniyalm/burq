@@ -1,10 +1,3 @@
-```cmd
-type nul > PROGRESS.md
-```
-
-Paste this:
-
-```markdown
 # Burq ⚡ — Development Progress
 
 ## Project Structure

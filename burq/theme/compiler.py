@@ -2,30 +2,29 @@ from .theme import Theme
 
 GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family={sans}:wght@300;400;500;600;700&family={mono}:wght@400;700&display=swap"
 
-RADIUS_MAP = {
-    "none": "0px",
-    "sm":   "4px",
-    "md":   "6px",
-    "lg":   "8px",
-    "xl":   "12px",
-    "2xl":  "16px",
-}
-
 def compile_tokens(theme: Theme) -> str:
-    brand = theme.brand_scale()
-    gray  = theme.gray_scale()
+    brand   = theme.brand_scale()
+    gray    = theme.gray_scale()
+    success = theme.success_scale()
+    warning = theme.warning_scale()
+    error   = theme.error_scale()
+    spacing = theme.spacing_scale()
+    fonts   = theme.font_scale()
+    radii   = theme.radius_scale()
+    shadows = theme.shadow_scale()
 
     font_url = GOOGLE_FONTS_URL.format(
         sans=theme.font_sans.replace(" ", "+"),
         mono=theme.font_mono.replace(" ", "+")
     )
 
-    radius_base = RADIUS_MAP[theme.radius]
+    bw  = theme.border_width
 
     return f"""@import url('{font_url}');
 
 /* ── PRIMITIVES ── */
 :root {{
+  /* gray scale */
   --gray-100: {gray[100]};
   --gray-200: {gray[200]};
   --gray-300: {gray[300]};
@@ -36,6 +35,7 @@ def compile_tokens(theme: Theme) -> str:
   --gray-800: {gray[800]};
   --gray-900: {gray[900]};
 
+  /* brand scale */
   --brand-100: {brand[100]};
   --brand-200: {brand[200]};
   --brand-400: {brand[400]};
@@ -46,34 +46,89 @@ def compile_tokens(theme: Theme) -> str:
   --white: #ffffff;
   --black: #0a0a0a;
 
+  /* ── STATUS COLORS ── */
+  --color-success:      {success[500]};
+  --color-success-dark: {success[300]};
+  --color-error:        {error[500]};
+  --color-error-dark:   {error[300]};
+  --color-warning:      {warning[500]};
+  --color-warning-dark: {warning[300]};
+
   /* ── RADIUS ── */
-  --radius-none: 0px;
-  --radius-sm:   {_step(radius_base, 0)};
-  --radius-md:   {_step(radius_base, 1)};
-  --radius-lg:   {_step(radius_base, 2)};
-  --radius-xl:   {_step(radius_base, 3)};
-  --radius-2xl:  {_step(radius_base, 4)};
+  --radius-none: {radii['radius-none']};
+  --radius-sm:   {radii['radius-sm']};
+  --radius-md:   {radii['radius-md']};
+  --radius-lg:   {radii['radius-lg']};
+  --radius-xl:   {radii['radius-xl']};
+  --radius-2xl:  {radii['radius-2xl']};
 
   /* ── SPACING ── */
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-3:  12px;
-  --space-4:  16px;
-  --space-6:  24px;
-  --space-8:  32px;
-  --space-12: 48px;
+  --space-1:  {spacing['space-1']};
+  --space-2:  {spacing['space-2']};
+  --space-3:  {spacing['space-3']};
+  --space-4:  {spacing['space-4']};
+  --space-6:  {spacing['space-6']};
+  --space-8:  {spacing['space-8']};
+  --space-12: {spacing['space-12']};
 
   /* ── TYPOGRAPHY ── */
-  --text-xs:   11px;
-  --text-sm:   12px;
-  --text-base: 14px;
-  --text-md:   16px;
-  --text-lg:   20px;
-  --text-xl:   24px;
-  --text-2xl:  32px;
+  --text-xs:   {fonts['text-xs']};
+  --text-sm:   {fonts['text-sm']};
+  --text-base: {fonts['text-base']};
+  --text-md:   {fonts['text-md']};
+  --text-lg:   {fonts['text-lg']};
+  --text-xl:   {fonts['text-xl']};
+  --text-2xl:  {fonts['text-2xl']};
 
   --font-sans: '{theme.font_sans}', sans-serif;
   --font-mono: '{theme.font_mono}', monospace;
+
+  /* ── BORDER ── */
+  --border-width:   {bw}px;
+  --border-width-2: {bw * 2}px;
+  --border-width-3: {bw * 3}px;
+
+  /* ── SHADOW ── */
+  --shadow-sm: {shadows['shadow-sm']};
+  --shadow-md: {shadows['shadow-md']};
+  --shadow-lg: {shadows['shadow-lg']};
+
+  /* ── FOCUS RING ── */
+  --focus-ring:       0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+  --focus-ring-error: 0 0 0 3px color-mix(in srgb, var(--color-error) 20%, transparent);
+
+  /* ── TRANSITIONS ── */
+  --transition-fast: 100ms ease;
+  --transition-base: 150ms ease;
+  --transition-slow: 200ms ease;
+
+  /* ── Z-INDEX ── */
+  --z-dropdown: 150;
+  --z-sticky:   10;
+  --z-sidebar:  20;
+  --z-modal:    200;
+  --z-toast:    300;
+
+  /* ── TOAST ── */
+  --toast-width: 320px;
+  --toast-gap:   var(--space-3);
+
+  /* ── MODAL ── */
+  --modal-sm: 400px;
+  --modal-md: 560px;
+  --modal-lg: 720px;
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+
+  /* ── TABS ── */
+  --tab-indicator-height: 2px;
+
+  /* ── SKELETON ── */
+  --skeleton-bg:    var(--muted);
+  --skeleton-shine: var(--surface-raised);
+
+  /* ── PROGRESS ── */
+  --progress-bg:     var(--muted);
+  --progress-radius: var(--radius-2xl);
 }}
 
 /* ── LIGHT THEME ── */
@@ -120,8 +175,3 @@ body {{
   -webkit-font-smoothing: antialiased;
 }}
 """
-
-def _step(base: str, steps: int) -> str:
-    """Increment radius by 2px per step from base."""
-    base_val = int(base.replace("px", ""))
-    return f"{base_val + (steps * 2)}px"
