@@ -78,115 +78,12 @@
     <main class="content">
         <div class="col col--gap-lg"></div>
 
-        <div class="card card--raised">
-  <div class="card__header">
-    <span class="card__title">Form Components</span>
-  </div>
-  <div class="card__body">
-    <div class="grid grid--cols-2 grid--gap-md">
-
-      <div class="form-field">
-        <label class="form-label form-label--required">Full Name</label>
-        <input class="input" placeholder="John Doe" />
-        <span class="form-helper">Enter your full legal name.</span>
-      </div>
-
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <div class="input-wrapper">
-          <i data-lucide="mail" class="input-wrapper__icon"></i>
-          <input class="input" placeholder="john@example.com" type="email" />
-        </div>
-      </div>
-
- <div class="form-field">
-  <label class="form-label">Status</label>
-  <div class="custom-select">
-    <div class="custom-select__trigger">
-      <span class="custom-select__placeholder">Select status...</span>
-      <span class="custom-select__value"></span>
-      <div class="custom-select__icons">
-        <span class="custom-select__clear"><i data-lucide="x" style="width:12px;height:12px;"></i></span>
-        <i data-lucide="chevron-down" class="custom-select__chevron"></i>
-      </div>
-    </div>
-    <div class="custom-select__dropdown">
-      <div class="custom-select__search">
-        <i data-lucide="search" class="custom-select__search-icon"></i>
-        <input class="custom-select__search-input" placeholder="Search..." />
-      </div>
-      <div class="custom-select__options">
-        <div class="custom-select__option" data-value="lead">
-          Lead <i data-lucide="check" class="custom-select__option-check"></i>
-        </div>
-        <div class="custom-select__option" data-value="qualified">
-          Qualified <i data-lucide="check" class="custom-select__option-check"></i>
-        </div>
-        <div class="custom-select__option" data-value="proposal">
-          Proposal <i data-lucide="check" class="custom-select__option-check"></i>
-        </div>
-        <div class="custom-select__option" data-value="won">
-          Won <i data-lucide="check" class="custom-select__option-check"></i>
-        </div>
-        <div class="custom-select__option" data-value="lost">
-          Lost <i data-lucide="check" class="custom-select__option-check"></i>
-        </div>
-        <div class="custom-select__empty">No results found.</div>
-      </div>
-    </div>
-  </div>
+<div class="row row--gap-sm">
+  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Saved', message: 'Contact updated successfully.', type: 'success' })">Success Toast</button>
+  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Error', message: 'Something went wrong.', type: 'error' })">Error Toast</button>
+  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Warning', message: 'Please review before saving.', type: 'warning' })">Warning Toast</button>
+  <button class="btn btn--secondary btn--sm" onclick="ToastManager.show({ title: 'Info', message: 'Your session expires in 5 minutes.', type: 'info' })">Info Toast</button>
 </div>
-
-      <div class="form-field">
-        <label class="form-label">Password</label>
-        <input class="input input--error" type="password" placeholder="••••••••" />
-        <span class="form-error">
-          <i data-lucide="circle-alert" class="form-error__icon"></i>
-          Password must be at least 8 characters.
-        </span>
-      </div>
-
-      <div class="form-field span-2">
-        <label class="form-label">Notes</label>
-        <textarea class="textarea" placeholder="Add a note..."></textarea>
-      </div>
-
-      <div class="form-field">
-        <div class="row row--gap-md">
-          <label class="toggle">
-            <input type="checkbox" class="toggle__input" />
-            <div class="toggle__track"><div class="toggle__thumb"></div></div>
-            <span class="toggle__label">Active</span>
-          </label>
-          <label class="toggle">
-            <input type="checkbox" class="toggle__input" checked />
-            <div class="toggle__track"><div class="toggle__thumb"></div></div>
-            <span class="toggle__label">Notifications</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="form-field">
-        <div class="row row--gap-md">
-          <label class="checkbox">
-            <input type="checkbox" class="checkbox__input" checked />
-            <span class="checkbox__label">Subscribe</span>
-          </label>
-          <label class="radio">
-            <input type="radio" class="radio__input" name="type" checked />
-            <span class="radio__label">Lead</span>
-          </label>
-          <label class="radio">
-            <input type="radio" class="radio__input" name="type" />
-            <span class="radio__label">Client</span>
-          </label>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
 
         </div>
     </main>
@@ -314,7 +211,50 @@
     });
   });
 }
+const ToastManager = {
+  container: null,
 
+  init() {
+    this.container = document.createElement('div');
+    this.container.className = 'toast-container';
+    document.body.appendChild(this.container);
+  },
+
+  show({ title, message = '', type = 'info', duration = 3000 }) {
+    const icons = {
+      success: 'circle-check',
+      error:   'circle-x',
+      warning: 'triangle-alert',
+      info:    'info'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.innerHTML = `
+      <i data-lucide="${icons[type]}" class="toast__icon"></i>
+      <div class="toast__body">
+        <div class="toast__title">${title}</div>
+        ${message ? `<div class="toast__message">${message}</div>` : ''}
+      </div>
+      <button class="toast__close">
+        <i data-lucide="x" style="width:12px;height:12px;"></i>
+      </button>
+    `;
+
+    this.container.appendChild(toast);
+lucide.createIcons();
+
+const dismiss = () => {
+  toast.classList.add('toast--dismissing');
+  setTimeout(() => toast.remove(), 200);
+};
+
+toast.querySelector('.toast__close').addEventListener('click', dismiss);
+if (duration > 0) setTimeout(dismiss, duration);
+  }
+};
+
+ToastManager.init();
 initCustomSelects();
 </script>
 

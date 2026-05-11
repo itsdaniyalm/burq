@@ -22,6 +22,14 @@
   --white: #ffffff;
   --black: #0a0a0a;
 
+  /* ── STATUS COLORS ── */
+  --color-success: #16a34a;
+  --color-success-dark: #4ade80;
+  --color-error: #dc2626;
+  --color-error-dark: #f87171;
+  --color-warning: #d97706;
+  --color-warning-dark: #fbbf24;
+
   /* ── SCALE ── */
   --radius-none: 0px;
   --radius-sm:   4px;
@@ -49,9 +57,10 @@
   --font-sans: 'Space Grotesk', sans-serif;
   --font-mono: 'Space Mono', monospace;
 
-    /* ── BORDER ── */
+  /* ── BORDER ── */
   --border-width: 1px;
   --border-width-2: 2px;
+  --border-width-3: 3px;
 
   /* ── SHADOW ── */
   --shadow-sm: 0 1px 4px 0 rgba(0,0,0,0.08);
@@ -73,6 +82,10 @@
   --z-sidebar: 20;
   --z-modal: 200;
   --z-toast: 300;
+
+  /* ── TOAST ── */
+  --toast-width: 320px;
+  --toast-gap: var(--space-3);
   }
 
 /* ── LIGHT THEME ── */
@@ -118,3 +131,4 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+
