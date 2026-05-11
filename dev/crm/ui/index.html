@@ -75,32 +75,44 @@
   </header>
 
   <!-- CONTENT -->
-  <main class="content">
+ <main class="content">
+  <div class="col col--gap-lg">
 
-    <div class="col col--gap-lg">
+    <div class="grid grid--cols-3 grid--gap-md">
 
-      <!-- ROW TEST -->
-      <div class="row row--between">
-        <div style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Row Item 1</div>
-        <div style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Row Item 2</div>
-        <div style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Row Item 3</div>
+      <div class="card span-1">
+        <div class="card__header">
+          <span class="card__title">Default Card</span>
+        </div>
+        <div class="card__body">
+          <p style="color:var(--muted-foreground);font-size:var(--text-sm);">This is a default surface card.</p>
+        </div>
+        <div class="card__footer">
+          <span style="font-size:var(--text-sm);color:var(--muted-foreground);">Footer</span>
+        </div>
       </div>
 
-      <hr class="divider" />
+      <div class="card card--raised span-1">
+        <div class="card__header">
+          <span class="card__title">Raised Card</span>
+        </div>
+        <div class="card__body">
+          <p style="color:var(--muted-foreground);font-size:var(--text-sm);">Elevated surface with shadow.</p>
+        </div>
+      </div>
 
-      <!-- GRID TEST -->
-      <div class="grid grid--cols-3 grid--gap-md">
-        <div class="span-1" style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Col 1</div>
-        <div class="span-1" style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Col 2</div>
-        <div class="span-1" style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Col 3</div>
-        <div class="span-2" style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Span 2</div>
-        <div class="span-1" style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Span 1</div>
-        <div class="span-3" style="background:var(--surface);padding:var(--space-4);border-radius:var(--radius-lg);color:var(--foreground);">Span 3 full</div>
+      <div class="card card--flat span-1">
+        <div class="card__header">
+          <span class="card__title">Flat Card</span>
+        </div>
+        <div class="card__body">
+          <p style="color:var(--muted-foreground);font-size:var(--text-sm);">Transparent background, border only.</p>
+        </div>
       </div>
 
     </div>
-
-  </main>
+  </div>
+</main>
 
 </div>
 
