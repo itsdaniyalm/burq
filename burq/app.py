@@ -55,7 +55,10 @@ class App:
         if not fn:
             raise ValueError(f"No page registered for path: {path}")
         reset_context()
-        fn()
+        import inspect
+        sig = inspect.signature(fn)
+        dummy_kwargs = {k: f"{{{k}}}" for k in sig.parameters}
+        fn(**dummy_kwargs)
         return get_context().collect()
 
     def run_modal(self, name: str) -> list:

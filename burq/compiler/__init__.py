@@ -30,8 +30,9 @@ def compile_app(app: App, output_dir: str = "dist"):
 
         title    = fn.__name__.replace("_", " ").title()
         filename = _path_to_filename(path)
+        print(f"  DEBUG path='{path}' has_braces={'{' in path}") 
 
-        _write(templates_dir, filename, render_page_template(page_content, modal_content))
+        _write(templates_dir, filename, render_page_template(page_content, modal_content, url_pattern=path))
         print(f"  ✓ templates/{filename}")
 
         route_entries.append((path, fn.__name__, filename, title))

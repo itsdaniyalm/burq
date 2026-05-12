@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from db import get_db, engine
 from models import Base, Contact, Deal, Activity
-from typing import Optional
 from fastapi.staticfiles import StaticFiles
 import os
 import importlib.util
@@ -20,42 +19,38 @@ app.add_middleware(
 )
 
 # --- CONTACTS ---
-
-@app.get("/contacts/")
+@app.get("/api/contacts/")
 def list_contacts(db: Session = Depends(get_db)):
     return db.query(Contact).all()
 
-@app.get("/contacts/{contact_id}")
+@app.get("/api/contacts/{contact_id}")
 def get_contact(contact_id: int, db: Session = Depends(get_db)):
     return db.query(Contact).filter(Contact.id == contact_id).first()
 
-# --- DEALS ---
-
-@app.get("/deals/")
-def list_deals(db: Session = Depends(get_db)):
-    return db.query(Deal).all()
-
-@app.get("/deals/{deal_id}")
-def get_deal(deal_id: int, db: Session = Depends(get_db)):
-    return db.query(Deal).filter(Deal.id == deal_id).first()
-
-@app.get("/contacts/{contact_id}/deals")
+@app.get("/api/contacts/{contact_id}/deals")
 def contact_deals(contact_id: int, db: Session = Depends(get_db)):
     return db.query(Deal).filter(Deal.contact_id == contact_id).all()
 
-# --- ACTIVITIES ---
-
-@app.get("/activities/")
-def list_activities(db: Session = Depends(get_db)):
-    return db.query(Activity).all()
-
-@app.get("/contacts/{contact_id}/activities")
+@app.get("/api/contacts/{contact_id}/activities")
 def contact_activities(contact_id: int, db: Session = Depends(get_db)):
     return db.query(Activity).filter(Activity.contact_id == contact_id).all()
 
-# --- SUMMARY ---
+# --- DEALS ---
+@app.get("/api/deals/")
+def list_deals(db: Session = Depends(get_db)):
+    return db.query(Deal).all()
 
-@app.get("/summary/")
+@app.get("/api/deals/{deal_id}")
+def get_deal(deal_id: int, db: Session = Depends(get_db)):
+    return db.query(Deal).filter(Deal.id == deal_id).first()
+
+# --- ACTIVITIES ---
+@app.get("/api/activities/")
+def list_activities(db: Session = Depends(get_db)):
+    return db.query(Activity).all()
+
+# --- SUMMARY ---
+@app.get("/api/summary/")
 def summary(db: Session = Depends(get_db)):
     total_contacts = db.query(Contact).count()
     total_deals    = db.query(Deal).count()

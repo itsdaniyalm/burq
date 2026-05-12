@@ -13,20 +13,23 @@ const Burq = {{
 
   // ── FETCH ──
   async fetch(method, endpoint, data = null) {{
-    const url = this.apiBase + endpoint;
-    const opts = {{
-      method,
-      headers: {{
-        "Content-Type": "application/json",
-        ...(this.apiKey ? {{ "Authorization": `Bearer ${{this.apiKey}}` }} : {{}})
-      }},
-    }};
-    if (data && method !== "GET") opts.body = JSON.stringify(data);
-    const res = await fetch(url, opts);
-    if (!res.ok) throw new Error(`Burq fetch error: ${{res.status}} ${{res.statusText}}`);
-    return res.json();
+      let resolvedEndpoint = endpoint;
+      if (window.__burqParams) {{
+        resolvedEndpoint = endpoint.replace(/\\{{(\\w+)\\}}/g, (_, key) => window.__burqParams[key] || "");
+      }}
+      const url = this.apiBase + resolvedEndpoint;
+      const opts = {{
+        method,
+        headers: {{
+          "Content-Type": "application/json",
+          ...(this.apiKey ? {{ "Authorization": `Bearer ${{this.apiKey}}` }} : {{}})
+        }},
+      }};
+      if (data && method !== "GET") opts.body = JSON.stringify(data);
+      const res = await fetch(url, opts);
+      if (!res.ok) throw new Error(`Burq fetch error: ${{res.status}} ${{res.statusText}}`);
+      return res.json();
   }},
-
   // ── NAVIGATE ──
   navigate(href) {{
     window.location.href = href;
@@ -502,6 +505,21 @@ function initActiveNav() {{
   }});
 }}
 
+// ── URL PARAMS ──
+function initUrlParams() {{
+  const page = document.querySelector(".burq-page[data-url-pattern]");
+  if (!page) return;
+  const pattern = page.getAttribute("data-url-pattern");
+  const path    = window.location.pathname;
+  const keys    = [];
+  const regexStr = pattern.replace(/\\{{(\\w+)\\}}/g, (_, k) => {{ keys.push(k); return "([^/]+)"; }});
+  const match   = path.match(new RegExp("^" + regexStr + "$"));
+  if (match) {{
+    window.__burqParams = {{}};
+    keys.forEach((k, i) => {{ window.__burqParams[k] = match[i+1]; }});
+  }}
+}}
+
 // ── INIT ──
 function burqInit() {{
   ToastManager.init();
@@ -511,6 +529,7 @@ function burqInit() {{
   initTabs();
   initDropdowns();
   initCustomSelects();
+  initUrlParams();
   initTables();
   initTableExport();
   initActiveNav();

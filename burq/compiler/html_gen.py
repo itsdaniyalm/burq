@@ -923,9 +923,28 @@ def render_base_template(app) -> str:
 </body>
 </html>'''
 
-def render_page_template(page_content: str, modal_content: str = "", page_title: str = "") -> str:
+def render_page_template(page_content: str, modal_content: str = "", url_pattern: str = "") -> str:
+
+    param_script = ""
+    if "{" in url_pattern:
+        js = (
+            "(function() {\n"
+            "  var pattern = \"" + url_pattern + "\";\n"
+            "  var path    = window.location.pathname;\n"
+            "  var keys    = [];\n"
+            "  var regexStr = pattern.replace(/\\{(\\w+)\\}/g, function(_, k) { keys.push(k); return \"([^/]+)\"; });\n"
+            "  var match   = path.match(new RegExp(\"^\" + regexStr + \"$\"));\n"
+            "  if (match) {\n"
+            "    window.__burqParams = {};\n"
+            "    keys.forEach(function(k, i) { window.__burqParams[k] = match[i+1]; });\n"
+            "  }\n"
+            "})();"
+        )
+        param_script = "<script>\n" + js + "\n</script>"
+
     return f"""{{% extends "base.html" %}}
 {{% block content %}}
+{param_script}
 {page_content}
 {{% endblock %}}
 

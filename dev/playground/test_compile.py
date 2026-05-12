@@ -8,7 +8,7 @@ from burq.compiler import compile_app
 app = bq.App(
     title="Burq CRM",
     author="Daniyal",
-    api_base="http://localhost:8000",
+    api_base="http://localhost:8000/api",
     layout=bq.Layout(sidebar=True, topbar=True),
     theme=bq.Theme(
         radius="md",
@@ -26,7 +26,7 @@ app = bq.App(
 app.nav([
     bq.NavItem("Dashboard", icon="layout-dashboard", href="/"),
     bq.NavItem("Contacts",  icon="users",            href="/contacts"),
-    bq.NavItem("Deals",     icon="circle-dollar-sign",href="/deals"),
+    bq.NavItem("Deals",     icon="circle-dollar-sign", href="/deals"),
 ], footer=[
     bq.NavItem("Settings",  icon="settings",         href="/settings"),
 ])
@@ -91,6 +91,83 @@ def contacts():
         actions=["edit", "delete"],
     )
 
+
+@app.page("/deals")
+def deals():
+    bq.title("Deals")
+    bq.table(
+        data=bq.fetch("GET", "/deals/"),
+        columns=["title", "status", "value", "created_at"],
+        column_config={
+            "title": bq.TextColumn(),
+            "status": bq.BadgeColumn(variant_map={
+                "lead":      "default",
+                "qualified": "info",
+                "proposal":  "warning",
+                "won":       "success",
+                "lost":      "danger",
+            }),
+            "value":      bq.CurrencyColumn(prefix="$", decimals=2),
+            "created_at": bq.DateColumn(),
+        },
+        searchable=True,
+        sortable=True,
+        checkable=True,
+        actions=["edit", "delete"],
+    )
+
+
+@app.page("/contacts/{contact_id}")
+def contact_detail(contact_id):
+    bq.title("Contact")
+    bq.spacer(size="md")
+
+    with bq.row():
+        bq.metric("Status",       "—")
+        bq.metric("Phone",        "—")
+        bq.metric("Company",      "—")
+        bq.metric("Member Since", "—")
+
+    bq.spacer(size="md")
+
+    with bq.tabs(["Deals", "Activities"]):
+        with bq.tab("Deals"):
+            bq.table(
+                data=bq.fetch("GET", "/contacts/{contact_id}/deals"),
+                columns=["title", "status", "value", "created_at"],
+                column_config={
+                    "status": bq.BadgeColumn(variant_map={
+                        "lead":      "default",
+                        "qualified": "info",
+                        "proposal":  "warning",
+                        "won":       "success",
+                        "lost":      "danger",
+                    }),
+                    "value":      bq.CurrencyColumn(prefix="$", decimals=2),
+                    "created_at": bq.DateColumn(),
+                },
+                searchable=True,
+                sortable=True,
+            )
+
+        with bq.tab("Activities"):
+            bq.table(
+                data=bq.fetch("GET", "/contacts/{contact_id}/activities"),
+                columns=["type", "note", "created_at"],
+                column_config={
+                    "type": bq.BadgeColumn(variant_map={
+                        "call":    "info",
+                        "email":   "default",
+                        "meeting": "success",
+                        "note":    "warning",
+                    }),
+                    "created_at": bq.DateColumn(),
+                },
+                searchable=True,
+                sortable=True,
+            )
+
+
 # ── MODALS ──
 @app.modal("add-contact")
 def add_contact_modal():
@@ -101,7 +178,7 @@ def add_contact_modal():
                 bq.input("Email",     type="email",  icon="mail")
                 bq.input("Company")
                 bq.select("Status",
-                    options=["Lead","Qualified","Won","Lost"],
+                    options=["Lead", "Qualified", "Won", "Lost"],
                     searchable=True
                 )
         with bq.modal_footer():
