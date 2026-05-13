@@ -25,3 +25,9 @@ def pagination(total: int, page: int = 1, per_page: int = 10, on_change: str = "
         "per_page":  per_page,
         "on_change": on_change,
     })
+
+def contact_profile(endpoint: str):
+    leaf_node("contact_profile", props={"endpoint": endpoint})
+
+def markdown(content: str):
+    leaf_node("markdown", props={"content": content})

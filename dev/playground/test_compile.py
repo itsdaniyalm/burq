@@ -89,6 +89,7 @@ def contacts():
         sortable=True,
         checkable=True,
         actions=["edit", "delete"],
+        row_href="/contacts/{id}",
     )
 
 
@@ -119,14 +120,14 @@ def deals():
 
 @app.page("/contacts/{contact_id}")
 def contact_detail(contact_id):
-    bq.title("Contact")
-    bq.spacer(size="md")
+    bq.breadcrumb(items=[
+        {"label": "Contacts", "href": "/contacts"},
+        {"label": "Contact Detail"},
+    ])
+    bq.spacer(size="sm")
 
-    with bq.row():
-        bq.metric("Status",       "—")
-        bq.metric("Phone",        "—")
-        bq.metric("Company",      "—")
-        bq.metric("Member Since", "—")
+    # profile header — hydrates client-side
+    bq.contact_profile(endpoint="/contacts/{contact_id}")
 
     bq.spacer(size="md")
 
@@ -166,7 +167,6 @@ def contact_detail(contact_id):
                 searchable=True,
                 sortable=True,
             )
-
 @app.page("/settings")
 def settings():
     bq.title("Settings")

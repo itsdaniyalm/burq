@@ -101,3 +101,37 @@ def card(
 
 def spacer(size: str = "md"):
     leaf_node("spacer", {"size": size})
+
+@contextmanager
+def box(
+    background: str  = None,
+    border:     bool = False,
+    radius:     str  = "lg",
+    padding:    str  = "md",
+    foreground: str  = None,
+):
+    bg_map  = {
+        "muted":          "var(--muted)",
+        "surface":        "var(--surface)",
+        "surface_raised": "var(--surface-raised)",
+        "background":     "var(--background)",
+    }
+    fg_map  = {
+        "muted":   "var(--muted-foreground)",
+        "default": "var(--foreground)",
+    }
+    pad_map = {"none":"0","sm":"var(--space-3)","md":"var(--space-4)","lg":"var(--space-6)"}
+    rad_map = {"none":"0","sm":"var(--radius-sm)","md":"var(--radius-md)","lg":"var(--radius-lg)","xl":"var(--radius-xl)"}
+
+    bg_val  = bg_map.get(background, background)
+    fg_val  = fg_map.get(foreground, foreground)
+    pad_val = pad_map.get(padding, "var(--space-4)")
+    rad_val = rad_map.get(radius, "var(--radius-lg)")
+
+    style = f"padding:{pad_val};border-radius:{rad_val};"
+    if bg_val: style += f"background:{bg_val};"
+    if fg_val: style += f"color:{fg_val};"
+    if border: style += "border:var(--border-width) solid var(--border);"
+
+    with container_node("box", {"style": style}):
+        yield

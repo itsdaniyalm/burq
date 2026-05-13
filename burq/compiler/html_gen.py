@@ -105,6 +105,9 @@ def render_node(node: dict, app=None) -> str:
         "accordion":    render_accordion,
         "empty_state":  render_empty_state,
         "pagination":   render_pagination,
+        "contact_profile": render_contact_profile,
+        "box":      render_box,
+        "markdown": render_markdown,
     }
 
     renderer = renderers.get(tag)
@@ -369,6 +372,90 @@ def render_breadcrumb(props, children):
 
     return f'<nav><ol class="breadcrumb">{items_html}</ol></nav>'
 
+def render_contact_profile(props, children):
+    endpoint = props.get("endpoint", "")
+    uid = "contact-profile"
+
+    return f'''
+<div id="{uid}">
+  <div class="contact-profile">
+    <div class="skeleton skeleton--avatar-lg" style="width:56px;height:56px;border-radius:var(--radius-xl);flex-shrink:0;"></div>
+    <div class="col" style="gap:var(--space-2);flex:1;">
+      <div class="skeleton skeleton--text-lg" style="width:180px;"></div>
+      <div class="skeleton skeleton--text-sm" style="width:120px;"></div>
+    </div>
+    <div class="row" style="gap:var(--space-4);margin-left:auto;">
+      <div class="skeleton skeleton--rect" style="width:90px;height:48px;"></div>
+      <div class="skeleton skeleton--rect" style="width:90px;height:48px;"></div>
+      <div class="skeleton skeleton--rect" style="width:90px;height:48px;"></div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", async function() {{
+  try {{
+    const endpoint = "{endpoint}".replace(/\\{{(\\w+)\\}}/g, (_, k) => (window.__burqParams||{{}})[k] || "");
+    const data = await Burq.fetch("GET", endpoint);
+    const initials = (data.name || "").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+    const statusVariants = {{
+      lead: "default", qualified: "info", proposal: "warning", won: "success", lost: "danger"
+    }};
+    const status  = data.status || "lead";
+    const variant = statusVariants[status] || "default";
+    const date    = data.created_at ? new Date(data.created_at).toLocaleDateString("en-US", {{year:"numeric",month:"short",day:"numeric"}}) : "—";
+
+    document.getElementById("{uid}").innerHTML = `
+      <div class="contact-profile">
+        <div class="avatar avatar--xl" style="border-radius:var(--radius-xl);font-size:var(--text-md);">${{initials}}</div>
+        <div class="col" style="gap:var(--space-1);flex:1;">
+          <div style="font-size:var(--text-xl);font-weight:700;color:var(--foreground);letter-spacing:-0.02em;">${{data.name || "—"}}</div>
+          <div style="font-size:var(--text-base);color:var(--muted-foreground);">${{data.title || ""}}${{data.title && data.company ? " · " : ""}}${{data.company || ""}}</div>
+        </div>
+        <div class="row" style="gap:var(--space-6);margin-left:auto;align-items:center;">
+          <div class="col" style="gap:2px;align-items:flex-end;">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--muted-foreground);">Status</span>
+            <span class="badge badge--${{variant}}">${{status}}</span>
+          </div>
+          <div class="col" style="gap:2px;align-items:flex-end;">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--muted-foreground);">Phone</span>
+            <span style="font-size:var(--text-base);font-weight:500;color:var(--foreground);">${{data.phone || "—"}}</span>
+          </div>
+          <div class="col" style="gap:2px;align-items:flex-end;">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--muted-foreground);">Member Since</span>
+            <span style="font-size:var(--text-base);font-weight:500;color:var(--foreground);">${{date}}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    lucide.createIcons();
+  }} catch(e) {{
+    console.error("Profile load failed", e);
+  }}
+}});
+</script>'''
+
+def render_box(props, children):
+    style = props.get("style", "")
+    return f'<div style="{style}">{children}</div>'
+
+
+def render_markdown(props, children):
+    content = props.get("content", "")
+    # escape backticks and backslashes for JS template literal
+    content_escaped = content.replace("\\", "\\\\").replace("`", "\\`")
+    uid = f"md-{abs(hash(content)) % 100000}"
+    return f'''<div id="{uid}" class="markdown-body"></div>
+<script>
+(function() {{
+  var el = document.getElementById("{uid}");
+  if (window.marked) {{
+    el.innerHTML = marked.parse(`{content_escaped}`);
+  }} else {{
+    el.textContent = `{content_escaped}`;
+  }}
+}})();
+</script>'''
+
 
 # ── TABLE ──
 
@@ -454,7 +541,8 @@ def render_table(props, children):
         data-columns="{",".join(columns)}"
         data-checkable="{str(checkable).lower()}"
         data-actions="{",".join(actions)}"
-        data-column-config='{config_json}'>
+        data-column-config='{config_json}'
+        data-row-href="{props.get('row_href', '')}">
     {toolbar}
     <table class="{table_cls}">
         <thead>
@@ -1024,6 +1112,7 @@ def render_base_template(app) -> str:
   <link rel="stylesheet" href="/static/layout.css" />
   <link rel="stylesheet" href="/static/components.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     .nav-item__icon      {{ width: 18px; height: 18px; flex-shrink: 0; }}
     .topbar__icon        {{ width: 18px; height: 18px; }}

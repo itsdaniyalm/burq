@@ -4,7 +4,7 @@ from .theme.theme import Theme
 # ── LAYOUT ──
 from .components.layout import (
     row, col, grid, span,
-    container, divider, card, spacer,
+    container, divider, card, spacer,box,
 )
 
 # ── DISPLAY ──
@@ -48,7 +48,13 @@ from .components.data import (
 
 # ── EXTRA ──
 from .components.extra import (
-    accordion, empty_state, pagination,
+    accordion, empty_state, pagination,contact_profile,
+    markdown,
+)
+
+from .components.layout import (
+    row, col, grid, span,
+    container, divider, card, spacer, box,
 )
 
 __all__ = [
@@ -57,6 +63,7 @@ __all__ = [
     # layout
     "row", "col", "grid", "span",
     "container", "divider", "card","spacer",
+    "box",
     # display
     "title", "heading", "text",
     "metric", "badge",
@@ -82,5 +89,6 @@ __all__ = [
     "BadgeColumn", "AvatarColumn", "CurrencyColumn",
     "DateColumn", "BoolColumn", "TextColumn",
     # Extra
-    "accordion", "empty_state", "pagination",
+    "accordion", "empty_state", "pagination","contact_profile",
+    "markdown",
 ]

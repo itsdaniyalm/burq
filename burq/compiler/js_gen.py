@@ -30,6 +30,7 @@ const Burq = {{
       if (!res.ok) throw new Error(`Burq fetch error: ${{res.status}} ${{res.statusText}}`);
       return res.json();
   }},
+
   // ── NAVIGATE ──
   navigate(href) {{
     window.location.href = href;
@@ -278,6 +279,7 @@ async function initTables() {{
     const checkable    = wrapper.dataset.checkable === "true";
     const actions      = (wrapper.dataset.actions  || "").split(",").filter(Boolean);
     const columnConfig = JSON.parse(wrapper.dataset.columnConfig || "{{}}");
+    const rowHref      = wrapper.dataset.rowHref || "";
 
     if (!endpoint) continue;
 
@@ -286,11 +288,11 @@ async function initTables() {{
       const tbody   = wrapper.querySelector("tbody");
       if (!tbody || !Array.isArray(allData)) continue;
 
-      const PAGE_SIZE = 10;
-      let currentPage = 1;
+      const PAGE_SIZE  = 10;
+      let currentPage  = 1;
       let filteredData = [...allData];
 
-      function renderRow(row) {{
+      const renderRow = (row) => {{
         const checkTd = checkable
           ? `<td class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></td>`
           : "";
@@ -354,29 +356,52 @@ async function initTables() {{
 
         const actionTd = actions.length
           ? `<td class="table__actions-col">
-               <button class="table__action-btn">
+               <button class="table__action-btn" onclick="event.stopPropagation()">
                  <i data-lucide="ellipsis" class="table__action-icon"></i>
                </button>
              </td>`
           : "";
 
-        return `<tr>${{checkTd}}${{cells}}${{actionTd}}</tr>`;
-      }}
+        if (rowHref) {{
+          const href = rowHref.replace(/\\{{(\\w+)\\}}/g, (_, k) => row[k] ?? "");
+          return `<tr style="cursor:pointer;" onclick="window.location.href='${{href}}'">${{checkTd}}${{cells}}${{actionTd}}</tr>`;
+        }}
 
-      function renderPage() {{
-        const start   = (currentPage - 1) * PAGE_SIZE;
-        const end     = start + PAGE_SIZE;
+        return `<tr>${{checkTd}}${{cells}}${{actionTd}}</tr>`;
+      }};
+
+      const renderPage = () => {{
+        const start    = (currentPage - 1) * PAGE_SIZE;
+        const end      = start + PAGE_SIZE;
         const pageData = filteredData.slice(start, end);
+
+        if (filteredData.length === 0) {{
+          tbody.innerHTML = `
+            <tr><td colspan="99">
+              <div class="empty-state">
+                <div class="empty-state__icon"><i data-lucide="inbox"></i></div>
+                <div class="empty-state__title">No data yet</div>
+                <p class="empty-state__message">Nothing to show here.</p>
+              </div>
+            </td></tr>`;
+          lucide.createIcons();
+          const info = wrapper.querySelector(".table-pagination__info");
+          if (info) info.textContent = "0 results";
+          const controls = wrapper.querySelector(".table-pagination__controls");
+          if (controls) controls.innerHTML = "";
+          return;
+        }}
+
         tbody.innerHTML = pageData.map(renderRow).join("");
         lucide.createIcons();
         updatePagination();
-      }}
+      }};
 
-      function updatePagination() {{
-        const total     = filteredData.length;
+      const updatePagination = () => {{
+        const total      = filteredData.length;
         const totalPages = Math.ceil(total / PAGE_SIZE);
-        const start     = Math.min((currentPage - 1) * PAGE_SIZE + 1, total);
-        const end       = Math.min(currentPage * PAGE_SIZE, total);
+        const start      = Math.min((currentPage - 1) * PAGE_SIZE + 1, total);
+        const end        = Math.min(currentPage * PAGE_SIZE, total);
 
         const info = wrapper.querySelector(".table-pagination__info");
         if (info) info.textContent = total > 0
@@ -388,7 +413,6 @@ async function initTables() {{
 
         controls.innerHTML = "";
 
-        // prev button
         const prev = document.createElement("button");
         prev.className = "table-pagination__btn";
         prev.innerHTML = `<i data-lucide="chevron-left" style="width:14px;height:14px;"></i>`;
@@ -396,7 +420,6 @@ async function initTables() {{
         prev.addEventListener("click", () => {{ currentPage--; renderPage(); }});
         controls.appendChild(prev);
 
-        // page buttons
         for (let i = 1; i <= totalPages; i++) {{
           if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - currentPage) > 1) {{
             if (i === 3 || i === totalPages - 2) {{
@@ -415,7 +438,6 @@ async function initTables() {{
           controls.appendChild(btn);
         }}
 
-        // next button
         const next = document.createElement("button");
         next.className = "table-pagination__btn";
         next.innerHTML = `<i data-lucide="chevron-right" style="width:14px;height:14px;"></i>`;
@@ -424,14 +446,14 @@ async function initTables() {{
         controls.appendChild(next);
 
         lucide.createIcons();
-      }}
+      }};
 
       // ── SEARCH ──
       const searchInput = wrapper.querySelector(".table-search__input");
       if (searchInput) {{
         searchInput.addEventListener("input", e => {{
           const query = e.target.value.toLowerCase().trim();
-          filteredData  = query
+          filteredData = query
             ? allData.filter(row =>
                 columns.some(col => {{
                   const val = String(row[col] ?? "").toLowerCase();

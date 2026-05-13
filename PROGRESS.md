@@ -3,25 +3,26 @@
 ## Project Structure
 ```
 burq/                          # PyPI package
-├── __init__.py                ✅
-├── app.py                     ✅ (logo param, dummy kwargs for dynamic routes)
+├── __init__.py                ✅ (accordion, empty_state, pagination added)
+├── app.py                     ✅ (logo param, bordered layout, dummy kwargs for dynamic routes)
 ├── context.py                 ✅
 ├── compiler/
-│   ├── __init__.py            ✅ (url_pattern passed to render_page_template)
-│   ├── html_gen.py            ✅ (param_script injection for dynamic routes)
-│   ├── js_gen.py              ✅ (Burq.fetch interpolates __burqParams, export as raw string)
+│   ├── __init__.py            ✅ (removed burq_routes.py generation — FastAPI owns routing)
+│   ├── html_gen.py            ✅ (logo system, new components, layout fix)
+│   ├── js_gen.py              ✅ (initAccordions added)
 │   └── css_gen.py             ✅
 ├── components/
 │   ├── __init__.py            ✅
-│   ├── layout.py              ✅ (spacer added)
+│   ├── layout.py              ✅
 │   ├── display.py             ✅
-│   ├── forms.py               ✅
+│   ├── forms.py               ✅ (toggle accepts checked= alias)
 │   ├── feedback.py            ✅
 │   ├── navigation.py          ✅
+│   ├── extra.py               ✅ (accordion, empty_state, pagination)
 │   └── data.py                ✅
 ├── theme/
 │   ├── __init__.py            ✅
-│   ├── theme.py               ✅ (hardcoded defaults, full override params)
+│   ├── theme.py               ✅
 │   ├── color.py               ✅ (kept for future theme generator)
 │   └── compiler.py            ✅ (Meridian-inspired hardcoded tokens)
 └── cli/
@@ -30,18 +31,18 @@ burq/                          # PyPI package
 dev/                           # never shipped to PyPI
 ├── crm/
 │   ├── backend/
-│   │   ├── main.py            ✅ (all API routes /api prefixed)
-│   │   ├── models.py          ✅ (Contact has status field)
+│   │   ├── main.py            ✅ (manual page routes, no burq_routes import)
+│   │   ├── models.py          ✅
 │   │   ├── seed.py            ✅
 │   │   ├── db.py              ✅
 │   │   └── requirements.txt   ✅
 │   └── ui/
-│       ├── layout.css         ✅
-│       ├── components.css     ✅
+│       ├── layout.css         ✅ (topbar full width, sidebar below topbar)
+│       └── components.css     ✅ (accordion, empty_state, pagination added)
 └── playground/
     ├── test_tokens.py         ✅
     ├── test_api.py            ✅
-    └── test_compile.py        ✅
+    └── test_compile.py        ✅ (settings page added)
 
 dist/                          # compiled output (gitignored)
 ├── templates/
@@ -49,13 +50,13 @@ dist/                          # compiled output (gitignored)
 │   ├── index.html             ✅
 │   ├── contacts.html          ✅
 │   ├── deals.html             ✅
+│   ├── settings.html          ✅
 │   └── contacts_contact_id.html ✅
-├── static/
-│   ├── burq.js                ✅
-│   ├── tokens.css             ✅
-│   ├── layout.css             ✅
-│   └── components.css         ✅
-└── burq_routes.py             ✅
+└── static/
+    ├── burq.js                ✅
+    ├── tokens.css             ✅
+    ├── layout.css             ✅
+    └── components.css         ✅
 ```
 
 ---
@@ -70,21 +71,27 @@ dist/                          # compiled output (gitignored)
 
 ### Layout Components ✅
 - `layout`, `topbar`, `sidebar`, `nav-item`, `container`, `row`, `col`, `grid`, `divider`, `spacer`
-- Burger in sidebar, seamless chrome, collapse support
-- Logo configurable via `app.logo`
+- **Topbar spans full width** — logo + toggle live in topbar, sidebar starts below
+- **Sidebar** `top: 52px`, `height: calc(100vh - 52px)` — always below topbar
+- **Toggle before logo** in topbar (hamburger → logo → app title)
+- `bordered=False` default — clean borderless chrome, opt-in via `Layout(bordered=True)`
+- Logo system: `"default"` = burq logo, `None` = no logo, SVG string, or file path (svg/png/jpg)
+- Collapse support via `layout--collapsed`
 
 ### UI Components ✅
 - `card`, `badge`, `button`, `metric-card`, `table`
 - `input`, `textarea`, `select`, `custom-select`, `toggle`, `checkbox`, `radio`
 - `toast`, `modal`, `tabs`, `avatar`, `avatar-group`
 - `skeleton`, `progress`, `dropdown`, `breadcrumb`, `spinner`, `alert`
+- **NEW:** `accordion`, `empty_state`, `pagination`
 
 ### JavaScript Runtime ✅
 - `ToastManager`, `ModalManager`, `initTabs()`, `initDropdowns()`
 - `initCustomSelects()`, `initTables()`, `initSidebar()`, `initThemeToggle()`
 - `initActiveNav()` — active nav via data-href + URL match
 - `initUrlParams()` — extracts URL params into window.__burqParams
-- `initTableExport()` — client-side CSV export (raw string, no f-string issues)
+- `initTableExport()` — client-side CSV export
+- `initAccordions()` — toggle panels, supports multiple=True
 - Table search + pagination (client-side, PAGE_SIZE=10)
 - Theme toggle with localStorage persistence
 
@@ -92,8 +99,9 @@ dist/                          # compiled output (gitignored)
 - FastAPI + SQLite + SQLAlchemy
 - All API routes prefixed with `/api`
 - Models: Contact (with status), Deal, Activity, DealStatus
-- Serves Jinja2 templates via burq_routes router
-- Serves static files from dist/static/
+- **Page routes manually defined** — no burq_routes dependency
+- Serves Jinja2 templates from `dist/templates/`
+- Serves static files from `dist/static/`
 
 ---
 
@@ -105,17 +113,14 @@ app = bq.App(
     title="My App",
     author="Daniyal",
     api_base="http://localhost:8000/api",
-    layout=bq.Layout(sidebar=True, topbar=True),
-    logo="<svg>...</svg>",   # optional
+    layout=bq.Layout(sidebar=True, topbar=True, bordered=False),
+    logo="default",          # "default" | None | "<svg>..." | "path/to/logo.png"
     theme=bq.Theme(
         radius="md",
         font_sans="Space Grotesk",
         font_mono="Space Mono",
         mode="dark",
         toggle=True,
-        # optional overrides:
-        # dark_accent="#2ec97a"
-        # light_background="#f7f9f7"
     )
 )
 ```
@@ -123,33 +128,59 @@ app = bq.App(
 ### Column Config System ✅
 - `AvatarColumn`, `BadgeColumn`, `CurrencyColumn`, `DateColumn`, `BoolColumn`, `TextColumn`
 
+### New Components API ✅
+```python
+bq.accordion(items=[
+    {"title": "Q?", "content": "A.", "open": True},
+])
+
+bq.empty_state(
+    title="No results",
+    message="Try adjusting your filters.",
+    icon="inbox",
+    action={"label": "Add Contact", "icon": "plus", "onclick": "..."}
+)
+
+bq.pagination(total=120, page=1, per_page=10, on_change="loadPage")
+```
+
 ---
 
 ## Phase 3 — Compiler ✅ COMPLETE
 
-### Routing ✅
-- Each `@app.page("/route")` → Jinja2 template + FastAPI route
+### Routing ✅ REVISED
+- **Burq no longer generates `burq_routes.py`** — FastAPI owns all routing
+- Each `@app.page("/route")` → Jinja2 template only
 - Dynamic routes `@app.page("/contacts/{id}")` → inline param extraction script
 - `window.__burqParams` set before `burq.js` loads
 - `Burq.fetch()` interpolates `{param}` from `__burqParams`
-- `app.run_page()` passes dummy kwargs for dynamic route compilation
+- User manually defines FastAPI page routes pointing to compiled templates
+
+### Architecture (Revised) ✅
+```
+FastAPI  → routing, auth, data APIs, serving templates
+Burq     → compile .py → .html templates + JS + CSS
+Browser  → JS reads URL params, fetches data from FastAPI APIs
+```
 
 ---
 
-## Phase 4 — CRM Demo App 🔄 IN PROGRESS
+## Phase 4 — CRM Demo App ✅ COMPLETE
 
 ### Done ✅
 - `dashboard` page — metrics, contacts table, pipeline
 - `contacts` page — full table with AvatarColumn, BadgeColumn, DateColumn
 - `deals` page — full table with BadgeColumn, CurrencyColumn
 - `contact_detail` page — dynamic route, deals + activities tabs
+- `settings` page — tabs, accordion, toggles, alert, danger zone
 - Active nav, theme toggle, sidebar collapse, light/dark mode
 - Table search, pagination, CSV export all working
+- Route ordering fix — static routes registered before parameterized
 
 ### Still needed ⬜
-- `settings` page — tabs + forms
 - `contact_detail` profile header — dynamic fetch for name/status/phone/company
 - Nav link from contacts table row → contact detail page
+- Empty state on tables with no data
 
 ---
 
@@ -157,9 +188,9 @@ app = bq.App(
 
 ```bash
 pip install burq
-burq new my-app
-burq dev
-burq build
+burq new my-app       # scaffold project
+burq dev              # watch + recompile + serve
+burq build            # production build → dist/
 ```
 
 ---
@@ -171,10 +202,12 @@ burq build
 4. **Hardcoded Meridian-inspired defaults** — predictable, no generation surprises
 5. **Lucide icons** — always, no alternatives
 6. **Light + dark** — both themes, toggle optional
-7. **FastAPI/Jinja2 routing** — FastAPI owns all routing
+7. **FastAPI owns routing** — Burq compiles templates only, no route generation
 8. **column_config** — declarative column rendering
-9. **Logo configurable** — `app.logo` accepts any SVG string
+9. **Logo system** — default/None/SVG string/file path
 10. **Dynamic routes** — `{param}` in page path → JS extracts from URL
+11. **bordered=False default** — clean borderless chrome, opt-in
+12. **Topbar owns logo** — sidebar is nav-only, logo always visible
 
 ---
 

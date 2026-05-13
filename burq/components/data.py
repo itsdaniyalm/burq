@@ -14,6 +14,7 @@ def table(
     actions:       list   = None,
     pagination:    bool   = True,
     page_size:     int    = 10,
+    row_href:      str    = None,
 ):
     leaf_node("table", {
         "data":          data,
@@ -26,6 +27,7 @@ def table(
         "actions":       actions or [],
         "pagination":    pagination,
         "page_size":     page_size,
+        "row_href":      row_href,
     })
 
 def line_chart(
