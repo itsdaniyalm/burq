@@ -167,6 +167,73 @@ def contact_detail(contact_id):
                 sortable=True,
             )
 
+@app.page("/settings")
+def settings():
+    bq.title("Settings")
+
+    with bq.tabs(["General", "Team", "Notifications", "Danger Zone"]):
+
+        with bq.tab("General"):
+            with bq.card("Workspace"):
+                bq.input("Workspace Name", value="Burq CRM", icon="building-2")
+                bq.input("API Base URL",   value="http://localhost:8000/api", icon="link")
+                bq.select("Timezone", options=[
+                    "UTC", "America/New_York", "America/Chicago", "America/Los_Angeles", "Asia/Karachi"
+                ])
+                bq.button("Save Changes", variant="primary", icon="save")
+
+            bq.spacer(size="md")
+
+            bq.accordion(items=[
+                {"title": "How does billing work?",
+                 "content": "Burq CRM is billed monthly per seat. You can add or remove seats at any time and your bill will be prorated."},
+                {"title": "Can I export my data?",
+                 "content": "Yes — every table has an Export button that downloads a CSV. For a full data export, go to Danger Zone below."},
+                {"title": "How do I connect my API?",
+                 "content": "Set your API Base URL above. Burq will proxy all fetch calls through that base. Auth headers are configured per-app."},
+            ])
+
+        with bq.tab("Team"):
+            with bq.card("Team Members"):
+                bq.table(
+                    data=bq.fetch("GET", "/contacts/"),
+                    columns=["name", "company", "status"],
+                    column_config={
+                        "name":   bq.AvatarColumn(sub_key="email"),
+                        "status": bq.BadgeColumn(variant_map={
+                            "lead":      "default",
+                            "qualified": "info",
+                            "won":       "success",
+                            "lost":      "danger",
+                        }),
+                    },
+                    searchable=True,
+                )
+            bq.button("Invite Member", variant="primary", icon="user-plus")
+
+        with bq.tab("Notifications"):
+            with bq.card("Email Notifications"):
+                bq.toggle("New contact assigned to me",  name="notif_contact",  checked=True)
+                bq.toggle("Deal status changed",         name="notif_deal",     checked=True)
+                bq.toggle("Weekly summary digest",       name="notif_digest",   checked=False)
+                bq.toggle("Activity reminders",          name="notif_activity", checked=True)
+                bq.divider()
+                bq.button("Save Preferences", variant="primary", icon="save")
+
+        with bq.tab("Danger Zone"):
+            bq.alert(
+                type="warning",
+                title="Irreversible actions",
+                message="These actions cannot be undone. Please proceed with caution."
+            )
+            bq.spacer(size="md")
+            with bq.card("Export All Data"):
+                bq.text("Download a full CSV export of all contacts, deals, and activities.", muted=True)
+                bq.button("Export Everything", variant="secondary", icon="download")
+            with bq.card("Delete Workspace"):
+                bq.text("Permanently delete this workspace and all associated data.", muted=True)
+                bq.button("Delete Workspace", variant="danger", icon="trash-2")
+
 
 # ── MODALS ──
 @app.modal("add-contact")

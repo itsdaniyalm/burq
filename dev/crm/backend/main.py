@@ -1,11 +1,11 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from db import get_db, engine
 from models import Base, Contact, Deal, Activity
-from fastapi.staticfiles import StaticFiles
 import os
-import importlib.util
 
 Base.metadata.create_all(bind=engine)
 
@@ -18,14 +18,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- CONTACTS ---
+dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../dist"))
+templates = Jinja2Templates(directory=os.path.join(dist_path, "templates"))
+
+app.mount("/static", StaticFiles(directory=os.path.join(dist_path, "static")), name="static")
+
+# ── API ROUTES ──
+
 @app.get("/api/contacts/")
 def list_contacts(db: Session = Depends(get_db)):
     return db.query(Contact).all()
-
-@app.get("/api/contacts/{contact_id}")
-def get_contact(contact_id: int, db: Session = Depends(get_db)):
-    return db.query(Contact).filter(Contact.id == contact_id).first()
 
 @app.get("/api/contacts/{contact_id}/deals")
 def contact_deals(contact_id: int, db: Session = Depends(get_db)):
@@ -35,7 +37,10 @@ def contact_deals(contact_id: int, db: Session = Depends(get_db)):
 def contact_activities(contact_id: int, db: Session = Depends(get_db)):
     return db.query(Activity).filter(Activity.contact_id == contact_id).all()
 
-# --- DEALS ---
+@app.get("/api/contacts/{contact_id}")
+def get_contact(contact_id: int, db: Session = Depends(get_db)):
+    return db.query(Contact).filter(Contact.id == contact_id).first()
+
 @app.get("/api/deals/")
 def list_deals(db: Session = Depends(get_db)):
     return db.query(Deal).all()
@@ -44,12 +49,10 @@ def list_deals(db: Session = Depends(get_db)):
 def get_deal(deal_id: int, db: Session = Depends(get_db)):
     return db.query(Deal).filter(Deal.id == deal_id).first()
 
-# --- ACTIVITIES ---
 @app.get("/api/activities/")
 def list_activities(db: Session = Depends(get_db)):
     return db.query(Activity).all()
 
-# --- SUMMARY ---
 @app.get("/api/summary/")
 def summary(db: Session = Depends(get_db)):
     total_contacts = db.query(Contact).count()
@@ -65,13 +68,24 @@ def summary(db: Session = Depends(get_db)):
         "won_deals":      won_deals,
     }
 
-# --- FRONTEND ---
-dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../dist"))
+# ── PAGE ROUTES ──
 
-app.mount("/static", StaticFiles(directory=os.path.join(dist_path, "static")), name="static")
-_routes_path = os.path.join(dist_path, "burq_routes.py")
-_spec        = importlib.util.spec_from_file_location("burq_routes", _routes_path)
-_mod         = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_mod)
+@app.get("/")
+def dashboard(request: Request):
+    return templates.TemplateResponse(request, "index.html", {"page_title": "Dashboard"})
 
-app.include_router(_mod.router)
+@app.get("/contacts")
+def contacts(request: Request):
+    return templates.TemplateResponse(request, "contacts.html", {"page_title": "Contacts"})
+
+@app.get("/deals")
+def deals(request: Request):
+    return templates.TemplateResponse(request, "deals.html", {"page_title": "Deals"})
+
+@app.get("/settings")
+def settings(request: Request):
+    return templates.TemplateResponse(request, "settings.html", {"page_title": "Settings"})
+
+@app.get("/contacts/{contact_id}")
+def contact_detail(request: Request, contact_id: int):
+    return templates.TemplateResponse(request, "contacts_contact_id.html", {"page_title": "Contact"})

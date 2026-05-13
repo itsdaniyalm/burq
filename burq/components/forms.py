@@ -93,12 +93,13 @@ def select(
 def toggle(
     label:    str  = None,
     value:    bool = False,
+    checked:  bool = None, 
     disabled: bool = False,
     name:     str  = None,
 ):
     leaf_node("toggle", {
         "label":    label,
-        "value":    value,
+        "value":    checked if checked is not None else value,
         "disabled": disabled,
         "name":     name,
     })

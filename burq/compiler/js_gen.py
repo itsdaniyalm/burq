@@ -520,6 +520,24 @@ function initUrlParams() {{
   }}
 }}
 
+// ── ACCORDIONS ──
+function initAccordions() {{
+  document.querySelectorAll(".accordion").forEach(accordion => {{
+    const multiple = accordion.dataset.multiple === "true";
+    accordion.querySelectorAll(".accordion__trigger").forEach(trigger => {{
+      trigger.addEventListener("click", () => {{
+        const item   = trigger.closest(".accordion__item");
+        const isOpen = item.classList.contains("accordion__item--open");
+        if (!multiple) {{
+          accordion.querySelectorAll(".accordion__item--open")
+            .forEach(i => i.classList.remove("accordion__item--open"));
+        }}
+        if (!isOpen) item.classList.add("accordion__item--open");
+      }});
+    }});
+  }});
+}}
+
 // ── INIT ──
 function burqInit() {{
   ToastManager.init();
@@ -529,6 +547,7 @@ function burqInit() {{
   initTabs();
   initDropdowns();
   initCustomSelects();
+  initAccordions();
   initUrlParams();
   initTables();
   initTableExport();

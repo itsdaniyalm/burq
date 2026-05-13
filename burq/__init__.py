@@ -46,12 +46,17 @@ from .components.data import (
     DateColumn, BoolColumn, TextColumn,
 )
 
+# ── EXTRA ──
+from .components.extra import (
+    accordion, empty_state, pagination,
+)
+
 __all__ = [
     # app
     "App", "Layout", "Theme",
     # layout
     "row", "col", "grid", "span",
-    "container", "divider", "card","spacer"
+    "container", "divider", "card","spacer",
     # display
     "title", "heading", "text",
     "metric", "badge",
@@ -76,4 +81,6 @@ __all__ = [
     "fetch", "post",
     "BadgeColumn", "AvatarColumn", "CurrencyColumn",
     "DateColumn", "BoolColumn", "TextColumn",
+    # Extra
+    "accordion", "empty_state", "pagination",
 ]

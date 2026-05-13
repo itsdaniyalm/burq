@@ -25,12 +25,8 @@
   grid-template-rows: 52px 1fr;
   grid-template-columns: 220px 1fr;
   grid-template-areas:
-    "sidebar topbar"
+    "topbar  topbar"
     "sidebar content";
-}
-
-.layout--collapsed.layout--with-sidebar {
-  grid-template-columns: 56px 1fr;
 }
 
 .layout--collapsed.layout--with-sidebar.layout--with-topbar {
@@ -98,8 +94,8 @@
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: 52px;
+  height: calc(100vh - 52px);
   overflow: hidden;
   transition: width var(--transition-slow);
   z-index: var(--z-sidebar);

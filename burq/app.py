@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable
 from .theme.theme import Theme
 from .context import reset_context, get_context
@@ -6,8 +6,9 @@ from .context import reset_context, get_context
 
 @dataclass
 class Layout:
-    sidebar: bool = True
-    topbar:  bool = True
+    sidebar:  bool = True
+    topbar:   bool = True
+    bordered: bool = False
 
 
 class App:
@@ -19,7 +20,7 @@ class App:
         api_key:  str    = "",
         layout:   Layout = None,
         theme:    Theme  = None,
-        logo:     str    = None,
+        logo:     str    = "default",  # "default" = burq logo, None = no logo, path/svg = custom
     ):
         self.title    = title
         self.author   = author
@@ -28,7 +29,6 @@ class App:
         self.layout   = layout or Layout()
         self.theme    = theme  or Theme()
         self.logo     = logo
-
         self._pages:      dict[str, Callable] = {}
         self._modals:     dict[str, Callable] = {}
         self._nav:        list                = []

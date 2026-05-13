@@ -1,8 +1,10 @@
+import base64
+import os
 from typing import Any
 import json as _json
 
+
 def classes(*args) -> str:
-    """Join class lists into a string."""
     result = []
     for a in args:
         if isinstance(a, list):
@@ -18,6 +20,45 @@ def icon(name: str, cls: str = "") -> str:
     return f'<i data-lucide="{name}" class="{cls}"></i>'
 
 
+DEFAULT_LOGO = '''<svg viewBox="0 0 56 56" fill="none" style="width:28px;height:28px;flex-shrink:0;">
+    <rect width="56" height="56" rx="12" fill="var(--accent)"/>
+    <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#ffffff"/>
+</svg>'''
+
+
+def render_logo(logo, size="28px") -> str:
+    """
+    logo = "default"        → burq default SVG
+    logo = None             → empty string (no logo)
+    logo = "<svg>...</svg>" → inline SVG string
+    logo = "path/to/file"   → embedded file (svg/png/jpg)
+    """
+    if logo is None:
+        return ""
+    if logo == "default":
+        return DEFAULT_LOGO
+    if isinstance(logo, str) and logo.strip().startswith("<svg"):
+        return logo
+    if isinstance(logo, str) and os.path.isfile(logo):
+        ext = os.path.splitext(logo)[1].lower()
+        if ext == ".svg":
+            with open(logo, encoding="utf-8") as f:
+                content = f.read()
+            # inject size style if not present
+            if "width" not in content[:100]:
+                content = content.replace("<svg", f'<svg style="width:{size};height:{size};flex-shrink:0;"', 1)
+            return content
+        else:
+            mime_map = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
+            mime = mime_map.get(ext, "image/png")
+            with open(logo, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode()
+            return f'<img src="data:{mime};base64,{b64}" style="width:{size};height:{size};object-fit:contain;flex-shrink:0;" />'
+    return ""
+
+
 # ── NODE RENDERERS ──
 
 def render_node(node: dict, app=None) -> str:
@@ -27,40 +68,43 @@ def render_node(node: dict, app=None) -> str:
     rendered_children = "\n".join(render_node(c, app) for c in children)
 
     renderers = {
-        "title":       render_title,
-        "heading":     render_heading,
-        "text":        render_text,
-        "row":         render_row,
-        "col":         render_col,
-        "grid":        render_grid,
-        "span":        render_span,
-        "container":   render_container,
-        "divider":     render_divider,
-        "card":        render_card,
-        "metric":      render_metric,
-        "badge":       render_badge,
-        "avatar":      render_avatar,
-        "avatar_group":render_avatar_group,
-        "progress":    render_progress,
-        "skeleton":    render_skeleton,
-        "spinner":     render_spinner,
-        "breadcrumb":  render_breadcrumb,
-        "table":       render_table,
-        "input":       render_input,
-        "textarea":    render_textarea,
-        "select":      render_select,
-        "toggle":      render_toggle,
-        "checkbox":    render_checkbox,
-        "radio":       render_radio,
-        "button":      render_button,
-        "modal":       render_modal,
-        "modal_body":  render_modal_body,
-        "modal_footer":render_modal_footer,
-        "alert":       render_alert,
-        "tabs":        render_tabs,
-        "tab":         render_tab,
-        "dropdown":    render_dropdown,
-        "spacer":      render_spacer,
+        "title":        render_title,
+        "heading":      render_heading,
+        "text":         render_text,
+        "row":          render_row,
+        "col":          render_col,
+        "grid":         render_grid,
+        "span":         render_span,
+        "container":    render_container,
+        "divider":      render_divider,
+        "card":         render_card,
+        "metric":       render_metric,
+        "badge":        render_badge,
+        "avatar":       render_avatar,
+        "avatar_group": render_avatar_group,
+        "progress":     render_progress,
+        "skeleton":     render_skeleton,
+        "spinner":      render_spinner,
+        "breadcrumb":   render_breadcrumb,
+        "table":        render_table,
+        "input":        render_input,
+        "textarea":     render_textarea,
+        "select":       render_select,
+        "toggle":       render_toggle,
+        "checkbox":     render_checkbox,
+        "radio":        render_radio,
+        "button":       render_button,
+        "modal":        render_modal,
+        "modal_body":   render_modal_body,
+        "modal_footer": render_modal_footer,
+        "alert":        render_alert,
+        "tabs":         render_tabs,
+        "tab":          render_tab,
+        "dropdown":     render_dropdown,
+        "spacer":       render_spacer,
+        "accordion":    render_accordion,
+        "empty_state":  render_empty_state,
+        "pagination":   render_pagination,
     }
 
     renderer = renderers.get(tag)
@@ -286,6 +330,7 @@ def render_spinner(props, children):
     if color != "accent": cls += f" spinner--{color}"
     return f'<div class="{cls}"></div>'
 
+
 def render_spacer(props, children):
     sizes = {
         "xs": "var(--space-2)",
@@ -297,13 +342,14 @@ def render_spacer(props, children):
     height = sizes.get(props.get("size", "md"), "var(--space-6)")
     return f'<div style="height:{height};"></div>'
 
+
 def render_breadcrumb(props, children):
     items     = props.get("items", [])
     separator = props.get("separator", "chevron")
 
     items_html = ""
     for i, item in enumerate(items):
-        label = item.label if hasattr(item, "label") else item.get("label","")
+        label = item.label if hasattr(item, "label") else item.get("label", "")
         href  = item.href  if hasattr(item, "href")  else item.get("href")
         is_last = i == len(items) - 1
 
@@ -336,7 +382,6 @@ def render_table(props, children):
     pagination = props.get("pagination", True)
     data       = props.get("data", {})
 
-    # fetch info
     fetch_method   = ""
     fetch_endpoint = ""
     if isinstance(data, dict) and data.get("__burq_fetch__"):
@@ -346,7 +391,6 @@ def render_table(props, children):
     table_cls = "table"
     if striped: table_cls += " table--striped"
 
-    # toolbar
     toolbar = ""
     if searchable or actions:
         search_html = ""
@@ -366,7 +410,6 @@ def render_table(props, children):
             </div>
         </div>'''
 
-    # headers
     checkbox_th = '<th class="table__checkbox-col"><input type="checkbox" class="table__checkbox" /></th>' if checkable else ""
     actions_th  = '<th class="table__actions-col"></th>' if actions else ""
 
@@ -376,10 +419,8 @@ def render_table(props, children):
         sort_cls  = "sortable" if sortable else ""
         headers  += f'<th class="{sort_cls}">{col.replace("_"," ").title()} {sort_icon}</th>'
 
-    # tbody placeholder — filled by JS at runtime
     tbody_id = f"tbody-{fetch_endpoint.replace('/','').replace('{','').replace('}','')}"
 
-    # pagination
     pagination_html = ""
     if pagination:
         pagination_html = '''
@@ -396,7 +437,6 @@ def render_table(props, children):
             </div>
         </div>'''
 
-    # serialize column_config to JSON for JS
     column_config = props.get("column_config", {})
     config_serialized = {}
     for col, cfg in column_config.items():
@@ -453,10 +493,10 @@ def render_input(props, children):
     if size != "md":  input_cls += f" input--{size}"
     if error:         input_cls += " input--error"
 
-    disabled_attr  = " disabled" if disabled else ""
-    required_attr  = " required" if required else ""
+    disabled_attr = " disabled" if disabled else ""
+    required_attr = " required" if required else ""
 
-    label_html  = ""
+    label_html = ""
     if label:
         req_cls    = " form-label--required" if required else ""
         label_html = f'<label class="form-label{req_cls}">{label}</label>'
@@ -502,7 +542,7 @@ def render_textarea(props, children):
     disabled_attr = " disabled" if disabled else ""
     required_attr = " required" if required else ""
 
-    label_html  = ""
+    label_html = ""
     if label:
         req_cls    = " form-label--required" if required else ""
         label_html = f'<label class="form-label{req_cls}">{label}</label>'
@@ -548,12 +588,11 @@ def render_select(props, children):
         </span>''' if error else ""
 
     if searchable:
-        # custom searchable select
         options_html = ""
         for opt in options:
             if isinstance(opt, dict):
-                val  = opt.get(value_key or "value", "")
-                lbl  = opt.get(label_key or "label", "")
+                val = opt.get(value_key or "value", "")
+                lbl = opt.get(label_key or "label", "")
             else:
                 val = lbl = opt
             options_html += f'''
@@ -592,8 +631,7 @@ def render_select(props, children):
     {error_html}
 </div>'''
 
-    # native select
-    cls = f"select"
+    cls = "select"
     if size  != "md": cls += f" select--{size}"
     if error:         cls += " select--error"
 
@@ -623,7 +661,7 @@ def render_toggle(props, children):
     disabled = props.get("disabled", False)
     name     = props.get("name", "")
 
-    checked_attr  = " checked" if value    else ""
+    checked_attr  = " checked"  if value    else ""
     disabled_attr = " disabled" if disabled else ""
 
     return f'''
@@ -686,11 +724,7 @@ def render_button(props, children):
 
     icon_html = f'<i data-lucide="{ico}" class="btn__icon"></i>' if ico else ""
 
-    content = ""
-    if icon_pos == "left":
-        content = f"{icon_html}{label}"
-    else:
-        content = f"{label}{icon_html}"
+    content = f"{icon_html}{label}" if icon_pos == "left" else f"{label}{icon_html}"
 
     return f'<button class="{cls}" type="{type_}"{onclick_attr}{disabled_attr}>{content}</button>'
 
@@ -698,9 +732,9 @@ def render_button(props, children):
 # ── FEEDBACK ──
 
 def render_modal(props, children):
-    id_    = props.get("id", "modal")
-    title  = props.get("title", "")
-    size   = props.get("size", "md")
+    id_   = props.get("id", "modal")
+    title = props.get("title", "")
+    size  = props.get("size", "md")
 
     cls = "modal"
     if size != "md": cls += f" modal--{size}"
@@ -765,10 +799,9 @@ def render_tabs(props, children):
     triggers = ""
     for i, item in enumerate(items):
         ico_html   = f'<i data-lucide="{icons[i]}" class="tabs__trigger__icon"></i>' if i < len(icons) and icons[i] else ""
-        badge_html = f'<span class="badge badge--default">{badges[i]}</span>' if i < len(badges) and badges[i] else ""
+        badge_html = f'<span class="badge badge--default">{badges[i]}</span>'        if i < len(badges) and badges[i] else ""
         triggers  += f'<button class="tabs__trigger">{ico_html}{item}{badge_html}</button>'
 
-    # panels come from children (tab nodes)
     return f'''
 <div class="{cls}">
     <div class="tabs__list">{triggers}</div>
@@ -790,7 +823,7 @@ def render_dropdown(props, children):
     items_html = ""
     for item in items:
         if hasattr(item, "label"):
-            ico_html  = f'<i data-lucide="{item.icon}" class="dropdown__icon"></i>' if item.icon else ""
+            ico_html   = f'<i data-lucide="{item.icon}" class="dropdown__icon"></i>' if item.icon else ""
             danger_cls = " dropdown__item--danger"   if item.danger   else ""
             dis_cls    = " dropdown__item--disabled" if item.disabled else ""
             onclick    = f' onclick="{item.onclick}"' if item.onclick else ""
@@ -809,16 +842,123 @@ def render_dropdown(props, children):
     <div class="{menu_cls}">{items_html}</div>
 </div>'''
 
-def render_base_template(app) -> str:
 
+# ── NEW COMPONENTS ──
+
+def render_accordion(props, children):
+    items    = props.get("items", [])
+    multiple = props.get("multiple", False)  # allow multiple open panels
+
+    panels_html = ""
+    for i, item in enumerate(items):
+        title   = item.get("title", "") if isinstance(item, dict) else getattr(item, "title", "")
+        content = item.get("content", "") if isinstance(item, dict) else getattr(item, "content", "")
+        default_open = item.get("open", False) if isinstance(item, dict) else getattr(item, "open", False)
+
+        open_cls    = " accordion__item--open" if default_open else ""
+        open_attr   = ' data-open="true"'       if default_open else ""
+
+        panels_html += f'''
+<div class="accordion__item{open_cls}"{open_attr}>
+    <button class="accordion__trigger" type="button">
+        <span class="accordion__title">{title}</span>
+        <i data-lucide="chevron-down" class="accordion__icon"></i>
+    </button>
+    <div class="accordion__panel">
+        <div class="accordion__content">{content}</div>
+    </div>
+</div>'''
+
+    multiple_attr = ' data-multiple="true"' if multiple else ""
+    return f'<div class="accordion"{multiple_attr}>{panels_html}</div>'
+
+
+def render_empty_state(props, children):
+    ico     = props.get("icon", "inbox")
+    title   = props.get("title", "Nothing here yet")
+    message = props.get("message", "")
+    action  = props.get("action")   # dict: {label, onclick, icon}
+
+    action_html = ""
+    if action:
+        ico_html    = f'<i data-lucide="{action.get("icon")}" class="btn__icon"></i>' if action.get("icon") else ""
+        onclick_attr = f' onclick="{action["onclick"]}"' if action.get("onclick") else ""
+        action_html  = f'<button class="btn btn--primary btn--sm"{onclick_attr}>{ico_html}{action.get("label","")}</button>'
+
+    message_html = f'<p class="empty-state__message">{message}</p>' if message else ""
+
+    return f'''
+<div class="empty-state">
+    <div class="empty-state__icon">
+        <i data-lucide="{ico}"></i>
+    </div>
+    <div class="empty-state__title">{title}</div>
+    {message_html}
+    {action_html}
+</div>'''
+
+
+def render_pagination(props, children):
+    total       = props.get("total", 0)
+    page        = props.get("page", 1)
+    per_page    = props.get("per_page", 10)
+    on_change   = props.get("on_change", "")  # JS callback name
+
+    total_pages = max(1, -(-total // per_page))  # ceiling division
+    start       = (page - 1) * per_page + 1
+    end         = min(page * per_page, total)
+
+    # build page buttons — show max 5 around current
+    buttons_html = ""
+    page_range = sorted(set(
+        [1, 2, total_pages - 1, total_pages] +
+        list(range(max(1, page - 1), min(total_pages + 1, page + 2)))
+    ))
+
+    prev_p = None
+    for p in page_range:
+        if p < 1 or p > total_pages:
+            continue
+        if prev_p and p - prev_p > 1:
+            buttons_html += '<span class="pagination__ellipsis">…</span>'
+        active_cls  = " pagination__btn--active" if p == page else ""
+        onclick_str = f' onclick="{on_change}({p})"' if on_change else ""
+        buttons_html += f'<button class="pagination__btn{active_cls}"{onclick_str}>{p}</button>'
+        prev_p = p
+
+    prev_disabled = " disabled" if page <= 1 else ""
+    next_disabled = " disabled" if page >= total_pages else ""
+    prev_onclick  = f' onclick="{on_change}({page - 1})"' if on_change and page > 1 else ""
+    next_onclick  = f' onclick="{on_change}({page + 1})"' if on_change and page < total_pages else ""
+
+    return f'''
+<div class="pagination">
+    <span class="pagination__info">Showing {start}–{end} of {total}</span>
+    <div class="pagination__controls">
+        <button class="pagination__btn pagination__btn--nav"{prev_onclick}{prev_disabled}>
+            <i data-lucide="chevron-left" style="width:14px;height:14px;"></i>
+        </button>
+        {buttons_html}
+        <button class="pagination__btn pagination__btn--nav"{next_onclick}{next_disabled}>
+            <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+        </button>
+    </div>
+</div>'''
+
+
+# ── BASE TEMPLATE ──
+
+def render_base_template(app) -> str:
     theme      = app.theme
     layout     = app.layout
     nav        = app._nav
     nav_footer = app._nav_footer
 
+    bordered   = getattr(layout, 'bordered', False)
     layout_cls = "layout"
     if layout.sidebar: layout_cls += " layout--with-sidebar"
     if layout.topbar:  layout_cls += " layout--with-topbar"
+    if bordered:       layout_cls += " layout--bordered"
 
     nav_html = ""
     for item in nav:
@@ -836,28 +976,12 @@ def render_base_template(app) -> str:
             <span class="nav-item__label">{item.label}</span>
         </a>'''
 
-    default_logo = '''<svg class="sidebar__logo-mark" viewBox="0 0 56 56" fill="none">
-        <rect width="56" height="56" rx="12" fill="var(--accent)"/>
-        <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#ffffff"/>
-        </svg>'''
-
-    logo_html = app.logo if app.logo else default_logo
+    logo_html = render_logo(app.logo)
 
     sidebar_html = ""
     if layout.sidebar:
         sidebar_html = f'''
-  <aside class="sidebar">
-    <div class="sidebar__logo">
-      <div class="sidebar__logo-full">
-        {logo_html}
-        <span class="sidebar__logo-name">{app.title}</span>
-      </div>
-      <button class="topbar__toggle sidebar__toggle" id="sidebarToggle">
-        <i data-lucide="menu" class="topbar__icon"></i>
-      </button>
-    </div>
+  <aside class="sidebar" id="sidebar">
     <nav class="sidebar__nav">{nav_html}</nav>
     <div class="sidebar__footer">{nav_footer_html}</div>
   </aside>'''
@@ -874,7 +998,11 @@ def render_base_template(app) -> str:
         topbar_html = f'''
   <header class="topbar">
     <div class="topbar__left">
-        <span class="topbar__title">{{{{ page_title }}}}</span>
+        <button class="topbar__toggle" id="sidebarToggle">
+            <i data-lucide="menu" class="topbar__icon"></i>
+        </button>
+        {logo_html}
+        <span class="topbar__app-title">{app.title}</span>
     </div>
     <div class="topbar__right">
         {theme_toggle}
@@ -892,24 +1020,24 @@ def render_base_template(app) -> str:
   <meta name="generator" content="Burq ⚡ — https://burq.dev" />
   {f'<meta name="author" content="{app.author}" />' if app.author else ""}
   <title>{{{{ page_title }}}} — {app.title}</title>
-  <!-- ⚡ Built with Burq — https://burq.dev -->
   <link rel="stylesheet" href="/static/tokens.css" />
   <link rel="stylesheet" href="/static/layout.css" />
   <link rel="stylesheet" href="/static/components.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    .nav-item__icon {{ width: 18px; height: 18px; flex-shrink: 0; }}
-    .topbar__icon   {{ width: 18px; height: 18px; }}
-    .page-title     {{ font-size: var(--text-2xl); font-weight: 700; color: var(--foreground); letter-spacing: -0.02em; margin-bottom: var(--space-4); }}
-    .page-heading   {{ font-size: var(--text-xl);  font-weight: 600; color: var(--foreground); letter-spacing: -0.01em; margin-bottom: var(--space-3); }}
-    .body-text      {{ font-size: var(--text-base); color: var(--foreground); }}
-    .muted-text     {{ font-size: var(--text-base); color: var(--muted-foreground); }}
+    .nav-item__icon      {{ width: 18px; height: 18px; flex-shrink: 0; }}
+    .topbar__icon        {{ width: 18px; height: 18px; }}
+    .topbar__app-title   {{ font-size: var(--text-md); font-weight: 700; letter-spacing: -0.02em; color: var(--foreground); }}
+    .page-title          {{ font-size: var(--text-2xl); font-weight: 700; color: var(--foreground); letter-spacing: -0.02em; margin-bottom: var(--space-4); }}
+    .page-heading        {{ font-size: var(--text-xl); font-weight: 600; color: var(--foreground); letter-spacing: -0.01em; margin-bottom: var(--space-3); }}
+    .body-text           {{ font-size: var(--text-base); color: var(--foreground); }}
+    .muted-text          {{ font-size: var(--text-base); color: var(--muted-foreground); }}
   </style>
 </head>
 <body>
 <div class="{layout_cls}" id="layout">
-  {sidebar_html}
   {topbar_html}
+  {sidebar_html}
   <main class="content">
     <div style="padding: var(--space-6);">
       {{% block content %}}{{% endblock %}}
@@ -923,8 +1051,8 @@ def render_base_template(app) -> str:
 </body>
 </html>'''
 
-def render_page_template(page_content: str, modal_content: str = "", url_pattern: str = "") -> str:
 
+def render_page_template(page_content: str, modal_content: str = "", url_pattern: str = "") -> str:
     param_script = ""
     if "{" in url_pattern:
         js = (
