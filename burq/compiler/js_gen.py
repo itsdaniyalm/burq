@@ -559,6 +559,60 @@ function initAccordions() {{
     }});
   }});
 }}
+// ── FILE UPLOADS ──
+function initFileUploads() {{
+  document.querySelectorAll(".file-upload").forEach(wrapper => {{
+    const input   = wrapper.querySelector(".file-upload__input");
+    const zone    = wrapper.querySelector(".file-upload__zone");
+    const preview = wrapper.querySelector(".file-upload__preview");
+    const nameEl  = wrapper.querySelector(".file-upload__filename");
+    if (!input || !zone) return;
+
+    function showFile(file) {{
+      if (!file) return;
+      zone.style.display    = "none";
+      preview.style.display = "flex";
+      nameEl.textContent    = file.name;
+      lucide.createIcons();
+    }}
+
+    input.addEventListener("change", () => {{
+      if (input.files[0]) showFile(input.files[0]);
+    }});
+
+    zone.addEventListener("dragover", e => {{
+      e.preventDefault();
+      wrapper.classList.add("file-upload--dragover");
+    }});
+
+    zone.addEventListener("dragleave", () => {{
+      wrapper.classList.remove("file-upload--dragover");
+    }});
+
+    zone.addEventListener("drop", e => {{
+      e.preventDefault();
+      wrapper.classList.remove("file-upload--dragover");
+      const file = e.dataTransfer.files[0];
+      if (file) {{
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        showFile(file);
+      }}
+    }});
+  }});
+}}
+
+function burqClearFile(uid) {{
+  const wrapper = document.getElementById(uid);
+  if (!wrapper) return;
+  const input   = wrapper.querySelector(".file-upload__input");
+  const zone    = wrapper.querySelector(".file-upload__zone");
+  const preview = wrapper.querySelector(".file-upload__preview");
+  input.value          = "";
+  zone.style.display   = "";
+  preview.style.display = "none";
+}}
 
 // ── INIT ──
 function burqInit() {{
@@ -574,6 +628,7 @@ function burqInit() {{
   initTables();
   initTableExport();
   initActiveNav();
+  initFileUploads();
   lucide.createIcons();
 }}
 

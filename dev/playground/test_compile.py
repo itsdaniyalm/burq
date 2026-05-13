@@ -71,6 +71,7 @@ def dashboard():
 @app.page("/contacts")
 def contacts():
     bq.title("Contacts")
+    bq.button("Add Contact", variant="primary", icon="plus", onclick=bq.open_modal("add-contact"))
     bq.table(
         data=bq.fetch("GET", "/contacts/"),
         columns=["name", "company", "status", "created_at"],
@@ -167,6 +168,7 @@ def contact_detail(contact_id):
                 searchable=True,
                 sortable=True,
             )
+
 @app.page("/settings")
 def settings():
     bq.title("Settings")
@@ -181,6 +183,17 @@ def settings():
                     "UTC", "America/New_York", "America/Chicago", "America/Los_Angeles", "Asia/Karachi"
                 ])
                 bq.button("Save Changes", variant="primary", icon="save")
+
+            bq.spacer(size="md")
+
+            with bq.card("Import Data"):
+                bq.file_upload(
+                    label="Upload CSV",
+                    accept=".csv",
+                    name="import_file",
+                    helper="Contacts or deals CSV, max 10MB"
+                )
+                bq.button("Import", variant="primary", icon="upload")
 
             bq.spacer(size="md")
 
@@ -234,7 +247,6 @@ def settings():
                 bq.text("Permanently delete this workspace and all associated data.", muted=True)
                 bq.button("Delete Workspace", variant="danger", icon="trash-2")
 
-
 # ── MODALS ──
 @app.modal("add-contact")
 def add_contact_modal():
@@ -249,7 +261,7 @@ def add_contact_modal():
                     searchable=True
                 )
         with bq.modal_footer():
-            bq.button("Cancel", variant="secondary", onclick=bq.close_modal())
+            bq.button("Cancel", variant="secondary", onclick=bq.close_modal("add-contact"))
             bq.button("Save",   variant="primary",   icon="save")
 
 

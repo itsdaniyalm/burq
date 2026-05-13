@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "burq"
@@ -8,13 +8,17 @@ version = "0.1.0"
 description = "Write Python. Compile to blazing fast Vanilla JS + HTML."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "jinja2>=3.1",
+    "typer>=0.9",
+    "watchdog>=3.0",
+    "coloraide>=3.0",
+]
+
+[project.scripts]
+burq = "burq.cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["burq*"]
 exclude = ["dev*", "tests*"]
-
-dependencies = [
-    "coloraide>=3.0"
-]

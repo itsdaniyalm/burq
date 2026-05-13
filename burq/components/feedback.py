@@ -62,5 +62,5 @@ def open_modal(id: str) -> str:
     return f"ModalManager.open('{id}')"
 
 
-def close_modal() -> str:
-    return "ModalManager.close()"
+def close_modal(id: str = None) -> str:
+    return f"ModalManager.close('{id}')" if id else "ModalManager.close(document.querySelector('.overlay--open')?.id)"

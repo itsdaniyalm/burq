@@ -9,6 +9,7 @@ class Layout:
     sidebar:  bool = True
     topbar:   bool = True
     bordered: bool = False
+    show_title:  bool = False
 
 
 class App:

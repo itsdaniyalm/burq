@@ -2,7 +2,7 @@ import base64
 import os
 from typing import Any
 import json as _json
-
+import time
 
 def classes(*args) -> str:
     result = []
@@ -20,13 +20,18 @@ def icon(name: str, cls: str = "") -> str:
     return f'<i data-lucide="{name}" class="{cls}"></i>'
 
 
-DEFAULT_LOGO = '''<svg viewBox="0 0 56 56" fill="none" style="width:28px;height:28px;flex-shrink:0;">
-    <rect width="56" height="56" rx="12" fill="var(--accent)"/>
-    <path d="M20 10 C16 10 14 12 14 16 L14 22 C14 24.5 12 26 10 28 C12 30 14 31.5 14 34 L14 40 C14 44 16 46 20 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <path d="M36 10 C40 10 42 12 42 16 L42 22 C42 24.5 44 26 46 28 C44 30 42 31.5 42 34 L42 40 C42 44 40 46 36 46" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <path d="M31 14 L22 29 L27.5 29 L25 42 L36 25 L30 25 L33 14 Z" fill="#ffffff"/>
+DEFAULT_LOGO = '''<svg viewBox="0 0 130 36" fill="none" style="height:28px;flex-shrink:0;">
+  <!-- tile: 36x36 -->
+  <rect width="36" height="36" rx="7" fill="var(--accent)"/>
+  <!-- braces scaled from 100x100 to fit 36x36 tile with padding -->
+  <g transform="translate(3, 3) scale(0.3)">
+    <path d="M 38 12 C 30 12 28 22 28 32 C 28 42 18 44 14 50 C 18 56 28 58 28 68 C 28 78 30 88 38 88" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 62 12 C 70 12 72 22 72 32 C 72 42 82 44 86 50 C 82 56 72 58 72 68 C 72 78 70 88 62 88" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 54 24 L 38 54 L 48 54 L 44 78 L 62 46 L 52 46 L 56 24 Z" fill="#ffffff"/>
+  </g>
+  <!-- wordmark -->
+   <text x="46" y="25" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="20" letter-spacing="-0.03em" fill="var(--foreground)">burq</text>
 </svg>'''
-
 
 def render_logo(logo, size="28px") -> str:
     """
@@ -108,6 +113,7 @@ def render_node(node: dict, app=None) -> str:
         "contact_profile": render_contact_profile,
         "box":      render_box,
         "markdown": render_markdown,
+        "file_upload": render_file_upload,
     }
 
     renderer = renderers.get(tag)
@@ -151,6 +157,43 @@ def render_divider(props, children):
     cls = classes(props.get("classes", ["divider"]))
     return f'<hr class="{cls}" />'
 
+def render_file_upload(props, children):
+    label   = props.get("label")
+    accept  = props.get("accept", "")
+    name    = props.get("name", "file")
+    helper  = props.get("helper")
+    error   = props.get("error")
+    uid     = f"fu-{abs(hash(name)) % 100000}"
+
+    label_html  = f'<label class="form-label">{label}</label>' if label else ""
+    helper_html = f'<span class="form-helper">{helper}</span>' if helper else ""
+    error_html  = f'<span class="form-error"><i data-lucide="circle-alert" class="form-error__icon"></i>{error}</span>' if error else ""
+
+    return f'''
+<div class="form-field">
+    {label_html}
+    <div class="file-upload" id="{uid}" data-accept="{accept}">
+        <input type="file" class="file-upload__input" name="{name}" accept="{accept}" id="{uid}-input" />
+        <div class="file-upload__zone" onclick="document.getElementById('{uid}-input').click()">
+            <div class="file-upload__icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="file-upload__text">
+                <span class="file-upload__primary">Drop file here or <span class="file-upload__link">browse</span></span>
+                <span class="file-upload__secondary">{accept if accept else "Any file type"}</span>
+            </div>
+        </div>
+        <div class="file-upload__preview" id="{uid}-preview" style="display:none;">
+            <i data-lucide="file" class="file-upload__file-icon"></i>
+            <span class="file-upload__filename" id="{uid}-name"></span>
+            <button class="file-upload__clear" onclick="burqClearFile('{uid}')" type="button">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+    </div>
+    {helper_html}
+    {error_html}
+</div>'''
 
 def render_card(props, children):
     cls      = classes(props.get("classes", ["card"]))
@@ -506,7 +549,7 @@ def render_table(props, children):
         sort_cls  = "sortable" if sortable else ""
         headers  += f'<th class="{sort_cls}">{col.replace("_"," ").title()} {sort_icon}</th>'
 
-    tbody_id = f"tbody-{fetch_endpoint.replace('/','').replace('{','').replace('}','')}"
+    tbody_id = f"tbody-{abs(hash(fetch_endpoint + str(id(props)))) % 999999}"
 
     pagination_html = ""
     if pagination:
@@ -542,7 +585,7 @@ def render_table(props, children):
         data-checkable="{str(checkable).lower()}"
         data-actions="{",".join(actions)}"
         data-column-config='{config_json}'
-        data-row-href="{props.get('row_href', '')}">
+        data-row-href="{props.get('row_href') or ''}">
     {toolbar}
     <table class="{table_cls}">
         <thead>
@@ -566,7 +609,7 @@ def render_table(props, children):
 
 def render_input(props, children):
     label       = props.get("label")
-    placeholder = props.get("placeholder", "")
+    placeholder = props.get("placeholder") or ""
     type_       = props.get("type", "text")
     required    = props.get("required", False)
     disabled    = props.get("disabled", False)
@@ -575,7 +618,7 @@ def render_input(props, children):
     icon_pos    = props.get("icon_pos", "left")
     error       = props.get("error")
     helper      = props.get("helper")
-    name        = props.get("name", "")
+    name        = props.get("name") or ""
 
     input_cls = "input"
     if size != "md":  input_cls += f" input--{size}"
@@ -589,7 +632,10 @@ def render_input(props, children):
         req_cls    = " form-label--required" if required else ""
         label_html = f'<label class="form-label{req_cls}">{label}</label>'
 
-    input_html = f'<input class="{input_cls}" type="{type_}" name="{name}" placeholder="{placeholder}"{disabled_attr}{required_attr} />'
+    value      = props.get("value")
+    value_attr = f' value="{value}"' if value is not None else ""
+
+    input_html = f'<input class="{input_cls}" type="{type_}" name="{name}" placeholder="{placeholder}"{value_attr}{disabled_attr}{required_attr} />'
 
     if ico:
         wrapper_cls = "input-wrapper" if icon_pos == "left" else "input-wrapper input-wrapper--right"
@@ -1082,6 +1128,8 @@ def render_base_template(app) -> str:
             <button class="topbar__toggle" id="themeToggle" title="Toggle theme">
                 <i data-lucide="sun" class="topbar__icon" id="themeIcon"></i>
             </button>'''
+            
+        title_html = f'<span class="topbar__app-title">{app.title}</span>' if layout.show_title else ""
 
         topbar_html = f'''
   <header class="topbar">
@@ -1090,7 +1138,7 @@ def render_base_template(app) -> str:
             <i data-lucide="menu" class="topbar__icon"></i>
         </button>
         {logo_html}
-        <span class="topbar__app-title">{app.title}</span>
+        {title_html}
     </div>
     <div class="topbar__right">
         {theme_toggle}
@@ -1099,7 +1147,7 @@ def render_base_template(app) -> str:
         </button>
     </div>
   </header>'''
-
+        
     return f'''<!DOCTYPE html>
 <html lang="en" data-theme="{theme.mode}">
 <head>

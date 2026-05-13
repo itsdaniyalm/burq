@@ -2,44 +2,44 @@ from .theme import Theme
 
 GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family={sans}:wght@300;400;500;600;700&family={mono}:wght@400;700&display=swap"
 
-# ── MERIDIAN-INSPIRED DEFAULTS ──
+# ── FILAMENT DEFAULTS ──
 LIGHT_DEFAULTS = {
-    "background":        "#f7f9f7",
-    "foreground":        "#0a1f14",
+    "background":        "#fef9ed",
+    "foreground":        "#1a140a",
     "surface":           "#ffffff",
     "surface_raised":    "#ffffff",
-    "muted":             "#e8f0eb",
-    "muted_foreground":  "#5a9070",
-    "accent":            "#0f8a4a",
+    "muted":             "#f5ecd6",
+    "muted_foreground":  "#5c4d2e",
+    "accent":            "#F08C1A",
     "accent_foreground": "#ffffff",
-    "border":            "#ccddd4",
+    "border":            "#ebe0c2",
     "chrome":            "#ffffff",
-    "chrome_foreground": "#2d6b4a",
-    "chrome_border":     "#ccddd4",
+    "chrome_foreground": "#5c4d2e",
+    "chrome_border":     "#ebe0c2",
 }
 
 DARK_DEFAULTS = {
-    "background":        "#0a0f0d",
-    "foreground":        "#e8ede9",
-    "surface":           "#0d1710",
-    "surface_raised":    "#111a14",
-    "muted":             "#1a2e22",
-    "muted_foreground":  "#4a7a62",
-    "accent":            "#2ec97a",
-    "accent_foreground": "#0a0f0d",
-    "border":            "#1a2e22",
-    "chrome":            "#0d1710",
-    "chrome_foreground": "#7aaa90",
-    "chrome_border":     "#1a2e22",
+    "background":        "#0a0a0b",
+    "foreground":        "#ededee",
+    "surface":           "#111113",
+    "surface_raised":    "#1e1e22",
+    "muted":             "#1e1e22",
+    "muted_foreground":  "#8a8a93",
+    "accent":            "#F08C1A",
+    "accent_foreground": "#0a0a0b",
+    "border":            "#2a2a2e",
+    "chrome":            "#111113",
+    "chrome_foreground": "#8a8a93",
+    "chrome_border":     "#2a2a2e",
 }
 
 STATUS_DEFAULTS = {
-    "color_success":      "#0f8a4a",
+    "color_success":      "#1a7a3c",
     "color_success_dark": "#2ec97a",
     "color_warning":      "#c97a2e",
-    "color_warning_dark": "#c97a2e",
+    "color_warning_dark": "#F08C1A",
     "color_error":        "#c92e2e",
-    "color_error_dark":   "#c92e2e",
+    "color_error_dark":   "#e05252",
 }
 
 

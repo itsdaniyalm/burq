@@ -169,3 +169,18 @@ def file_upload(
         "accept": accept,
         "name":   name,
     })
+
+def file_upload(
+    label:  str = None,
+    accept: str = None,
+    name:   str = None,
+    helper: str = None,
+    error:  str = None,
+):
+    leaf_node("file_upload", {
+        "label":  label,
+        "accept": accept,
+        "name":   name,
+        "helper": helper,
+        "error":  error,
+    })
