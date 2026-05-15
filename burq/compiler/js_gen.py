@@ -614,6 +614,135 @@ function burqClearFile(uid) {{
   preview.style.display = "none";
 }}
 
+// ── RICH TEXT EDITOR ──
+function rteExec(cmd, uid) {{
+  var editor = document.getElementById(uid);
+  if (!editor) return;
+  editor.focus();
+  document.execCommand(cmd, false, null);
+  rteSyncEditor(uid);
+}}
+
+function rteHeading(sel, uid) {{
+  var editor = document.getElementById(uid);
+  if (!editor) return;
+  editor.focus();
+  var val = sel.value;
+  document.execCommand("formatBlock", false, val || "p");
+  rteSyncEditor(uid);
+}}
+
+function rteBlockquote(uid) {{
+  var editor = document.getElementById(uid);
+  if (!editor) return;
+  editor.focus();
+  document.execCommand("formatBlock", false, "blockquote");
+  rteSyncEditor(uid);
+}}
+
+function rteInlineCode(uid) {{
+  var editor = document.getElementById(uid);
+  if (!editor) return;
+  editor.focus();
+  var sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  var range = sel.getRangeAt(0);
+  var selected = range.toString();
+  if (!selected) return;
+  var code = document.createElement("code");
+  code.textContent = selected;
+  range.deleteContents();
+  range.insertNode(code);
+  rteSyncEditor(uid);
+}}
+
+function rteCodeBlock(uid) {{
+  var editor = document.getElementById(uid);
+  if (!editor) return;
+  editor.focus();
+  var sel = window.getSelection();
+  var selected = sel.rangeCount ? sel.getRangeAt(0).toString() : "";
+  var pre = document.createElement("pre");
+  var code = document.createElement("code");
+  code.textContent = selected || "// code here";
+  pre.appendChild(code);
+  if (sel.rangeCount) {{
+    var range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(pre);
+  }} else {{
+    editor.appendChild(pre);
+  }}
+  rteSyncEditor(uid);
+}}
+
+function rteLink(uid) {{
+  var url = prompt("URL:");
+  if (url) rteExec("createLink", uid);
+}}
+
+function rteSyncEditor(uid) {{
+  var editor = document.getElementById(uid);
+  var hidden = document.getElementById(uid + "-hidden");
+  var counter = document.getElementById(uid + "-count");
+  if (!editor) return;
+  var md = burqHtmlToMarkdown(editor.innerHTML);
+  if (hidden) hidden.value = md;
+  if (counter) counter.textContent = editor.innerText.replace(/\\n/g, "").length + " chars";
+}}
+
+function burqHtmlToMarkdown(html) {{
+  var div = document.createElement("div");
+  div.innerHTML = html;
+  function nodeToMd(node) {{
+    if (node.nodeType === 3) return node.textContent;
+    if (node.nodeType !== 1) return "";
+    var tag = node.tagName.toLowerCase();
+    var inner = function() {{ return Array.from(node.childNodes).map(nodeToMd).join(""); }};
+    if (tag === "br") return "\\n";
+    if (tag === "p" || tag === "div") return inner() + "\\n\\n";
+    if (tag === "h1") return "# " + inner() + "\\n\\n";
+    if (tag === "h2") return "## " + inner() + "\\n\\n";
+    if (tag === "h3") return "### " + inner() + "\\n\\n";
+    if (tag === "strong" || tag === "b") return "**" + inner() + "**";
+    if (tag === "em" || tag === "i") return "_" + inner() + "_";
+    if (tag === "s" || tag === "del") return "~~" + inner() + "~~";
+    if (tag === "a") return "[" + inner() + "](" + (node.href || "") + ")";
+    if (tag === "code" && node.parentElement && node.parentElement.tagName.toLowerCase() !== "pre")
+      return "`" + inner() + "`";
+    if (tag === "pre") {{
+      var codeEl = node.querySelector("code");
+      return "```\\n" + (codeEl ? codeEl.textContent : node.textContent) + "\\n```\\n\\n";
+    }}
+    if (tag === "blockquote") return inner().split("\\n").map(function(l) {{ return "> " + l; }}).join("\\n") + "\\n\\n";
+    if (tag === "ul") {{
+      return Array.from(node.querySelectorAll(":scope > li"))
+        .map(function(li) {{ return "- " + li.innerText; }}).join("\\n") + "\\n\\n";
+    }}
+    if (tag === "ol") {{
+      return Array.from(node.querySelectorAll(":scope > li"))
+        .map(function(li, i) {{ return (i+1) + ". " + li.innerText; }}).join("\\n") + "\\n\\n";
+    }}
+    return inner();
+  }}
+  return Array.from(div.childNodes).map(nodeToMd).join("")
+    .replace(/\\n{{3,}}/g, "\\n\\n").trim();
+}}
+// ── NAV GROUPS ──
+function initNavGroups() {{
+  document.querySelectorAll(".nav-group__trigger").forEach(trigger => {{
+    trigger.addEventListener("click", () => {{
+      trigger.closest(".nav-group").classList.toggle("nav-group--open");
+    }});
+  }});
+
+  // auto-open group if a child matches current path
+  const path = window.location.pathname;
+  document.querySelectorAll(".nav-group").forEach(group => {{
+    const active = group.querySelector(`.nav-item[data-href="${{path}}"]`);
+    if (active) group.classList.add("nav-group--open");
+  }});
+}}
 // ── INIT ──
 function burqInit() {{
   ToastManager.init();
@@ -629,6 +758,7 @@ function burqInit() {{
   initTableExport();
   initActiveNav();
   initFileUploads();
+  initNavGroups();
   lucide.createIcons();
 }}
 

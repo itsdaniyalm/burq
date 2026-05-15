@@ -1,8 +1,7 @@
 import base64
 import os
-from typing import Any
 import json as _json
-import time
+from ..components.navigation import NavGroup 
 
 def classes(*args) -> str:
     result = []
@@ -114,6 +113,8 @@ def render_node(node: dict, app=None) -> str:
         "box":      render_box,
         "markdown": render_markdown,
         "file_upload": render_file_upload,
+        "code_block":  render_code_block,
+        "rich_text":   render_rich_text,
     }
 
     renderer = renderers.get(tag)
@@ -1080,6 +1081,112 @@ def render_pagination(props, children):
 </div>'''
 
 
+def render_code_block(props, children):
+    content  = props.get("content", "")
+    language = props.get("language", "python")
+    filename = props.get("filename")
+
+    # escape HTML entities
+    content_escaped = (content
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;"))
+
+    header_left  = f'<span class="bq-codeblock-filename">{filename}</span>' if filename else '<span></span>'
+    header_right = f'<span class="bq-codeblock-lang">{language}</span>'
+
+    uid = f"ln-{abs(hash(content)) % 99999}"
+
+    return f'''
+<div class="bq-codeblock">
+  <div class="bq-codeblock-header">
+    {header_left}
+    {header_right}
+  </div>
+  <div class="bq-codeblock-inner">
+    <div class="bq-line-numbers" id="{uid}"></div>
+    <pre class="language-{language}" style="margin:0;border:none!important;border-radius:0!important;"><code class="language-{language}">{content_escaped}</code></pre>
+  </div>
+</div>
+<script>
+(function() {{
+  var el = document.getElementById("{uid}");
+  var code = el.nextElementSibling.querySelector("code");
+  if (!el || !code) return;
+  var lines = code.textContent.split("\\n").length;
+  el.innerHTML = Array.from({{length: lines}}, function(_, i) {{ return "<span>" + (i+1) + "</span>"; }}).join("");
+  if (window.Prism) Prism.highlightElement(code);
+}})();
+</script>'''
+
+
+def render_rich_text(props, children):
+    name        = props.get("name", "content")
+    label       = props.get("label")
+    placeholder = props.get("placeholder", "Write something...")
+    value       = props.get("value", "")
+
+    label_html = f'<label class="form-label">{label}</label>' if label else ""
+    uid        = f"rte-{abs(hash(name)) % 99999}"
+
+    return f'''
+<div class="form-field">
+  {label_html}
+  <div class="bq-rte-wrap">
+    <div class="bq-rte-toolbar">
+      <select class="bq-rte-select" onchange="rteHeading(this, '{uid}')">
+        <option value="">Paragraph</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+      </select>
+      <div class="bq-rte-sep"></div>
+      <button class="bq-rte-btn" type="button" title="Bold" onclick="rteExec('bold', '{uid}')"><b>B</b></button>
+      <button class="bq-rte-btn" type="button" title="Italic" onclick="rteExec('italic', '{uid}')"><i>I</i></button>
+      <button class="bq-rte-btn" type="button" title="Strikethrough" onclick="rteExec('strikeThrough', '{uid}')"><s>S</s></button>
+      <div class="bq-rte-sep"></div>
+      <button class="bq-rte-btn" type="button" title="Bullet list" onclick="rteExec('insertUnorderedList', '{uid}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor"/><circle cx="4" cy="12" r="1.5" fill="currentColor"/><circle cx="4" cy="18" r="1.5" fill="currentColor"/></svg>
+      </button>
+      <button class="bq-rte-btn" type="button" title="Ordered list" onclick="rteExec('insertOrderedList', '{uid}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2" y="9" fill="currentColor" stroke="none" font-size="8" font-family="monospace">1.</text><text x="2" y="21" fill="currentColor" stroke="none" font-size="8" font-family="monospace">2.</text></svg>
+      </button>
+      <button class="bq-rte-btn" type="button" title="Blockquote" onclick="rteBlockquote('{uid}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+      </button>
+      <div class="bq-rte-sep"></div>
+      <button class="bq-rte-btn" type="button" title="Inline code" onclick="rteInlineCode('{uid}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </button>
+      <button class="bq-rte-btn" type="button" title="Code block" onclick="rteCodeBlock('{uid}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg>
+      </button>
+      <button class="bq-rte-btn" type="button" title="Link" onclick="rteLink('{uid}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      </button>
+    </div>
+    <div class="bq-rte-editor" id="{uid}" contenteditable="true" data-placeholder="{placeholder}"></div>
+    <div class="bq-rte-footer">
+      <span class="bq-rte-charcount" id="{uid}-count">0 chars</span>
+    </div>
+  </div>
+  <input type="hidden" id="{uid}-hidden" name="{name}" value="{value}" />
+</div>
+<script>
+(function() {{
+  var editor = document.getElementById("{uid}");
+  var hidden = document.getElementById("{uid}-hidden");
+  var counter = document.getElementById("{uid}-count");
+  if (editor) {{
+    editor.addEventListener("input", function() {{
+      var md = burqHtmlToMarkdown(editor.innerHTML);
+      if (hidden) hidden.value = md;
+      if (counter) counter.textContent = editor.innerText.replace(/\\n/g, "").length + " chars";
+    }});
+  }}
+}})();
+</script>'''
+
 # ── BASE TEMPLATE ──
 
 def render_base_template(app) -> str:
@@ -1094,21 +1201,32 @@ def render_base_template(app) -> str:
     if layout.topbar:  layout_cls += " layout--with-topbar"
     if bordered:       layout_cls += " layout--bordered"
 
-    nav_html = ""
-    for item in nav:
-        nav_html += f'''
-        <a class="nav-item" href="{item.href}" data-href="{item.href}">
-            <i data-lucide="{item.icon}" class="nav-item__icon"></i>
-            <span class="nav-item__label">{item.label}</span>
-        </a>'''
+    def _render_nav_item(item) -> str:
+        if isinstance(item, NavGroup):
+            open_cls  = " nav-group--open" if item.default_open else ""
+            children_html = "".join(_render_nav_item(c) for c in item.children)
+            icon_html = f'<i data-lucide="{item.icon}" class="nav-item__icon"></i>' if item.icon else ""
+            return f'''
+            <div class="nav-group{open_cls}">
+                <button class="nav-group__trigger" type="button">
+                    {icon_html}
+                    <span class="nav-item__label">{item.label}</span>
+                    <i data-lucide="chevron-right" class="nav-group__chevron"></i>
+                </button>
+                <div class="nav-group__children">
+                    {children_html}
+                </div>
+            </div>'''
+        else:
+            icon_html = f'<i data-lucide="{item.icon}" class="nav-item__icon"></i>' if item.icon else ""
+            return f'''
+            <a class="nav-item" href="{item.href}" data-href="{item.href}">
+                {icon_html}
+                <span class="nav-item__label">{item.label}</span>
+            </a>'''
 
-    nav_footer_html = ""
-    for item in nav_footer:
-        nav_footer_html += f'''
-        <a class="nav-item" href="{item.href}" data-href="{item.href}">
-            <i data-lucide="{item.icon}" class="nav-item__icon"></i>
-            <span class="nav-item__label">{item.label}</span>
-        </a>'''
+    nav_html = "".join(_render_nav_item(item) for item in nav)
+    nav_footer_html = "".join(_render_nav_item(item) for item in nav_footer)
 
     logo_html = render_logo(app.logo)
 
@@ -1161,6 +1279,14 @@ def render_base_template(app) -> str:
   <link rel="stylesheet" href="/static/components.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
   <style>
     .nav-item__icon      {{ width: 18px; height: 18px; flex-shrink: 0; }}
     .topbar__icon        {{ width: 18px; height: 18px; }}

@@ -31,3 +31,23 @@ def contact_profile(endpoint: str):
 
 def markdown(content: str):
     leaf_node("markdown", props={"content": content})
+
+def code_block(content: str, language: str = "python", filename: str = None):
+    leaf_node("code_block", props={
+        "content":  content,
+        "language": language,
+        "filename": filename,
+    })
+
+def rich_text(
+    name:        str,
+    label:       str  = None,
+    placeholder: str  = None,
+    value:       str  = None,
+):
+    leaf_node("rich_text", props={
+        "name":        name,
+        "label":       label,
+        "placeholder": placeholder or "Write something...",
+        "value":       value,
+    })

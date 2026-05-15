@@ -25,12 +25,13 @@ app = bq.App(
 
 app.nav([
     bq.NavItem("Dashboard", icon="layout-dashboard", href="/"),
-    bq.NavItem("Contacts",  icon="users",            href="/contacts"),
-    bq.NavItem("Deals",     icon="circle-dollar-sign", href="/deals"),
+    bq.NavGroup("Contacts", icon="users", children=[
+        bq.NavItem("All Contacts", href="/contacts"),
+        bq.NavItem("Deals",        href="/deals"),
+    ]),
 ], footer=[
-    bq.NavItem("Settings",  icon="settings",         href="/settings"),
+    bq.NavItem("Settings", icon="settings", href="/settings"),
 ])
-
 # ── PAGES ──
 @app.page("/")
 def dashboard():
@@ -246,6 +247,13 @@ def settings():
             with bq.card("Delete Workspace"):
                 bq.text("Permanently delete this workspace and all associated data.", muted=True)
                 bq.button("Delete Workspace", variant="danger", icon="trash-2")
+            bq.code_block(
+                content="import burq as bq\n\n@app.page('/')\ndef index():\n    bq.title('Hello')",
+                language="python",
+                filename="app.py"
+            )
+
+            bq.rich_text(name="notes", label="Notes", placeholder="Write something...")
 
 # ── MODALS ──
 @app.modal("add-contact")

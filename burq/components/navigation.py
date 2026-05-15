@@ -91,3 +91,16 @@ def navigate(href: str) -> str:
 
 def reload() -> str:
     return "burq.reload()"
+
+class NavGroup:
+    def __init__(
+        self,
+        label:    str,
+        icon:     str       = "",
+        children: list      = None,
+        default_open: bool  = False,
+    ):
+        self.label        = label
+        self.icon         = icon
+        self.children     = children or []
+        self.default_open = default_open

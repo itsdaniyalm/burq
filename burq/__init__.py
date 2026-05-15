@@ -34,7 +34,7 @@ from .components.feedback import (
 from .components.navigation import (
     tabs, tab, dropdown,
     DropdownItem, DropdownDivider, DropdownLabel,
-    NavItem, navigate, reload,
+    NavItem, NavGroup, navigate, reload,
 )
 
 # ── DATA ──
@@ -49,7 +49,7 @@ from .components.data import (
 # ── EXTRA ──
 from .components.extra import (
     accordion, empty_state, pagination,contact_profile,
-    markdown,
+    markdown,code_block, rich_text,
 )
 
 from .components.layout import (
@@ -81,7 +81,7 @@ __all__ = [
     # navigation
     "tabs", "tab", "dropdown",
     "DropdownItem", "DropdownDivider", "DropdownLabel",
-    "NavItem", "navigate", "reload",
+    "NavItem", "navigate", "reload", "NavGroup",
     # data
     "table",
     "line_chart", "bar_chart", "donut_chart",
@@ -90,5 +90,5 @@ __all__ = [
     "DateColumn", "BoolColumn", "TextColumn",
     # Extra
     "accordion", "empty_state", "pagination","contact_profile",
-    "markdown",
+    "markdown","code_block", "rich_text",
 ]

@@ -2,7 +2,11 @@
 
 > Write Python. Ship UI.
 
-burq is a Python UI compiler. Write your frontend in Python — burq compiles it to pure Vanilla JS + HTML + CSS. No JavaScript. No framework. No runtime server.
+[![PyPI](https://img.shields.io/pypi/v/burq)](https://pypi.org/project/burq)
+[![GitHub](https://img.shields.io/badge/github-itsdaniyalm%2Fburq-black)](https://github.com/itsdaniyalm/burq)
+[![Docs](https://img.shields.io/badge/docs-burq.dev-orange)](https://burq.dev)
+
+burq is a Python UI compiler. Write your frontend in Python and burq compiles it to pure Vanilla JS + HTML + CSS. No JavaScript. No framework. No runtime server.
 
 ```bash
 pip install burq
@@ -131,7 +135,7 @@ burq build           # compile app.py → dist/
 burq dev             # watch for changes and recompile
 ```
 
-`burq dev` watches `app.py`, `pages/`, and `components/` — recompiles on every save.
+`burq dev` watches `app.py`, `pages/`, and `components/` recompiles on every save.
 
 ---
 
@@ -228,17 +232,88 @@ bq.close_modal("my-modal")                  # close modal
 
 ```python
 bq.Theme(
-    mode="dark",           # "light" | "dark"
-    toggle=True,           # show theme toggle button
+    # ── Mode ──
+    mode="dark",              # "light" | "dark"
+    toggle=True,              # show theme toggle in topbar
+
+    # ── Typography ──
     font_sans="Space Grotesk",
     font_mono="Space Mono",
-    radius="md",           # "none" | "sm" | "md" | "lg" | "xl"
-    border_width=1,
-    # override any token:
-    dark_accent="#F08C1A",
-    light_background="#fef9ed",
+    font_size_base=14,        # base px, all sizes scale from this
+
+    # ── Shape ──
+    radius="md",              # "none" | "sm" | "md" | "lg" | "xl" | "2xl"
+    spacing_unit=4,           # base spacing unit in px
+    border_width=1,           # border width in px
+    shadow_strength="md",     # "none" | "sm" | "md" | "lg"
 )
 ```
+
+### Light theme overrides
+
+| Parameter | Default | Usage |
+|---|---|---|
+| `light_background` | `#fef9ed` | Page background |
+| `light_foreground` | `#1a140a` | Primary text |
+| `light_surface` | `#ffffff` | Cards, inputs |
+| `light_surface_raised` | `#ffffff` | Modals, dropdowns |
+| `light_muted` | `#f5ecd6` | Subtle backgrounds |
+| `light_muted_foreground` | `#5c4d2e` | Secondary text, icons |
+| `light_accent` | `#F08C1A` | Primary action color |
+| `light_accent_foreground` | `#ffffff` | Text on accent |
+| `light_border` | `#ebe0c2` | Borders |
+| `light_chrome` | `#ffffff` | Topbar, sidebar background |
+| `light_chrome_foreground` | `#5c4d2e` | Nav text |
+| `light_chrome_border` | `#ebe0c2` | Chrome borders |
+
+### Dark theme overrides
+
+| Parameter | Default | Usage |
+|---|---|---|
+| `dark_background` | `#0a0a0b` | Page background |
+| `dark_foreground` | `#ededee` | Primary text |
+| `dark_surface` | `#111113` | Cards, inputs |
+| `dark_surface_raised` | `#1e1e22` | Modals, dropdowns |
+| `dark_muted` | `#1e1e22` | Subtle backgrounds |
+| `dark_muted_foreground` | `#8a8a93` | Secondary text, icons |
+| `dark_accent` | `#F08C1A` | Primary action color |
+| `dark_accent_foreground` | `#0a0a0b` | Text on accent |
+| `dark_border` | `#2a2a2e` | Borders |
+| `dark_chrome` | `#111113` | Topbar, sidebar background |
+| `dark_chrome_foreground` | `#8a8a93` | Nav text |
+| `dark_chrome_border` | `#2a2a2e` | Chrome borders |
+
+### Status color overrides
+
+| Parameter | Default (light) | Default (dark) |
+|---|---|---|
+| `color_success` / `color_success_dark` | `#1a7a3c` | `#2ec97a` |
+| `color_warning` / `color_warning_dark` | `#c97a2e` | `#F08C1A` |
+| `color_error` / `color_error_dark` | `#c92e2e` | `#e05252` |
+
+### Example: custom brand colors
+
+```python
+bq.Theme(
+    mode="dark",
+    toggle=True,
+    dark_accent="#6366f1",        # indigo
+    dark_accent_foreground="#ffffff",
+    light_accent="#4f46e5",
+    light_accent_foreground="#ffffff",
+    light_background="#f8f7ff",
+    dark_background="#0f0e17",
+)
+```
+### Font loading
+
+Burq loads fonts automatically via Google Fonts CDN. Any Google Font works:
+
+```python
+bq.Theme(font_sans="Inter", font_mono="Fira Code")
+```
+
+Custom or self-hosted fonts are not yet supported. Coming in v0.2.
 
 ---
 
@@ -252,7 +327,7 @@ Burq     →  compile app.py → dist/ (templates + static)
 Browser  →  JS fetches data from your API at runtime
 ```
 
-burq never touches your backend. `dist/` is portable — deploy to S3, Netlify, Vercel, Databricks Apps, or serve with nginx.
+burq never touches your backend. `dist/` is portable, deploy to S3, Netlify, Vercel, Databricks Apps, or serve with nginx.
 
 ---
 
@@ -266,4 +341,26 @@ Requires Python 3.10+.
 
 ---
 
-*burq (بُرق) — Arabic/Urdu for lightning.*
+## When to use burq
+
+**Good fit:**
+- Internal tools and admin dashboards
+- Data apps and analytics UIs
+- CRUD interfaces over a REST API
+- SaaS backends that need a frontend layer
+- Replacing Streamlit when you need static output
+
+**Not a good fit:**
+- Reactive apps with complex client-side state
+- Real-time features (chat, live collaboration, live dashboards)
+- Two-way form binding or optimistic UI
+- Apps that need WebSockets or SSE push updates
+- Replacing React/Vue for highly interactive consumer UIs
+
+burq is a compiler, not a framework. It outputs static files that fetch data from your API. If your UI needs to react to state changes without a server round-trip, burq is not the right tool.
+
+---
+
+[docs](https://burq.dev) · [github](https://github.com/itsdaniyalm/burq) · [pypi](https://pypi.org/project/burq)
+
+*burq (بُرق) is Arabic/Urdu for lightning.*
