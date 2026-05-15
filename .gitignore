@@ -219,7 +219,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
  
-# Burq specific 
-dev/crm/backend/*.db 
-dist/ 
-.burq_cache/ 
+# Burq specific
+dev/crm/backend/*.db
+dist/
+.burq_cache/
+test-app/dist/
+burq.egg-info/
+*.egg-info/
+build/

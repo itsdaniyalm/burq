@@ -1,0 +1,13 @@
+include README.md
+include LICENSE
+
+exclude PROGRESS.md
+exclude BURQ.md
+exclude BRAND_GUIDELINES.md
+
+recursive-exclude dev *
+recursive-exclude test-app *
+recursive-exclude dist *
+recursive-exclude burq/runtime *
+recursive-exclude burq/__pycache__ *
+recursive-exclude *.egg-info *

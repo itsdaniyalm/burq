@@ -824,6 +824,7 @@
       <a href="#table" class="nav-item"><span class="nav-dot"></span>table</a>
       <a href="#fetch" class="nav-item"><span class="nav-dot"></span>fetch</a>
       <a href="#column-config" class="nav-item"><span class="nav-dot"></span>column config</a>
+      <a href="#charts" class="nav-item"><span class="nav-dot"></span>charts</a>
     </div>
     <div class="nav-section">
       <span class="nav-section-label">Forms</span>
@@ -847,6 +848,7 @@
       <a href="#modal-api" class="nav-item"><span class="nav-dot"></span>open / close modal</a>
       <a href="#contact-profile" class="nav-item"><span class="nav-dot"></span>contact_profile</a>
       <a href="#nav-item" class="nav-item"><span class="nav-dot"></span>NavItem</a>
+      <a href="#nav-group" class="nav-item"><span class="nav-dot"></span>NavGroup</a>
     </div>
     <div class="nav-section">
       <span class="nav-section-label">CLI</span>
@@ -1446,7 +1448,143 @@ bq.<span class="fn2">fetch</span>(<span class="str">"POST"</span>, <span class="
         </div>
       </div>
     </div>
+<!-- CHARTS -->
+    <div class="doc-section" id="charts">
+      <div class="section-header">
+        <div class="section-icon">📈</div>
+        <div>
+          <div class="section-title">Charts</div>
+          <div class="section-desc">Chart.js-powered charts. Accepts static data or <code>bq.fetch()</code>. Colors pulled from theme tokens.</div>
+        </div>
+      </div>
 
+      <div class="api-entry">
+        <div class="api-header" onclick="toggle(this)">
+          <span class="api-badge badge-fn">fn</span>
+          <span class="api-sig"><span class="fn-name">bq.bar_chart</span>(<span class="fn-arg">data</span>, <span class="fn-arg">x</span>, <span class="fn-arg">y</span>, <span class="fn-arg">title</span><span class="fn-default">=None</span>, <span class="fn-arg">stacked</span><span class="fn-default">=False</span>, <span class="fn-arg">height</span><span class="fn-default">=300</span>)</span>
+          <span class="api-chevron">▶</span>
+        </div>
+        <div class="api-body">
+          <div class="api-desc">Bar chart. Pass a single column name for <code>y</code> or a list for grouped bars.</div>
+          <table class="params-table">
+            <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            <tr><td>data<span class="required-star">*</span></td><td>list | df | fetch()</td><td>—</td><td>Static list of dicts, pandas DataFrame, or <code>bq.fetch()</code></td></tr>
+            <tr><td>x<span class="required-star">*</span></td><td>str</td><td>—</td><td>Column key for x-axis labels</td></tr>
+            <tr><td>y<span class="required-star">*</span></td><td>str | list[str]</td><td>—</td><td>Column key(s) for values — list = grouped bars</td></tr>
+            <tr><td>title</td><td>str</td><td>None</td><td>Chart title shown above</td></tr>
+            <tr><td>stacked</td><td>bool</td><td>False</td><td>Stack grouped bars instead of side-by-side</td></tr>
+            <tr><td>height</td><td>int</td><td>300</td><td>Canvas height in px</td></tr>
+          </table>
+          <div class="code-label">single series</div>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button>bq.<span class="fn2">bar_chart</span>(
+    <span class="arg2">data</span>=[
+        {<span class="str">"month"</span>: <span class="str">"Jan"</span>, <span class="str">"revenue"</span>: <span class="num">4000</span>},
+        {<span class="str">"month"</span>: <span class="str">"Feb"</span>, <span class="str">"revenue"</span>: <span class="num">3000</span>},
+        {<span class="str">"month"</span>: <span class="str">"Mar"</span>, <span class="str">"revenue"</span>: <span class="num">5000</span>},
+    ],
+    <span class="arg2">x</span>=<span class="str">"month"</span>,
+    <span class="arg2">y</span>=<span class="str">"revenue"</span>,
+    <span class="arg2">title</span>=<span class="str">"Monthly Revenue"</span>,
+)</pre>
+          <div class="code-label">grouped bars (multiple y)</div>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">bq.<span class="fn2">bar_chart</span>(
+    <span class="arg2">data</span>=bq.<span class="fn2">fetch</span>(<span class="str">"GET"</span>, <span class="str">"/stats/revenue"</span>),
+    <span class="arg2">x</span>=<span class="str">"month"</span>,
+    <span class="arg2">y</span>=[<span class="str">"revenue"</span>, <span class="str">"expenses"</span>],
+    <span class="arg2">title</span>=<span class="str">"Revenue vs Expenses"</span>,
+    <span class="arg2">stacked</span>=<span class="bool">False</span>,
+)</pre>
+        </div>
+      </div>
+
+      <div class="api-entry">
+        <div class="api-header" onclick="toggle(this)">
+          <span class="api-badge badge-fn">fn</span>
+          <span class="api-sig"><span class="fn-name">bq.line_chart</span>(<span class="fn-arg">data</span>, <span class="fn-arg">x</span>, <span class="fn-arg">y</span>, <span class="fn-arg">title</span><span class="fn-default">=None</span>, <span class="fn-arg">smooth</span><span class="fn-default">=False</span>, <span class="fn-arg">height</span><span class="fn-default">=300</span>)</span>
+          <span class="api-chevron">▶</span>
+        </div>
+        <div class="api-body">
+          <div class="api-desc">Line chart. Pass a list for <code>y</code> for multiple lines. <code>smooth=True</code> adds bezier curve tension.</div>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">bq.<span class="fn2">line_chart</span>(
+    <span class="arg2">data</span>=bq.<span class="fn2">fetch</span>(<span class="str">"GET"</span>, <span class="str">"/stats/trends"</span>),
+    <span class="arg2">x</span>=<span class="str">"date"</span>,
+    <span class="arg2">y</span>=[<span class="str">"signups"</span>, <span class="str">"churns"</span>],
+    <span class="arg2">title</span>=<span class="str">"Growth Trends"</span>,
+    <span class="arg2">smooth</span>=<span class="bool">True</span>,
+)</pre>
+        </div>
+      </div>
+
+      <div class="api-entry">
+        <div class="api-header" onclick="toggle(this)">
+          <span class="api-badge badge-fn">fn</span>
+          <span class="api-sig"><span class="fn-name">bq.area_chart</span>(<span class="fn-arg">data</span>, <span class="fn-arg">x</span>, <span class="fn-arg">y</span>, <span class="fn-arg">title</span><span class="fn-default">=None</span>, <span class="fn-arg">smooth</span><span class="fn-default">=True</span>, <span class="fn-arg">height</span><span class="fn-default">=300</span>)</span>
+          <span class="api-chevron">▶</span>
+        </div>
+        <div class="api-body">
+          <div class="api-desc">Area chart — line chart with filled area beneath. Same API as <code>line_chart</code>, <code>smooth=True</code> by default.</div>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">bq.<span class="fn2">area_chart</span>(
+    <span class="arg2">data</span>=bq.<span class="fn2">fetch</span>(<span class="str">"GET"</span>, <span class="str">"/stats/revenue"</span>),
+    <span class="arg2">x</span>=<span class="str">"month"</span>,
+    <span class="arg2">y</span>=<span class="str">"revenue"</span>,
+    <span class="arg2">title</span>=<span class="str">"Revenue Over Time"</span>,
+)</pre>
+        </div>
+      </div>
+
+      <div class="api-entry">
+        <div class="api-header" onclick="toggle(this)">
+          <span class="api-badge badge-fn">fn</span>
+          <span class="api-sig"><span class="fn-name">bq.donut_chart</span>(<span class="fn-arg">data</span>, <span class="fn-arg">label</span>, <span class="fn-arg">value</span>, <span class="fn-arg">title</span><span class="fn-default">=None</span>, <span class="fn-arg">height</span><span class="fn-default">=300</span>)</span>
+          <span class="api-chevron">▶</span>
+        </div>
+        <div class="api-body">
+          <div class="api-desc">Donut/pie chart. <code>label</code> = column key for slice labels, <code>value</code> = column key for slice values.</div>
+          <table class="params-table">
+            <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            <tr><td>data<span class="required-star">*</span></td><td>list | df | fetch()</td><td>—</td><td>Data source</td></tr>
+            <tr><td>label<span class="required-star">*</span></td><td>str</td><td>—</td><td>Column key for slice labels</td></tr>
+            <tr><td>value<span class="required-star">*</span></td><td>str</td><td>—</td><td>Column key for numeric values</td></tr>
+            <tr><td>title</td><td>str</td><td>None</td><td>Chart title</td></tr>
+            <tr><td>height</td><td>int</td><td>300</td><td>Canvas height in px</td></tr>
+          </table>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">bq.<span class="fn2">donut_chart</span>(
+    <span class="arg2">data</span>=[
+        {<span class="str">"status"</span>: <span class="str">"Won"</span>,    <span class="str">"count"</span>: <span class="num">42</span>},
+        {<span class="str">"status"</span>: <span class="str">"Lost"</span>,   <span class="str">"count"</span>: <span class="num">18</span>},
+        {<span class="str">"status"</span>: <span class="str">"Active"</span>, <span class="str">"count"</span>: <span class="num">31</span>},
+    ],
+    <span class="arg2">label</span>=<span class="str">"status"</span>,
+    <span class="arg2">value</span>=<span class="str">"count"</span>,
+    <span class="arg2">title</span>=<span class="str">"Deal Breakdown"</span>,
+)</pre>
+        </div>
+      </div>
+
+      <div class="api-entry">
+        <div class="api-header" onclick="toggle(this)">
+          <span class="api-badge badge-cls">class</span>
+          <span class="api-sig"><span class="fn-name">Theme(chart_colors</span><span class="fn-default">=None</span><span class="fn-name">)</span></span>
+          <span class="api-chevron">▶</span>
+        </div>
+        <div class="api-body">
+          <div class="api-desc">Override the chart color palette via <code>Theme</code>. Colors are assigned in order to datasets. Serialized into <code>tokens.css</code> as <code>--chart-colors</code> and read at runtime by <code>initCharts()</code>.</div>
+          <div class="code-label">default palette</div>
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button">bq.<span class="fn2">Theme</span>(
+    <span class="arg2">chart_colors</span>=[
+        <span class="str">"#F08C1A"</span>,  <span class="cmt"># accent — always first</span>
+        <span class="str">"#60a5fa"</span>,
+        <span class="str">"#2ec97a"</span>,
+        <span class="str">"#e05252"</span>,
+        <span class="str">"#c97a2e"</span>,
+        <span class="str">"#a78bfa"</span>,
+        <span class="str">"#f472b6"</span>,
+    ]
+)</pre>
+          <div class="note"><strong>Note:</strong> Charts use Chart.js 4.4. The CDN script is injected automatically into <code>base.html</code> — no setup needed.</div>
+        </div>
+      </div>
+    </div>
     <!-- FORMS -->
     <div class="doc-section" id="input">
       <div class="section-header">
@@ -1674,7 +1812,34 @@ bq.<span class="fn2">button</span>(<span class="str">"Close"</span>, <span class
         </div>
       </div>
     </div>
-
+<div class="api-entry" id="nav-group">
+  <div class="api-header" onclick="toggle(this)">
+    <span class="api-badge badge-cls">class</span>
+    <span class="api-sig"><span class="fn-name">bq.NavGroup</span>(<span class="fn-arg">label</span>, <span class="fn-arg">icon</span><span class="fn-type">: str</span>, <span class="fn-arg">children</span><span class="fn-type">: list[NavItem]</span>, <span class="fn-arg">default_open</span><span class="fn-default">=False</span>)</span>
+    <span class="api-chevron">▶</span>
+  </div>
+  <div class="api-body">
+    <div class="api-desc">Collapsible sidebar navigation group with child <code>NavItem</code>s. Renders a trigger button with a chevron that toggles open/closed. Auto-opens if the current URL matches any child href.</div>
+    <table class="params-table">
+      <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      <tr><td>label<span class="required-star">*</span></td><td>str</td><td>—</td><td>Group label shown in sidebar</td></tr>
+      <tr><td>icon</td><td>str</td><td>""</td><td>Lucide icon name</td></tr>
+      <tr><td>children<span class="required-star">*</span></td><td>list[NavItem]</td><td>—</td><td>Child nav items</td></tr>
+      <tr><td>default_open</td><td>bool</td><td>False</td><td>Render group open by default</td></tr>
+    </table>
+    <div class="code-label">example</div>
+    <pre><button class="copy-btn" onclick="copyCode(this)">copy</button>app.<span class="fn2">nav</span>([
+    bq.<span class="fn2">NavItem</span>(<span class="str">"Dashboard"</span>, <span class="arg2">icon</span>=<span class="str">"layout-dashboard"</span>, <span class="arg2">href</span>=<span class="str">"/"</span>),
+    bq.<span class="fn2">NavGroup</span>(<span class="str">"Contacts"</span>, <span class="arg2">icon</span>=<span class="str">"users"</span>, <span class="arg2">children</span>=[
+        bq.<span class="fn2">NavItem</span>(<span class="str">"All Contacts"</span>, <span class="arg2">href</span>=<span class="str">"/contacts"</span>),
+        bq.<span class="fn2">NavItem</span>(<span class="str">"Import"</span>,       <span class="arg2">href</span>=<span class="str">"/contacts/import"</span>),
+    ]),
+], footer=[
+    bq.<span class="fn2">NavItem</span>(<span class="str">"Settings"</span>, <span class="arg2">icon</span>=<span class="str">"settings"</span>, <span class="arg2">href</span>=<span class="str">"/settings"</span>),
+])</pre>
+    <div class="note"><strong>Auto-open:</strong> Group opens automatically if the current URL matches any child href.</div>
+  </div>
+</div>
     <!-- CLI -->
     <div class="doc-section" id="cli">
       <div class="section-header">

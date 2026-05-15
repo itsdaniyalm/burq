@@ -31,46 +31,58 @@ def table(
     })
 
 def line_chart(
-    data:  list,
-    x:     str,
-    y:     str,
-    label: str = None,
-    color: str = None,
+    data,
+    x:      str,
+    y,                        # str or list[str]
+    title:  str  = None,
+    smooth: bool = False,
+    height: int  = 300,
 ):
     leaf_node("line_chart", {
-        "data":  data,
-        "x":     x,
-        "y":     y,
-        "label": label,
-        "color": color,
+        "data": data, "x": x, "y": y,
+        "title": title, "smooth": smooth, "height": height,
+        "chart_type": "line",
     })
 
+def area_chart(
+    data,
+    x:      str,
+    y,
+    title:  str  = None,
+    smooth: bool = True,
+    height: int  = 300,
+):
+    leaf_node("area_chart", {
+        "data": data, "x": x, "y": y,
+        "title": title, "smooth": smooth, "height": height,
+        "chart_type": "area",
+    })
 
 def bar_chart(
-    data:  list,
-    x:     str,
-    y:     str,
-    label: str = None,
-    color: str = None,
+    data,
+    x:       str,
+    y,
+    title:   str  = None,
+    stacked: bool = False,
+    height:  int  = 300,
 ):
     leaf_node("bar_chart", {
-        "data":  data,
-        "x":     x,
-        "y":     y,
-        "label": label,
-        "color": color,
+        "data": data, "x": x, "y": y,
+        "title": title, "stacked": stacked, "height": height,
+        "chart_type": "bar",
     })
 
-
 def donut_chart(
-    data:  list,
-    label: str,
-    value: str,
+    data,
+    label:  str,
+    value:  str,
+    title:  str = None,
+    height: int = 300,
 ):
     leaf_node("donut_chart", {
-        "data":  data,
-        "label": label,
-        "value": value,
+        "data": data, "label": label, "value": value,
+        "title": title, "height": height,
+        "chart_type": "donut",
     })
 
 

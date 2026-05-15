@@ -67,6 +67,16 @@ def dashboard():
                 bq.progress("Leads",     value=72)
                 bq.progress("Qualified", value=45, variant="success")
                 bq.progress("Won",       value=28, variant="warning")
+    bq.bar_chart(
+        data=[
+            {"month": "Jan", "revenue": 4000},
+            {"month": "Feb", "revenue": 3000},
+            {"month": "Mar", "revenue": 5000},
+        ],
+        x="month",
+        y="revenue",
+        title="Revenue",
+    )
 
 
 @app.page("/contacts")

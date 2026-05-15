@@ -479,6 +479,130 @@ async function initTables() {{
   }}
 }}
 
+// ── CHART HYDRATION ──
+async function initCharts() {{
+  if (typeof Chart === "undefined") return;
+
+  const canvases = document.querySelectorAll("canvas[data-chart-type]");
+  const style    = getComputedStyle(document.documentElement);
+
+  const rawColors = style.getPropertyValue("--chart-colors").trim().replace(/^'|'$/g, "");
+  let colors;
+  try {{
+    colors = JSON.parse(rawColors);
+  }} catch(_) {{
+    colors = ["#F08C1A","#60a5fa","#2ec97a","#e05252","#c97a2e","#a78bfa","#f472b6"];
+  }}
+
+  const fg     = style.getPropertyValue("--foreground").trim();
+  const muted  = style.getPropertyValue("--muted-foreground").trim();
+  const border = style.getPropertyValue("--border").trim();
+  const surf   = style.getPropertyValue("--surface").trim();
+
+  for (const canvas of canvases) {{
+    const chartType     = canvas.dataset.chartType;
+    const cfg           = JSON.parse(canvas.dataset.chartConfig || "{{}}");
+    const fetchMethod   = canvas.dataset.fetchMethod   || "GET";
+    const fetchEndpoint = canvas.dataset.fetchEndpoint || "";
+    const inlineRaw     = canvas.dataset.inline        || "null";
+
+    let rows = null;
+    try {{
+      if (fetchEndpoint) {{
+        rows = await Burq.fetch(fetchMethod, fetchEndpoint);
+      }} else {{
+        rows = JSON.parse(inlineRaw);
+      }}
+    }} catch(e) {{
+      console.error("Burq chart fetch error:", e);
+      continue;
+    }}
+
+    if (!Array.isArray(rows) || rows.length === 0) continue;
+
+    const yKeys = Array.isArray(cfg.y) ? cfg.y : [cfg.y];
+    const xKey  = cfg.x || cfg.label;
+
+    let chartConfig;
+
+    if (chartType === "donut") {{
+      const labels = rows.map(r => r[cfg.label]);
+      const values = rows.map(r => r[cfg.value]);
+      chartConfig = {{
+        type: "doughnut",
+        data: {{
+          labels,
+          datasets: [{{
+            data:            values,
+            backgroundColor: colors.slice(0, values.length),
+            borderWidth:     2,
+            borderColor:     surf,
+          }}],
+        }},
+        options: {{
+          responsive:          true,
+          maintainAspectRatio: false,
+          plugins: {{
+            legend: {{
+              position: "right",
+              labels:   {{ color: fg, font: {{ size: 12 }} }},
+            }},
+          }},
+        }},
+      }};
+    }} else {{
+      const labels   = rows.map(r => r[xKey]);
+      const datasets = yKeys.map((key, i) => {{
+        const color  = colors[i % colors.length];
+        const isArea = chartType === "area";
+        const isBar  = chartType === "bar";
+        return {{
+          label:           key.replace(/_/g, " "),
+          data:            rows.map(r => r[key]),
+          borderColor:     color,
+          backgroundColor: isArea
+            ? color + "33"
+            : isBar ? color : "transparent",
+          tension:     cfg.smooth ? 0.4 : 0,
+          fill:        isArea,
+          pointRadius: isBar ? 0 : 3,
+          borderWidth: 2,
+        }};
+      }});
+
+      chartConfig = {{
+        type: chartType === "bar" ? "bar" : "line",
+        data: {{ labels, datasets }},
+        options: {{
+          responsive:          true,
+          maintainAspectRatio: false,
+          interaction:         {{ mode: "index", intersect: false }},
+          plugins: {{
+            legend: {{
+              display: yKeys.length > 1,
+              labels:  {{ color: fg, font: {{ size: 12 }} }},
+            }},
+          }},
+          scales: {{
+            x: {{
+              stacked: cfg.stacked || false,
+              grid:    {{ color: border }},
+              ticks:   {{ color: muted, font: {{ size: 11 }} }},
+            }},
+            y: {{
+              stacked: cfg.stacked || false,
+              grid:    {{ color: border }},
+              ticks:   {{ color: muted, font: {{ size: 11 }} }},
+            }},
+          }},
+        }},
+      }};
+    }}
+
+    new Chart(canvas, chartConfig);
+  }}
+}}
+
 // ── SIDEBAR TOGGLE ──
 function initSidebar() {{
   const layout = document.getElementById("layout");
@@ -559,6 +683,7 @@ function initAccordions() {{
     }});
   }});
 }}
+
 // ── FILE UPLOADS ──
 function initFileUploads() {{
   document.querySelectorAll(".file-upload").forEach(wrapper => {{
@@ -609,8 +734,8 @@ function burqClearFile(uid) {{
   const input   = wrapper.querySelector(".file-upload__input");
   const zone    = wrapper.querySelector(".file-upload__zone");
   const preview = wrapper.querySelector(".file-upload__preview");
-  input.value          = "";
-  zone.style.display   = "";
+  input.value           = "";
+  zone.style.display    = "";
   preview.style.display = "none";
 }}
 
@@ -682,12 +807,12 @@ function rteLink(uid) {{
 }}
 
 function rteSyncEditor(uid) {{
-  var editor = document.getElementById(uid);
-  var hidden = document.getElementById(uid + "-hidden");
+  var editor  = document.getElementById(uid);
+  var hidden  = document.getElementById(uid + "-hidden");
   var counter = document.getElementById(uid + "-count");
   if (!editor) return;
   var md = burqHtmlToMarkdown(editor.innerHTML);
-  if (hidden) hidden.value = md;
+  if (hidden)  hidden.value = md;
   if (counter) counter.textContent = editor.innerText.replace(/\\n/g, "").length + " chars";
 }}
 
@@ -697,16 +822,16 @@ function burqHtmlToMarkdown(html) {{
   function nodeToMd(node) {{
     if (node.nodeType === 3) return node.textContent;
     if (node.nodeType !== 1) return "";
-    var tag = node.tagName.toLowerCase();
+    var tag   = node.tagName.toLowerCase();
     var inner = function() {{ return Array.from(node.childNodes).map(nodeToMd).join(""); }};
-    if (tag === "br") return "\\n";
+    if (tag === "br")  return "\\n";
     if (tag === "p" || tag === "div") return inner() + "\\n\\n";
-    if (tag === "h1") return "# " + inner() + "\\n\\n";
-    if (tag === "h2") return "## " + inner() + "\\n\\n";
-    if (tag === "h3") return "### " + inner() + "\\n\\n";
+    if (tag === "h1")  return "# "   + inner() + "\\n\\n";
+    if (tag === "h2")  return "## "  + inner() + "\\n\\n";
+    if (tag === "h3")  return "### " + inner() + "\\n\\n";
     if (tag === "strong" || tag === "b") return "**" + inner() + "**";
-    if (tag === "em" || tag === "i") return "_" + inner() + "_";
-    if (tag === "s" || tag === "del") return "~~" + inner() + "~~";
+    if (tag === "em"     || tag === "i") return "_"  + inner() + "_";
+    if (tag === "s"      || tag === "del") return "~~" + inner() + "~~";
     if (tag === "a") return "[" + inner() + "](" + (node.href || "") + ")";
     if (tag === "code" && node.parentElement && node.parentElement.tagName.toLowerCase() !== "pre")
       return "`" + inner() + "`";
@@ -728,6 +853,7 @@ function burqHtmlToMarkdown(html) {{
   return Array.from(div.childNodes).map(nodeToMd).join("")
     .replace(/\\n{{3,}}/g, "\\n\\n").trim();
 }}
+
 // ── NAV GROUPS ──
 function initNavGroups() {{
   document.querySelectorAll(".nav-group__trigger").forEach(trigger => {{
@@ -736,13 +862,13 @@ function initNavGroups() {{
     }});
   }});
 
-  // auto-open group if a child matches current path
   const path = window.location.pathname;
   document.querySelectorAll(".nav-group").forEach(group => {{
     const active = group.querySelector(`.nav-item[data-href="${{path}}"]`);
     if (active) group.classList.add("nav-group--open");
   }});
 }}
+
 // ── INIT ──
 function burqInit() {{
   ToastManager.init();
@@ -756,6 +882,7 @@ function burqInit() {{
   initUrlParams();
   initTables();
   initTableExport();
+  initCharts();
   initActiveNav();
   initFileUploads();
   initNavGroups();

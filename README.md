@@ -76,7 +76,11 @@ app = bq.App(
 
 app.nav([
     bq.NavItem("Dashboard", icon="layout-dashboard", href="/"),
-    bq.NavItem("Contacts",  icon="users",            href="/contacts"),
+    bq.NavGroup("Contacts", icon="users", children=[
+        bq.NavItem("All Contacts", href="/contacts"),
+        bq.NavItem("Import",       href="/contacts/import"),
+    ]),
+    bq.NavItem("Deals", icon="circle-dollar-sign", href="/deals"),
 ])
 
 @app.page("/")
@@ -88,6 +92,15 @@ def dashboard():
             bq.metric("Contacts", "2,480", trend="+12%", trend_dir="up")
         with bq.span(cols=1):
             bq.metric("Deals", "143", trend="-4%", trend_dir="down")
+
+    bq.spacer()
+
+    bq.bar_chart(
+        data=bq.fetch("GET", "/stats/revenue"),
+        x="month",
+        y=["revenue", "expenses"],
+        title="Revenue vs Expenses",
+    )
 
     bq.spacer()
 
@@ -135,7 +148,7 @@ burq build           # compile app.py → dist/
 burq dev             # watch for changes and recompile
 ```
 
-`burq dev` watches `app.py`, `pages/`, and `components/` recompiles on every save.
+`burq dev` watches `app.py`, `pages/`, and `components/` and recompiles on every save.
 
 ---
 
@@ -183,6 +196,28 @@ bq.table(
     sortable=True,
     row_href="/items/{id}",
 )
+```
+
+### Charts
+```python
+# static data or bq.fetch() , both work
+bq.bar_chart(data=df, x="month", y="revenue", title="Revenue", height=300)
+bq.bar_chart(data=bq.fetch("GET", "/stats"), x="month", y=["revenue", "expenses"])  # grouped
+bq.line_chart(data=bq.fetch("GET", "/trends"), x="date", y=["signups", "churns"], smooth=True)
+bq.area_chart(data=bq.fetch("GET", "/revenue"), x="month", y="revenue")
+bq.donut_chart(data=bq.fetch("GET", "/breakdown"), label="status", value="count")
+```
+
+### Navigation
+```python
+# flat
+bq.NavItem("Dashboard", icon="layout-dashboard", href="/")
+
+# grouped with sub-pages (auto-opens on URL match)
+bq.NavGroup("Contacts", icon="users", children=[
+    bq.NavItem("All Contacts", href="/contacts"),
+    bq.NavItem("Import",       href="/contacts/import"),
+])
 ```
 
 ### Forms
@@ -246,6 +281,17 @@ bq.Theme(
     spacing_unit=4,           # base spacing unit in px
     border_width=1,           # border width in px
     shadow_strength="md",     # "none" | "sm" | "md" | "lg"
+
+    # ── Charts ──
+    chart_colors=[
+        "#F08C1A",            # accent , always first
+        "#60a5fa",
+        "#2ec97a",
+        "#e05252",
+        "#c97a2e",
+        "#a78bfa",
+        "#f472b6",
+    ],
 )
 ```
 
@@ -303,8 +349,10 @@ bq.Theme(
     light_accent_foreground="#ffffff",
     light_background="#f8f7ff",
     dark_background="#0f0e17",
+    chart_colors=["#6366f1", "#f472b6", "#2ec97a", "#f78c6c"],
 )
 ```
+
 ### Font loading
 
 Burq loads fonts automatically via Google Fonts CDN. Any Google Font works:
@@ -327,7 +375,7 @@ Burq     →  compile app.py → dist/ (templates + static)
 Browser  →  JS fetches data from your API at runtime
 ```
 
-burq never touches your backend. `dist/` is portable, deploy to S3, Netlify, Vercel, Databricks Apps, or serve with nginx.
+burq never touches your backend. `dist/` is portable , deploy to S3, Netlify, Vercel, Databricks Apps, or serve with nginx.
 
 ---
 

@@ -55,6 +55,9 @@ class Theme:
     color_error:        Optional[str] = None
     color_error_dark:   Optional[str] = None
 
+    # ── CHART COLORS ──
+    chart_colors: Optional[list] = None
+
     def spacing_scale(self) -> dict:
         u = self.spacing_unit
         return {

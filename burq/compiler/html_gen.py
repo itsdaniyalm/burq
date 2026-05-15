@@ -115,6 +115,10 @@ def render_node(node: dict, app=None) -> str:
         "file_upload": render_file_upload,
         "code_block":  render_code_block,
         "rich_text":   render_rich_text,
+        "line_chart":  render_chart,
+        "area_chart":  render_chart,
+        "bar_chart":   render_chart,
+        "donut_chart": render_chart,
     }
 
     renderer = renderers.get(tag)
@@ -605,6 +609,48 @@ def render_table(props, children):
     {pagination_html}
 </div>'''
 
+# ── CHARTS ──
+
+def render_chart(props, children):
+    chart_type = props.get("chart_type", "line")
+    title      = props.get("title", "")
+    height     = props.get("height", 300)
+    data       = props.get("data", {})
+
+    fetch_method   = ""
+    fetch_endpoint = ""
+    inline_data    = "null"
+
+    if isinstance(data, dict) and data.get("__burq_fetch__"):
+        fetch_method   = data.get("method", "GET")
+        fetch_endpoint = data.get("endpoint", "")
+    elif isinstance(data, list):
+        inline_data = _json.dumps(data)
+    else:
+        try:
+            inline_data = data.to_json(orient="records")
+        except Exception:
+            inline_data = "[]"
+
+    chart_id = f"chart-{abs(hash(str(id(props)))) % 999999}"
+    cfg      = {k: v for k, v in props.items()
+                if k not in ("data", "chart_type", "title", "height")}
+    cfg_json = _json.dumps(cfg)
+    title_html = f'<div class="chart__title">{title}</div>' if title else ""
+
+    return f'''
+<div class="chart-wrapper">
+    {title_html}
+    <div class="chart__container" style="height:{height}px;position:relative;width:100%;">
+        <canvas id="{chart_id}"
+            data-chart-type="{chart_type}"
+            data-chart-config=\'{cfg_json}\'
+            data-fetch-method="{fetch_method}"
+            data-fetch-endpoint="{fetch_endpoint}"
+            data-inline=\'{inline_data}\'>
+        </canvas>
+    </div>
+</div>'''
 
 # ── FORMS ──
 
@@ -1286,6 +1332,7 @@ def render_base_template(app) -> str:
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     .nav-item__icon      {{ width: 18px; height: 18px; flex-shrink: 0; }}

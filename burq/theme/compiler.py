@@ -1,4 +1,5 @@
 from .theme import Theme
+import json as _json
 
 GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family={sans}:wght@300;400;500;600;700&family={mono}:wght@400;700&display=swap"
 
@@ -42,6 +43,15 @@ STATUS_DEFAULTS = {
     "color_error_dark":   "#e05252",
 }
 
+CHART_COLOR_DEFAULTS = [
+    "#F08C1A",
+    "#60a5fa",
+    "#2ec97a",
+    "#e05252",
+    "#c97a2e",
+    "#a78bfa",
+    "#f472b6",
+]
 
 def _resolve(theme_val, default: str) -> str:
     """Use theme override if set, otherwise use default."""
@@ -68,6 +78,9 @@ def compile_tokens(theme: Theme) -> str:
 
     # ── resolve status tokens ──
     s = {k: _resolve(getattr(theme, k, None), v) for k, v in STATUS_DEFAULTS.items()}
+
+    chart_colors      = theme.chart_colors or CHART_COLOR_DEFAULTS
+    chart_colors_json = _json.dumps(chart_colors)
 
     return f"""@import url('{font_url}');
 
@@ -142,6 +155,9 @@ def compile_tokens(theme: Theme) -> str:
   /* ── TOAST ── */
   --toast-width: 320px;
   --toast-gap:   var(--space-3);
+
+  /* ── CHART COLORS ── */
+  --chart-colors: '{chart_colors_json}';
 
   /* ── MODAL ── */
   --modal-sm: 400px;
