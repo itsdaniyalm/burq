@@ -3,6 +3,15 @@ import os
 import json as _json
 from ..components.navigation import NavGroup 
 
+TOKEN_MAP = {
+    "accent":  "var(--accent)",
+    "muted":   "var(--fg-muted)",
+    "success": "var(--success)",
+    "error":   "var(--error)",
+    "warning": "var(--warning)",
+    "dim":     "var(--fg-dim)",
+}
+
 def classes(*args) -> str:
     result = []
     for a in args:
@@ -227,17 +236,21 @@ def render_card(props, children):
 
 # ── DISPLAY ──
 
-def render_title(props, children):
-    return f'<h1 class="page-title">{props.get("text","")}</h1>'
+def _color_style(color):
+    if not color:
+        return ""
+    css = TOKEN_MAP.get(color, color)
+    return f' style="color:{css}"'
 
+def render_title(props, children):
+    return f'<h1 class="page-title"{_color_style(props.get("color"))}>{props.get("text","")}</h1>'
 
 def render_heading(props, children):
-    return f'<h2 class="page-heading">{props.get("text","")}</h2>'
-
+    return f'<h2 class="page-heading"{_color_style(props.get("color"))}>{props.get("text","")}</h2>'
 
 def render_text(props, children):
     cls = "muted-text" if props.get("muted") else "body-text"
-    return f'<p class="{cls}">{props.get("content","")}</p>'
+    return f'<p class="{cls}"{_color_style(props.get("color"))}>{props.get("content","")}</p>'
 
 
 def render_metric(props, children):

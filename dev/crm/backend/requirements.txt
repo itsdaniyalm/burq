@@ -1,6 +1,0 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-faker
-aiofiles
-jinja2

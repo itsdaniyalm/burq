@@ -227,3 +227,15 @@ test-app/dist/
 burq.egg-info/
 *.egg-info/
 build/
+
+PROGRESS.md
+BRAND_GUIDELINES.md
+BURQ.md
+burq-docs.html
+burq-tutorials.html
+
+dev/
+test-app/"burq-docs.html" 
+"burq-tutorial.html" 
+"dev/" 
+"test-app/" 

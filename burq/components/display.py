@@ -2,16 +2,14 @@ from ..context import container_node, leaf_node
 from contextlib import contextmanager
 
 
-def title(text: str):
-    leaf_node("title", {"text": text})
+def title(text: str, color: str = None):
+    leaf_node("title", {"text": text, "color": color})
 
+def heading(text: str, color: str = None):
+    leaf_node("heading", {"text": text, "color": color})
 
-def heading(text: str):
-    leaf_node("heading", {"text": text})
-
-
-def text(content: str, muted: bool = False):
-    leaf_node("text", {"content": content, "muted": muted})
+def text(content: str, muted: bool = False, color: str = None):
+    leaf_node("text", {"content": content, "muted": muted, "color": color})
 
 
 def metric(
