@@ -232,13 +232,13 @@ PROGRESS.md
 BRAND_GUIDELINES.md
 BURQ.md
 burq-docs.html
-burq-tutorials.html
+burq-tutorial.html
 
 dev/
 test-app/
-"burq-docs.html" 
-"burq-tutorial.html" 
-"dev/" 
-"test-app/" 
-"site/" 
-"docs.md"
+burq-docs.html
+burq-tutorial.html
+dev/
+test-app/
+site/
+docs.md
