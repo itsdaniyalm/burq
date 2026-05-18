@@ -20,7 +20,7 @@ def compile_app(app: App, output_dir: str = "dist"):
     print("  ✓ base.html")
 
     # ── 2. per-page templates ──
-    for path, fn in app._pages.items():
+    for path, page in app._pages.items():
         page_tree     = app.run_page(path)
         page_content  = render_tree(page_tree, app)
         modal_content = ""
@@ -29,7 +29,13 @@ def compile_app(app: App, output_dir: str = "dist"):
             modal_content += render_tree(modal_tree, app)
 
         filename = _path_to_filename(path)
-        _write(templates_dir, filename, render_page_template(page_content, modal_content, url_pattern=path))
+        _write(templates_dir, filename, render_page_template(
+            page_content,
+            modal_content,
+            url_pattern=path,
+            page_title=page["title"],
+            app_title=app.title,
+        ))
         print(f"  ✓ templates/{filename}")
 
     # ── 3. static ──

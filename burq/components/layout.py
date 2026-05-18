@@ -27,13 +27,18 @@ def row(
 @contextmanager
 def col(
     gap:   str = "md",      # none|sm|md|lg
-    align: str = "stretch", # start|center|end|stretch
+    align: str = "stretch",
+    justify: str = "start",
 ):
     classes = ["col"]
     if gap   != "md":      classes.append(f"col--gap-{gap}")
     if align == "start":   classes.append("col--start")
     if align == "center":  classes.append("col--center")
     if align == "end":     classes.append("col--end")
+    if justify == "center":  classes.append("col--justify-center")
+    if justify == "end":     classes.append("col--justify-end")
+    if justify == "between": classes.append("col--justify-between")
+
 
     with container_node("col", {"classes": classes}):
         yield
@@ -42,23 +47,29 @@ def col(
 @contextmanager
 def grid(
     cols:    int = 12,
-    gap:     str = "md",   # none|sm|md|lg
+    gap:     str = "md",
     row_gap: str = None,
     col_gap: str = None,
+    align:   str = None,
+    justify: str = None,
 ):
     classes = ["grid"]
     if cols in [1,2,3,4,6]:  classes.append(f"grid--cols-{cols}")
     if gap  != "md":          classes.append(f"grid--gap-{gap}")
     if row_gap:               classes.append(f"grid--row-gap-{row_gap}")
     if col_gap:               classes.append(f"grid--col-gap-{col_gap}")
-
+    if align:                 classes.append(f"grid--align-{align}")
+    if justify:               classes.append(f"grid--justify-{justify}")
     with container_node("grid", {"classes": classes}):
         yield
 
-
 @contextmanager
-def span(cols: int = 1):
+def span(
+    cols:  int = 1,
+    align: str = None,
+):
     classes = [f"span-{cols}"]
+    if align: classes.append(f"span--align-{align}")
     with container_node("span", {"classes": classes}):
         yield
 
@@ -109,7 +120,9 @@ def box(
     radius:     str  = "lg",
     padding:    str  = "md",
     foreground: str  = None,
+    full_width: bool = False,
 ):
+    classes = ["box"]
     bg_map  = {
         "muted":          "var(--muted)",
         "surface":        "var(--surface)",
@@ -122,16 +135,16 @@ def box(
     }
     pad_map = {"none":"0","sm":"var(--space-3)","md":"var(--space-4)","lg":"var(--space-6)"}
     rad_map = {"none":"0","sm":"var(--radius-sm)","md":"var(--radius-md)","lg":"var(--radius-lg)","xl":"var(--radius-xl)"}
-
     bg_val  = bg_map.get(background, background)
     fg_val  = fg_map.get(foreground, foreground)
     pad_val = pad_map.get(padding, "var(--space-4)")
     rad_val = rad_map.get(radius, "var(--radius-lg)")
-
     style = f"padding:{pad_val};border-radius:{rad_val};"
-    if bg_val: style += f"background:{bg_val};"
-    if fg_val: style += f"color:{fg_val};"
-    if border: style += "border:var(--border-width) solid var(--border);"
-
-    with container_node("box", {"style": style}):
+    if bg_val:    style += f"background:{bg_val};"
+    if fg_val:    style += f"color:{fg_val};"
+    if border:    style += "border:var(--border-width) solid var(--border);"
+    if full_width:
+        classes.append("box--full")
+        style += "width:100%;"
+    with container_node("box", {"style": style, "classes": classes}):
         yield

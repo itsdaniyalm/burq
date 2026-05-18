@@ -2,14 +2,14 @@ from ..context import container_node, leaf_node
 from contextlib import contextmanager
 
 
-def title(text: str, color: str = None):
-    leaf_node("title", {"text": text, "color": color})
+def title(text: str, color: str = None, size: str = None):
+    leaf_node("title", {"text": text, "color": color, "size": size})
 
-def heading(text: str, color: str = None):
-    leaf_node("heading", {"text": text, "color": color})
+def heading(text: str, color: str = None, size: str = None):
+    leaf_node("heading", {"text": text, "color": color, "size": size})
 
-def text(content: str, muted: bool = False, color: str = None):
-    leaf_node("text", {"content": content, "muted": muted, "color": color})
+def text(content: str, muted: bool = False, color: str = None, size: str = None):
+    leaf_node("text", {"content": content, "muted": muted, "color": color, "size": size})
 
 
 def metric(
@@ -123,4 +123,50 @@ def spinner(size: str = "md", color: str = "accent"):
     leaf_node("spinner", {
         "size":  size,
         "color": color,
+    })
+
+def icon(name: str, size: str = "md", color: str = None, label: str = None):
+    leaf_node("icon", {
+        "name":  name,
+        "size":  size,
+        "color": color,
+        "label": label,
+    })
+
+def image(
+    src:      str,
+    alt:      str  = "",
+    src_dark: str  = None,
+    width:    str  = None,
+    height:   str  = None,
+    radius:   str  = "md",
+    caption:  str  = None,
+    fit:      str  = "cover"
+):
+    leaf_node("image", {
+        "src":      src,
+        "alt":      alt,
+        "src_dark": src_dark,
+        "width":    width,
+        "height":   height,
+        "radius":   radius,
+        "caption":  caption,
+        "fit":      fit,
+    })
+
+def link(
+    label:    str,
+    href:     str  = "#",
+    icon:     str  = None,
+    external: bool = False,
+    muted:    bool = False,
+    size:     str  = None,  # inherits text-base if None
+):
+    leaf_node("link", {
+        "label":    label,
+        "href":     href,
+        "icon":     icon,
+        "external": external,
+        "muted":    muted,
+        "size":     size,
     })

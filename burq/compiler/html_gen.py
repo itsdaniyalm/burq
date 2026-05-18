@@ -5,12 +5,31 @@ from ..components.navigation import NavGroup
 
 TOKEN_MAP = {
     "accent":  "var(--accent)",
-    "muted":   "var(--fg-muted)",
-    "success": "var(--success)",
-    "error":   "var(--error)",
-    "warning": "var(--warning)",
-    "dim":     "var(--fg-dim)",
+    "muted":   "var(--muted-foreground)",
+    "success": "var(--color-success)",
+    "error":   "var(--color-error)",
+    "warning": "var(--color-warning)",
+    "dim":     "var(--muted-foreground)",
 }
+SIZE_MAP = {
+    "xs":   "var(--text-xs)",
+    "sm":   "var(--text-sm)",
+    "base": "var(--text-base)",
+    "md":   "var(--text-md)",
+    "lg":   "var(--text-lg)",
+    "xl":   "var(--text-xl)",
+    "2xl":  "var(--text-2xl)",
+    "3xl":  "40px",
+    "4xl":  "48px",
+    "5xl":  "64px",
+    "6xl":  "80px",
+}
+
+def _size_style(size):
+    if not size:
+        return ""
+    css = SIZE_MAP.get(size, size)  # falls back to raw CSS e.g. "52px"
+    return f"font-size:{css};"
 
 def classes(*args) -> str:
     result = []
@@ -128,6 +147,9 @@ def render_node(node: dict, app=None) -> str:
         "area_chart":  render_chart,
         "bar_chart":   render_chart,
         "donut_chart": render_chart,
+        "icon":     render_icon,
+        "image": render_image,
+        "link":  render_link,
     }
 
     renderer = renderers.get(tag)
@@ -139,6 +161,19 @@ def render_node(node: dict, app=None) -> str:
 def render_tree(tree: list, app=None) -> str:
     return "\n".join(render_node(node, app) for node in tree)
 
+def render_icon(props, _children=""):
+    size_map = {"xs": "12px", "sm": "14px", "md": "16px", "lg": "20px", "xl": "24px"}
+    token_map = {
+        "accent": "var(--accent)", "muted": "var(--muted-foreground)",
+        "success": "var(--color-success)", "warning": "var(--color-warning)",
+        "error": "var(--color-error)", "dim": "var(--fg-dim)",
+        "foreground": "var(--foreground)",
+    }
+    size_val  = size_map.get(props.get("size", "md"), props.get("size", "16px"))
+    color_raw = props.get("color")
+    color_val = token_map.get(color_raw, color_raw) if color_raw else "currentColor"
+    label_attr = f'aria-label="{props["label"]}"' if props.get("label") else 'aria-hidden="true"'
+    return f'<i data-lucide="{props["name"]}" {label_attr} style="width:{size_val};height:{size_val};color:{color_val};display:inline-flex;flex-shrink:0;"></i>'
 
 # ── LAYOUT ──
 
@@ -239,18 +274,22 @@ def render_card(props, children):
 def _color_style(color):
     if not color:
         return ""
-    css = TOKEN_MAP.get(color, color)
-    return f' style="color:{css}"'
+    return f"color:{TOKEN_MAP.get(color, color)};"
+
+def _build_style(props):
+    s = _color_style(props.get("color"))
+    s += _size_style(props.get("size"))
+    return f' style="{s}"' if s else ""
 
 def render_title(props, children):
-    return f'<h1 class="page-title"{_color_style(props.get("color"))}>{props.get("text","")}</h1>'
+    return f'<h1 class="page-title"{_build_style(props)}>{props.get("text","")}</h1>'
 
 def render_heading(props, children):
-    return f'<h2 class="page-heading"{_color_style(props.get("color"))}>{props.get("text","")}</h2>'
+    return f'<h2 class="page-heading"{_build_style(props)}>{props.get("text","")}</h2>'
 
 def render_text(props, children):
     cls = "muted-text" if props.get("muted") else "body-text"
-    return f'<p class="{cls}"{_color_style(props.get("color"))}>{props.get("content","")}</p>'
+    return f'<p class="{cls}"{_build_style(props)}>{props.get("content","")}</p>'
 
 
 def render_metric(props, children):
@@ -386,6 +425,54 @@ def render_skeleton(props, children):
     style_attr = f' style="{style}"' if style else ""
     return f'<div class="{cls}"{style_attr}></div>'
 
+def render_image(props, children):
+    src      = props.get("src", "")
+    src_dark = props.get("src_dark")
+    alt      = props.get("alt", "")
+    width    = props.get("width")
+    height   = props.get("height")
+    radius   = props.get("radius", "md")
+    caption  = props.get("caption")
+    fit      = props.get("fit", "cover")
+
+    if src and not src.startswith("http") and not src.startswith("/"):
+        src = f"/{src}"
+    if src_dark and not src_dark.startswith("http") and not src_dark.startswith("/"):
+        src_dark = f"/{src_dark}"
+
+    style = f"object-fit:{fit};"
+    if width:  style += f"width:{width};"
+    if height: style += f"height:{height};"
+
+    if src_dark:
+        img_html = (
+            f'<img class="bq-image radius--{radius} bq-img--light" src="{src}"      alt="{alt}" style="{style}">'
+            f'<img class="bq-image radius--{radius} bq-img--dark"  src="{src_dark}" alt="{alt}" style="{style}">'
+        )
+    else:
+        img_html = f'<img class="bq-image radius--{radius}" src="{src}" alt="{alt}" style="{style}">'
+
+    cap_html = f'<figcaption class="bq-image__caption">{caption}</figcaption>' if caption else ""
+    return f'<figure class="bq-image-wrap">{img_html}{cap_html}</figure>'
+
+
+def render_link(props, children):
+    label    = props.get("label", "")
+    href     = props.get("href", "#")
+    ico      = props.get("icon")
+    external = props.get("external", False)
+    muted    = props.get("muted", False)
+    size     = props.get("size")
+
+    cls      = "bq-link"
+    if muted: cls += " bq-link--muted"
+
+    style_attr = f' style="font-size:var(--text-{size})"' if size else ""
+    ext_attr   = ' target="_blank" rel="noopener"' if external else ""
+    icon_html  = f'<i data-lucide="{ico}" class="bq-link__icon"></i>' if ico else ""
+
+    return f'<a class="{cls}" href="{href}"{ext_attr}{style_attr}>{icon_html}{label}</a>'
+
 
 def render_spinner(props, children):
     size  = props.get("size", "md")
@@ -496,8 +583,9 @@ document.addEventListener("DOMContentLoaded", async function() {{
 </script>'''
 
 def render_box(props, children):
-    style = props.get("style", "")
-    return f'<div style="{style}">{children}</div>'
+    style   = props.get("style", "")
+    classes = " ".join(props.get("classes", ["box"]))
+    return f'<div class="{classes}" style="{style}">{children}</div>'
 
 
 def render_markdown(props, children):
@@ -532,10 +620,16 @@ def render_table(props, children):
 
     fetch_method   = ""
     fetch_endpoint = ""
+    static_data    = None
     if isinstance(data, dict) and data.get("__burq_fetch__"):
         fetch_method   = data.get("method", "GET")
         fetch_endpoint = data.get("endpoint", "")
-
+    elif data is not None:
+        # DataFrame or list — serialize to JSON at compile time
+        if hasattr(data, "to_dict"):
+            static_data = _json.dumps(data.to_dict(orient="records"))
+        elif isinstance(data, list):
+            static_data = _json.dumps(data)
     table_cls = "table"
     if striped: table_cls += " table--striped"
 
@@ -594,11 +688,12 @@ def render_table(props, children):
             config_serialized[col] = d
 
     config_json = _json.dumps(config_serialized)
-
+    data_static_attr = f"data-static='{static_data}'" if static_data else ""
     return f'''
     <div class="table-wrapper"
         data-fetch-method="{fetch_method}"
         data-fetch-endpoint="{fetch_endpoint}"
+        {data_static_attr}
         data-columns="{",".join(columns)}"
         data-checkable="{str(checkable).lower()}"
         data-actions="{",".join(actions)}"
@@ -908,6 +1003,8 @@ def render_button(props, children):
     disabled = props.get("disabled", False)
     onclick  = props.get("onclick", "")
     type_    = props.get("type", "button")
+    href     = props.get("href")
+    external = props.get("external", False)
 
     cls = f"btn btn--{variant}"
     if size != "md": cls += f" btn--{size}"
@@ -915,13 +1012,16 @@ def render_button(props, children):
 
     disabled_attr = " disabled" if disabled else ""
     onclick_attr  = f' onclick="{onclick}"' if onclick else ""
+    icon_html     = f'<i data-lucide="{ico}" class="btn__icon"></i>' if ico else ""
+    content       = f"{icon_html}{label}" if icon_pos == "left" else f"{label}{icon_html}"
 
-    icon_html = f'<i data-lucide="{ico}" class="btn__icon"></i>' if ico else ""
-
-    content = f"{icon_html}{label}" if icon_pos == "left" else f"{label}{icon_html}"
+    # render as <a> if variant="link" or href is set
+    if variant == "link" or href:
+        ext_attr = ' target="_blank" rel="noopener"' if external else ""
+        href_val = href or "#"
+        return f'<a class="{cls}" href="{href_val}"{ext_attr}{onclick_attr}>{content}</a>'
 
     return f'<button class="{cls}" type="{type_}"{onclick_attr}{disabled_attr}>{content}</button>'
-
 
 # ── FEEDBACK ──
 
@@ -1141,11 +1241,11 @@ def render_pagination(props, children):
 
 
 def render_code_block(props, children):
-    content  = props.get("content", "")
-    language = props.get("language", "python")
-    filename = props.get("filename")
+    content      = props.get("content", "")
+    language     = props.get("language", "python")
+    filename     = props.get("filename")
+    line_numbers = props.get("line_numbers", True)
 
-    # escape HTML entities
     content_escaped = (content
         .replace("&", "&amp;")
         .replace("<", "&lt;")
@@ -1153,8 +1253,23 @@ def render_code_block(props, children):
 
     header_left  = f'<span class="bq-codeblock-filename">{filename}</span>' if filename else '<span></span>'
     header_right = f'<span class="bq-codeblock-lang">{language}</span>'
-
     uid = f"ln-{abs(hash(content)) % 99999}"
+
+    if line_numbers:
+        ln_div = f'<div class="bq-line-numbers" id="{uid}"></div>'
+        js_body = f'''
+  var el = document.getElementById("{uid}");
+  var code = el.nextElementSibling.querySelector("code");
+  if (!el || !code) return;
+  var lines = code.textContent.split("\\n").length;
+  el.innerHTML = Array.from({{length: lines}}, function(_, i) {{ return "<span>" + (i+1) + "</span>"; }}).join("");
+  if (window.Prism) Prism.highlightElement(code);'''
+    else:
+        ln_div = ''
+        js_body = '''
+  var code = document.currentScript.previousElementSibling.querySelector("code");
+  if (!code) return;
+  if (window.Prism) Prism.highlightElement(code);'''
 
     return f'''
 <div class="bq-codeblock">
@@ -1163,21 +1278,14 @@ def render_code_block(props, children):
     {header_right}
   </div>
   <div class="bq-codeblock-inner">
-    <div class="bq-line-numbers" id="{uid}"></div>
+    {ln_div}
     <pre class="language-{language}" style="margin:0;border:none!important;border-radius:0!important;"><code class="language-{language}">{content_escaped}</code></pre>
   </div>
 </div>
 <script>
-(function() {{
-  var el = document.getElementById("{uid}");
-  var code = el.nextElementSibling.querySelector("code");
-  if (!el || !code) return;
-  var lines = code.textContent.split("\\n").length;
-  el.innerHTML = Array.from({{length: lines}}, function(_, i) {{ return "<span>" + (i+1) + "</span>"; }}).join("");
-  if (window.Prism) Prism.highlightElement(code);
+(function() {{{js_body}
 }})();
 </script>'''
-
 
 def render_rich_text(props, children):
     name        = props.get("name", "content")
@@ -1253,6 +1361,11 @@ def render_base_template(app) -> str:
     layout     = app.layout
     nav        = app._nav
     nav_footer = app._nav_footer
+    prism_theme = (
+    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    if theme.mode == "light" else
+    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    )
 
     bordered   = getattr(layout, 'bordered', False)
     layout_cls = "layout"
@@ -1296,7 +1409,9 @@ def render_base_template(app) -> str:
     <nav class="sidebar__nav">{nav_html}</nav>
     <div class="sidebar__footer">{nav_footer_html}</div>
   </aside>'''
-
+    sidebar_toggle = ""
+    if layout.sidebar:
+        sidebar_toggle = '<button class="topbar__toggle" id="sidebarToggle"><i data-lucide="menu" class="topbar__icon"></i></button>'
     topbar_html = ""
     if layout.topbar:
         theme_toggle = ""
@@ -1311,17 +1426,12 @@ def render_base_template(app) -> str:
         topbar_html = f'''
   <header class="topbar">
     <div class="topbar__left">
-        <button class="topbar__toggle" id="sidebarToggle">
-            <i data-lucide="menu" class="topbar__icon"></i>
-        </button>
+        {sidebar_toggle}
         {logo_html}
         {title_html}
     </div>
     <div class="topbar__right">
         {theme_toggle}
-        <button class="topbar__toggle">
-            <i data-lucide="bell" class="topbar__icon"></i>
-        </button>
     </div>
   </header>'''
         
@@ -1329,10 +1439,11 @@ def render_base_template(app) -> str:
 <html lang="en" data-theme="{theme.mode}">
 <head>
   <meta charset="UTF-8" />
+  <script>(function(){{var t=localStorage.getItem("burq-theme");if(t)document.documentElement.setAttribute("data-theme",t);}})()</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="generator" content="Burq ⚡ — https://burq.dev" />
   {f'<meta name="author" content="{app.author}" />' if app.author else ""}
-  <title>{{{{ page_title }}}} — {app.title}</title>
+  <title>{{% block page_title %}}{app.title}{{% endblock %}}</title>
   <link rel="stylesheet" href="/static/tokens.css" />
   <link rel="stylesheet" href="/static/layout.css" />
   <link rel="stylesheet" href="/static/components.css" />
@@ -1375,7 +1486,7 @@ def render_base_template(app) -> str:
 </html>'''
 
 
-def render_page_template(page_content: str, modal_content: str = "", url_pattern: str = "") -> str:
+def render_page_template(page_content: str, modal_content: str = "", url_pattern: str = "", page_title: str = "", app_title: str = "") -> str:
     param_script = ""
     if "{" in url_pattern:
         js = (
@@ -1393,12 +1504,14 @@ def render_page_template(page_content: str, modal_content: str = "", url_pattern
         )
         param_script = "<script>\n" + js + "\n</script>"
 
+    resolved_title = page_title if page_title else app_title
+
     return f"""{{% extends "base.html" %}}
+{{% block page_title %}}{resolved_title}{{% endblock %}}
 {{% block content %}}
 {param_script}
 {page_content}
 {{% endblock %}}
-
 {{% block modals %}}
 {modal_content}
 {{% endblock %}}"""

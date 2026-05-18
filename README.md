@@ -181,6 +181,10 @@ bq.progress("Completion", value=72)
 bq.markdown("## Hello\n**bold** text")
 bq.spinner()
 bq.skeleton(variant="text")
+bq.image("static/images/logo.png", width="120px", radius="md")
+bq.image("https://example.com/photo.jpg", caption="Our team", fit="cover")
+bq.link("View docs", href="https://burq.dev", external=True)
+bq.link("Back", href="/contacts", icon="arrow-left", muted=True)
 ```
 
 ### Data
@@ -229,6 +233,9 @@ bq.toggle("Enable notifications", checked=True)
 bq.checkbox("Agree to terms")
 bq.file_upload("CSV File", accept=".csv", helper="Max 10MB")
 bq.button("Save", variant="primary", icon="save")
+bq.button("Delete", variant="danger", icon="trash-2")
+bq.button("Visit docs", variant="link", href="https://burq.dev", external=True)
+bq.button("Back", variant="ghost", href="/contacts", icon="arrow-left")
 ```
 
 ### Feedback

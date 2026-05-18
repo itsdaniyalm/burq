@@ -271,7 +271,7 @@ function initCustomSelects() {{
 
 // ── TABLE HYDRATION ──
 async function initTables() {{
-  const tables = document.querySelectorAll(".table-wrapper[data-fetch-endpoint]");
+  const tables = document.querySelectorAll(".table-wrapper");
   for (const wrapper of tables) {{
     const method       = wrapper.dataset.fetchMethod   || "GET";
     const endpoint     = wrapper.dataset.fetchEndpoint || "";
@@ -281,12 +281,20 @@ async function initTables() {{
     const columnConfig = JSON.parse(wrapper.dataset.columnConfig || "{{}}");
     const rowHref      = wrapper.dataset.rowHref || "";
 
-    if (!endpoint) continue;
-
+    let allData = [];
     try {{
-      const allData = await Burq.fetch(method, endpoint);
-      const tbody   = wrapper.querySelector("tbody");
-      if (!tbody || !Array.isArray(allData)) continue;
+      const staticRaw = wrapper.dataset.static;
+      if (staticRaw) {{
+        allData = JSON.parse(staticRaw);
+      }} else if (endpoint) {{
+        allData = await Burq.fetch(method, endpoint);
+      }} else {{
+        continue;
+      }}
+      if (!Array.isArray(allData)) continue;
+
+      const tbody = wrapper.querySelector("tbody");
+      if (!tbody) continue;
 
       const PAGE_SIZE  = 10;
       let currentPage  = 1;

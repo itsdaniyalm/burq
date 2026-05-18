@@ -41,9 +41,9 @@ class App:
         self._nav        = items
         self._nav_footer = footer or []
 
-    def page(self, path: str):
+    def page(self, path: str, title: str = ""):
         def decorator(fn: Callable):
-            self._pages[path] = fn
+            self._pages[path] = {"fn": fn, "title": title}
             return fn
         return decorator
 
@@ -54,7 +54,7 @@ class App:
         return decorator
 
     def run_page(self, path: str) -> list:
-        fn = self._pages.get(path)
+        fn = self._pages[path]["fn"]
         if not fn:
             raise ValueError(f"No page registered for path: {path}")
         reset_context()

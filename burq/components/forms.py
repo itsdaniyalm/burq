@@ -136,15 +136,17 @@ def radio(
 
 
 def button(
-    label:   str  = None,
-    variant: str  = "primary",  # primary|secondary|ghost|outline|danger
-    size:    str  = "md",       # xs|sm|md|lg
-    icon:    str  = None,
-    icon_pos:str  = "left",     # left|right
-    disabled:bool = False,
-    onclick: str  = None,       # JS expression or bq.* helper
-    type:    str  = "button",   # button|submit
-    name:    str  = None,
+    label:    str  = None,
+    variant:  str  = "primary",  # primary|secondary|ghost|outline|danger|link
+    size:     str  = "md",       # xs|sm|md|lg
+    icon:     str  = None,
+    icon_pos: str  = "left",     # left|right
+    disabled: bool = False,
+    onclick:  str  = None,
+    type:     str  = "button",   # button|submit
+    name:     str  = None,
+    href:     str  = None,       # used when variant="link"
+    external: bool = False,      # target="_blank" when href is set
 ):
     leaf_node("button", {
         "label":    label,
@@ -156,18 +158,8 @@ def button(
         "onclick":  onclick,
         "type":     type,
         "name":     name,
-    })
-
-
-def file_upload(
-    label:  str = None,
-    accept: str = None,   # e.g. ".csv,.xlsx"
-    name:   str = None,
-):
-    leaf_node("file_upload", {
-        "label":  label,
-        "accept": accept,
-        "name":   name,
+        "href":     href,
+        "external": external,
     })
 
 def file_upload(

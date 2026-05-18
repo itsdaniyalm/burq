@@ -32,11 +32,12 @@ def contact_profile(endpoint: str):
 def markdown(content: str):
     leaf_node("markdown", props={"content": content})
 
-def code_block(content: str, language: str = "python", filename: str = None):
+def code_block(content: str, language: str = "python", filename: str = None, line_numbers: bool = True):
     leaf_node("code_block", props={
-        "content":  content,
-        "language": language,
-        "filename": filename,
+        "content":      content,
+        "language":     language,
+        "filename":     filename,
+        "line_numbers": line_numbers,
     })
 
 def rich_text(

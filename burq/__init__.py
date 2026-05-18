@@ -14,7 +14,7 @@ from .components.display import (
     avatar, avatar_group,
     progress, skeleton,
     breadcrumb, BreadcrumbItem,
-    spinner,
+    spinner, icon, image, link,
 )
 
 # ── FORMS ──
@@ -69,8 +69,8 @@ __all__ = [
     "metric", "badge",
     "avatar", "avatar_group",
     "progress", "skeleton",
-    "breadcrumb", "BreadcrumbItem",
-    "spinner",
+    "breadcrumb", "BreadcrumbItem","icon",
+    "spinner", "image", "link",
     # forms
     "input", "textarea", "select",
     "toggle", "checkbox", "radio",

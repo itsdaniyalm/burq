@@ -235,7 +235,10 @@ burq-docs.html
 burq-tutorials.html
 
 dev/
-test-app/"burq-docs.html" 
+test-app/
+"burq-docs.html" 
 "burq-tutorial.html" 
 "dev/" 
 "test-app/" 
+"site/" 
+"docs.md"
