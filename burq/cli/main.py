@@ -131,6 +131,20 @@ def _compile(app_file: str, output: str, production: bool = False):
     if cwd not in sys.path:
         sys.path.insert(0, cwd)
 
+    # purge everything user-land
+    to_delete = [k for k in sys.modules
+             if k == "_burq_app"
+             or k.startswith("pages")
+             or k.startswith("components")
+             or (not k.startswith("_")
+                 and not k.startswith("burq")
+                 and not k.startswith("fastapi")
+                 and not k.startswith("starlette")
+                 and not k.startswith("importlib")
+                 and k not in sys.stdlib_module_names)]
+    for k in to_delete:
+        del sys.modules[k]
+
     try:
         import importlib.util
         spec   = importlib.util.spec_from_file_location("_burq_app", app_path)

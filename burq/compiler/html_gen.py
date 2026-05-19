@@ -1111,9 +1111,9 @@ def render_dropdown(props, children):
     items   = props.get("items", [])
     align   = props.get("align", "right")
     trigger = props.get("trigger", {})
-
     trigger_html = render_node(trigger) if isinstance(trigger, dict) else ""
-
+    trigger_html = trigger_html.replace("<button ", "<button data-dropdown-trigger ", 1)
+    trigger_html = trigger_html.replace("<a ", "<a data-dropdown-trigger ", 1)
     items_html = ""
     for item in items:
         if hasattr(item, "label"):
@@ -1126,10 +1126,8 @@ def render_dropdown(props, children):
             items_html += f'<div class="dropdown__label">{item.text}</div>'
         else:
             items_html += '<div class="dropdown__divider"></div>'
-
     menu_cls = "dropdown__menu"
     if align == "left": menu_cls += " dropdown__menu--left"
-
     return f'''
 <div class="dropdown">
     {trigger_html}
