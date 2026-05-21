@@ -40,7 +40,7 @@ from .components.navigation import (
 # ── DATA ──
 from .components.data import (
     table,
-    line_chart, bar_chart, donut_chart,
+    line_chart, bar_chart, area_chart, donut_chart,
     fetch, post,
     BadgeColumn, AvatarColumn, CurrencyColumn,
     DateColumn, BoolColumn, TextColumn,
@@ -84,7 +84,7 @@ __all__ = [
     "NavItem", "navigate", "reload", "NavGroup",
     # data
     "table",
-    "line_chart", "bar_chart", "donut_chart",
+    "line_chart", "bar_chart", "area_chart","donut_chart",
     "fetch", "post",
     "BadgeColumn", "AvatarColumn", "CurrencyColumn",
     "DateColumn", "BoolColumn", "TextColumn",
