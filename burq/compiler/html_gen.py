@@ -134,6 +134,7 @@ def render_node(node: dict, app=None) -> str:
         "tab":          render_tab,
         "dropdown":     render_dropdown,
         "spacer":       render_spacer,
+        "grow":         render_grow,
         "accordion":    render_accordion,
         "empty_state":  render_empty_state,
         "pagination":   render_pagination,
@@ -150,6 +151,7 @@ def render_node(node: dict, app=None) -> str:
         "icon":     render_icon,
         "image": render_image,
         "link":  render_link,
+        "script": render_script,
     }
 
     renderer = renderers.get(tag)
@@ -463,15 +465,19 @@ def render_link(props, children):
     external = props.get("external", False)
     muted    = props.get("muted", False)
     size     = props.get("size")
+    onclick  = props.get("onclick", "")
 
     cls      = "bq-link"
     if muted: cls += " bq-link--muted"
 
-    style_attr = f' style="font-size:var(--text-{size})"' if size else ""
-    ext_attr   = ' target="_blank" rel="noopener"' if external else ""
-    icon_html  = f'<i data-lucide="{ico}" class="bq-link__icon"></i>' if ico else ""
+    style_attr   = f' style="font-size:var(--text-{size})"' if size else ""
+    ext_attr     = ' target="_blank" rel="noopener"' if external else ""
+    onclick_attr = f' onclick="{onclick}"' if onclick else ""
+    icon_html    = f'<i data-lucide="{ico}" class="bq-link__icon"></i>' if ico else ""
 
-    return f'<a class="{cls}" href="{href}"{ext_attr}{style_attr}>{icon_html}{label}</a>'
+    if href and "{" in href:
+        return f'<a class="{cls}" data-href-template="{href}"{ext_attr}{style_attr}{onclick_attr}>{icon_html}{label}</a>'
+    return f'<a class="{cls}" href="{href}"{ext_attr}{style_attr}{onclick_attr}>{icon_html}{label}</a>'
 
 
 def render_spinner(props, children):
@@ -492,6 +498,10 @@ def render_spacer(props, children):
     }
     height = sizes.get(props.get("size", "md"), "var(--space-6)")
     return f'<div style="height:{height};"></div>'
+
+
+def render_grow(props, children):
+    return '<div style="flex:1;"></div>'
 
 
 def render_breadcrumb(props, children):
@@ -606,6 +616,11 @@ def render_markdown(props, children):
 </script>'''
 
 
+def render_script(props, children):
+    code = props.get("code", "")
+    return f'<script>\n{code}\n</script>'
+
+
 # ── TABLE ──
 
 def render_table(props, children):
@@ -688,6 +703,25 @@ def render_table(props, children):
             config_serialized[col] = d
 
     config_json = _json.dumps(config_serialized)
+
+    # serialize actions — support both TableAction dataclasses and plain strings
+    actions_serialized = []
+    for a in actions:
+        if hasattr(a, "__class__") and hasattr(a, "label"):
+            actions_serialized.append({
+                "label":   a.label,
+                "icon":    a.icon or "",
+                "variant": a.variant or "default",
+                "onclick": a.onclick or "",
+            })
+        else:
+            # legacy plain string — treat as label only
+            actions_serialized.append({"label": str(a), "icon": "", "variant": "default", "onclick": ""})
+    actions_json = _json.dumps(actions_serialized)
+
+    empty_title   = props.get("empty_title", "")
+    empty_message = props.get("empty_message", "")
+    empty_icon    = props.get("empty_icon", "")
     data_static_attr = f"data-static='{static_data}'" if static_data else ""
     return f'''
     <div class="table-wrapper"
@@ -696,9 +730,12 @@ def render_table(props, children):
         {data_static_attr}
         data-columns="{",".join(columns)}"
         data-checkable="{str(checkable).lower()}"
-        data-actions="{",".join(actions)}"
+        data-actions='{actions_json}'
         data-column-config='{config_json}'
-        data-row-href="{props.get('row_href') or ''}">
+        data-row-href="{props.get('row_href') or ''}"
+        data-empty-title="{empty_title}"
+        data-empty-message="{empty_message}"
+        data-empty-icon="{empty_icon}">
     {toolbar}
     <table class="{table_cls}">
         <thead>
@@ -1001,27 +1038,33 @@ def render_button(props, children):
     ico      = props.get("icon")
     icon_pos = props.get("icon_pos", "left")
     disabled = props.get("disabled", False)
+    loading  = props.get("loading", False)
     onclick  = props.get("onclick", "")
     type_    = props.get("type", "button")
     href     = props.get("href")
     external = props.get("external", False)
 
     cls = f"btn btn--{variant}"
-    if size != "md": cls += f" btn--{size}"
-    if not label:    cls += " btn--icon"
+    if size != "md":          cls += f" btn--{size}"
+    if not label and not loading: cls += " btn--icon"
+    if loading:               cls += " btn--loading"
 
-    disabled_attr = " disabled" if disabled else ""
+    disabled_attr = " disabled" if (disabled or loading) else ""
     onclick_attr  = f' onclick="{onclick}"' if onclick else ""
     icon_html     = f'<i data-lucide="{ico}" class="btn__icon"></i>' if ico else ""
-    content       = f"{icon_html}{label}" if icon_pos == "left" else f"{label}{icon_html}"
+    spinner_html  = '<span class="btn__spinner"></span>' if loading else ""
+    content       = f"{spinner_html}{icon_html}{label}" if icon_pos == "left" else f"{label}{icon_html}{spinner_html}"
 
     # render as <a> if variant="link" or href is set
     if variant == "link" or href:
         ext_attr = ' target="_blank" rel="noopener"' if external else ""
         href_val = href or "#"
+        if href_val and "{" in href_val:
+            return f'<a class="{cls}" data-href-template="{href_val}"{ext_attr}{onclick_attr}>{content}</a>'
         return f'<a class="{cls}" href="{href_val}"{ext_attr}{onclick_attr}>{content}</a>'
 
-    return f'<button class="{cls}" type="{type_}"{onclick_attr}{disabled_attr}>{content}</button>'
+    orig_attr = f' data-original-label="{label}"' if label else ""
+    return f'<button class="{cls}" type="{type_}"{onclick_attr}{disabled_attr}{orig_attr}>{content}</button>'
 
 # ── FEEDBACK ──
 

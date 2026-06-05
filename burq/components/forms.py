@@ -142,6 +142,7 @@ def button(
     icon:     str  = None,
     icon_pos: str  = "left",     # left|right
     disabled: bool = False,
+    loading:  bool = False,
     onclick:  str  = None,
     type:     str  = "button",   # button|submit
     name:     str  = None,
@@ -155,6 +156,7 @@ def button(
         "icon":     icon,
         "icon_pos": icon_pos,
         "disabled": disabled,
+        "loading":  loading,
         "onclick":  onclick,
         "type":     type,
         "name":     name,

@@ -40,6 +40,34 @@ const Burq = {{
   reload() {{
     window.location.reload();
   }},
+
+  // ── BUTTON LOADING ──
+  buttonLoading(btn, label) {{
+    if (!btn) return;
+    if (!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent.trim();
+    btn.disabled = true;
+    btn.classList.add("btn--loading");
+    const spinner = document.createElement("span");
+    spinner.className = "btn__spinner";
+    btn.insertBefore(spinner, btn.firstChild);
+    if (label) {{
+      const textNodes = [...btn.childNodes].filter(n => n.nodeType === 3);
+      if (textNodes.length) textNodes[textNodes.length - 1].textContent = " " + label;
+    }}
+  }},
+
+  buttonReset(btn) {{
+    if (!btn) return;
+    btn.disabled = false;
+    btn.classList.remove("btn--loading");
+    const spinner = btn.querySelector(".btn__spinner");
+    if (spinner) spinner.remove();
+    const orig = btn.dataset.originalLabel;
+    if (orig) {{
+      const textNodes = [...btn.childNodes].filter(n => n.nodeType === 3);
+      if (textNodes.length) textNodes[textNodes.length - 1].textContent = orig;
+    }}
+  }},
 }};
 
 // ── TOAST MANAGER ──
@@ -273,13 +301,33 @@ function initCustomSelects() {{
 async function initTables() {{
   const tables = document.querySelectorAll(".table-wrapper");
   for (const wrapper of tables) {{
+    await burqLoadTable(wrapper);
+  }}
+}}
+
+async function burqLoadTable(wrapper) {{
     const method       = wrapper.dataset.fetchMethod   || "GET";
     const endpoint     = wrapper.dataset.fetchEndpoint || "";
     const columns      = (wrapper.dataset.columns || "").split(",").filter(Boolean);
     const checkable    = wrapper.dataset.checkable === "true";
-    const actions      = (wrapper.dataset.actions  || "").split(",").filter(Boolean);
+    const actions      = JSON.parse(wrapper.dataset.actions || "[]");
     const columnConfig = JSON.parse(wrapper.dataset.columnConfig || "{{}}");
     const rowHref      = wrapper.dataset.rowHref || "";
+    const fetchCond    = wrapper.dataset.fetchCondition || "";
+    const emptyTitle   = wrapper.dataset.emptyTitle   || "No data yet";
+    const emptyMessage = wrapper.dataset.emptyMessage || "Nothing to show here.";
+    const emptyIcon    = wrapper.dataset.emptyIcon    || "inbox";
+
+    // evaluate fetch condition — skip fetch if falsy
+    if (fetchCond) {{
+      try {{
+        const condResult = new Function("return (" + fetchCond + ")")();
+        if (!condResult) return;
+      }} catch(e) {{
+        console.warn("Burq fetch condition error:", e);
+        return;
+      }}
+    }}
 
     let allData = [];
     try {{
@@ -289,12 +337,12 @@ async function initTables() {{
       }} else if (endpoint) {{
         allData = await Burq.fetch(method, endpoint);
       }} else {{
-        continue;
+        return;
       }}
-      if (!Array.isArray(allData)) continue;
+      if (!Array.isArray(allData)) return;
 
       const tbody = wrapper.querySelector("tbody");
-      if (!tbody) continue;
+      if (!tbody) return;
 
       const PAGE_SIZE  = 10;
       let currentPage  = 1;
@@ -363,10 +411,21 @@ async function initTables() {{
         }}).join("");
 
         const actionTd = actions.length
-          ? `<td class="table__actions-col">
-               <button class="table__action-btn" onclick="event.stopPropagation()">
-                 <i data-lucide="ellipsis" class="table__action-icon"></i>
-               </button>
+          ? `<td class="table__actions-col" onclick="event.stopPropagation()">
+               <div class="table__actions-group">
+                 ${{actions.map(a => {{
+                   const onclick = a.onclick
+                     ? a.onclick.replace(/\{{(\w+)\}}/g, (_, k) => row[k] ?? "")
+                     : "";
+                   const iconHtml = a.icon
+                     ? `<i data-lucide="${{a.icon}}" style="width:14px;height:14px;flex-shrink:0;"></i>`
+                     : "";
+                   const variantCls = a.variant === "danger"   ? " btn--danger"
+                                    : a.variant === "warning" ? " btn--warning"
+                                    : " btn--ghost";
+                   return `<button class="btn btn--sm${{variantCls}}" onclick="${{onclick}}">${{iconHtml}}${{a.label ? " " + a.label : ""}}</button>`;
+                 }}).join("")}}
+               </div>
              </td>`
           : "";
 
@@ -387,9 +446,9 @@ async function initTables() {{
           tbody.innerHTML = `
             <tr><td colspan="99">
               <div class="empty-state">
-                <div class="empty-state__icon"><i data-lucide="inbox"></i></div>
-                <div class="empty-state__title">No data yet</div>
-                <p class="empty-state__message">Nothing to show here.</p>
+                <div class="empty-state__icon"><i data-lucide="${{emptyIcon}}"></i></div>
+                <div class="empty-state__title">${{emptyTitle}}</div>
+                ${{emptyMessage ? `<p class="empty-state__message">${{emptyMessage}}</p>` : ""}}
               </div>
             </td></tr>`;
           lucide.createIcons();
@@ -484,8 +543,18 @@ async function initTables() {{
           Failed to load data.
         </td></tr>`;
     }}
-  }}
 }}
+
+// ── REFRESH TABLE ──
+async function burqRefreshTable(wrapperId) {{
+  const wrapper = typeof wrapperId === "string"
+    ? document.getElementById(wrapperId)
+    : wrapperId;
+  if (wrapper) await burqLoadTable(wrapper);
+}}
+
+// expose on Burq namespace too
+Burq.refreshTable = burqRefreshTable;
 
 // ── CHART HYDRATION ──
 async function initCharts() {{
@@ -877,6 +946,19 @@ function initNavGroups() {{
   }});
 }}
 
+// ── HREF TEMPLATE RESOLUTION ──
+function initHrefTemplates() {{
+  document.querySelectorAll("[data-href-template]").forEach(function(el) {{
+    var href = el.dataset.hrefTemplate;
+    if (window.__burqParams) {{
+      href = href.replace(/\{{(\w+)\}}/g, function(_, k) {{
+        return window.__burqParams[k] || "";
+      }});
+    }}
+    el.setAttribute("href", href);
+  }});
+}}
+
 // ── INIT ──
 function burqInit() {{
   ToastManager.init();
@@ -888,6 +970,7 @@ function burqInit() {{
   initCustomSelects();
   initAccordions();
   initUrlParams();
+  initHrefTemplates();
   initTables();
   initTableExport();
   initCharts();

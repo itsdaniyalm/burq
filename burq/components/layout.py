@@ -113,6 +113,10 @@ def card(
 def spacer(size: str = "md"):
     leaf_node("spacer", {"size": size})
 
+def grow():
+    """Flex-grow spacer — pushes siblings apart inside a row() or col()."""
+    leaf_node("grow", {})
+
 @contextmanager
 def box(
     background: str  = None,

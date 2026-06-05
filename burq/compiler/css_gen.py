@@ -531,6 +531,15 @@ def generate_components_css() -> str:
 
 .btn__icon { width: 16px; height: 16px; flex-shrink: 0; }
 
+.btn--loading { opacity: 0.75; pointer-events: none; }
+.btn__spinner {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: spin 0.6s linear infinite; flex-shrink: 0;
+}
+/* action buttons group in table rows */
+.table__actions-group { display: flex; gap: var(--space-2); align-items: center; }
+
 /* ── METRIC CARD ── */
 .metric-card {
   background: var(--surface);

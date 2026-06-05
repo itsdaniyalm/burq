@@ -15,6 +15,9 @@ def table(
     pagination:    bool   = True,
     page_size:     int    = 10,
     row_href:      str    = None,
+    empty_title:   str    = None,
+    empty_message: str    = None,
+    empty_icon:    str    = None,
 ):
     leaf_node("table", {
         "data":          data,
@@ -28,6 +31,9 @@ def table(
         "pagination":    pagination,
         "page_size":     page_size,
         "row_href":      row_href,
+        "empty_title":   empty_title or "",
+        "empty_message": empty_message or "",
+        "empty_icon":    empty_icon or "",
     })
 
 def line_chart(
@@ -145,3 +151,11 @@ class BoolColumn:
 @dataclass
 class TextColumn:
     muted: bool = False
+
+
+@dataclass
+class TableAction:
+    label:   str  = ""
+    icon:    str  = None
+    variant: str  = "default"   # default|danger|warning
+    onclick: str  = ""          # JS expression; {field} tokens substituted from row

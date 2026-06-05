@@ -52,3 +52,7 @@ def rich_text(
         "placeholder": placeholder or "Write something...",
         "value":       value,
     })
+
+def script(code: str):
+    """Emit a raw <script> block into the page output."""
+    leaf_node("script", props={"code": code})

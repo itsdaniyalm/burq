@@ -4,7 +4,7 @@ from .theme.theme import Theme
 # ── LAYOUT ──
 from .components.layout import (
     row, col, grid, span,
-    container, divider, card, spacer,box,
+    container, divider, card, spacer, box, grow,
 )
 
 # ── DISPLAY ──
@@ -44,17 +44,18 @@ from .components.data import (
     fetch, post,
     BadgeColumn, AvatarColumn, CurrencyColumn,
     DateColumn, BoolColumn, TextColumn,
+    TableAction,
 )
 
 # ── EXTRA ──
 from .components.extra import (
-    accordion, empty_state, pagination,contact_profile,
-    markdown,code_block, rich_text,
+    accordion, empty_state, pagination, contact_profile,
+    markdown, code_block, rich_text, script,
 )
 
 from .components.layout import (
     row, col, grid, span,
-    container, divider, card, spacer, box,
+    container, divider, card, spacer, box, grow,
 )
 
 __all__ = [
@@ -62,8 +63,7 @@ __all__ = [
     "App", "Layout", "Theme",
     # layout
     "row", "col", "grid", "span",
-    "container", "divider", "card","spacer",
-    "box",
+    "container", "divider", "card", "spacer", "box", "grow",
     # display
     "title", "heading", "text",
     "metric", "badge",
@@ -88,7 +88,8 @@ __all__ = [
     "fetch", "post",
     "BadgeColumn", "AvatarColumn", "CurrencyColumn",
     "DateColumn", "BoolColumn", "TextColumn",
+    "TableAction",
     # Extra
-    "accordion", "empty_state", "pagination","contact_profile",
-    "markdown","code_block", "rich_text",
+    "accordion", "empty_state", "pagination", "contact_profile",
+    "markdown", "code_block", "rich_text", "script",
 ]

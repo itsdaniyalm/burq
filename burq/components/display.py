@@ -160,7 +160,8 @@ def link(
     icon:     str  = None,
     external: bool = False,
     muted:    bool = False,
-    size:     str  = None,  # inherits text-base if None
+    size:     str  = None,
+    onclick:  str  = None,
 ):
     leaf_node("link", {
         "label":    label,
@@ -169,4 +170,5 @@ def link(
         "external": external,
         "muted":    muted,
         "size":     size,
+        "onclick":  onclick,
     })
